@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src\Api\api.csproj" />
+  </Folder>
+  <Folder Name="/src/modules/" />
+  <Folder Name="/src/modules/identity/">
+    <Project Path="src\Modules\Identity\Src\Identity.csproj" />
+    <Project Path="src\Modules\Identity\Contracts\Identity.Contracts.csproj" />
+  </Folder>
+</Solution>

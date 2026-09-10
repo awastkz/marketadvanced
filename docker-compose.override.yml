@@ -1,0 +1,27 @@
+services:
+  api:
+    build:
+      context: ./src
+      dockerfile: Api/Dockerfile.dev
+    volumes:
+      - ./src:/src
+      - api_bin:/src/Api/bin
+      - api_obj:/src/Api/obj
+      - identity_bin:/src/Modules/Identity/Src/bin
+      - identity_obj:/src/Modules/Identity/Src/obj
+      - identity_contracts_bin:/src/Modules/Identity/Contracts/bin
+      - identity_contracts_obj:/src/Modules/Identity/Contracts/obj
+      - shared_bin:/src/Shared/bin
+      - shared_obj:/src/Shared/obj
+    environment:
+      DOTNET_USE_POLLING_FILE_WATCHER: "true"
+
+volumes:
+  api_bin:
+  api_obj:
+  identity_bin:
+  identity_obj:
+  identity_contracts_bin:
+  identity_contracts_obj:
+  shared_bin:
+  shared_obj:

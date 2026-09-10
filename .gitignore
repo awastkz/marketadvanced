@@ -1,0 +1,17 @@
+# .NET
+**/bin/
+**/obj/
+*.user
+.vs/
+
+# секреты и локальное
+.env
+appsettings.*.local.json
+
+# frontend
+frontend/node_modules/
+frontend/dist/
+
+# IDE
+.idea/
+.vscode/
