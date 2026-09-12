@@ -1,5 +1,8 @@
-using MarketAdvanced.Api.Contracts.Repositories;
 using Microsoft.EntityFrameworkCore;
+using MarketAdvanced.Identity.Domain;
+using MarketAdvanced.Identity.Application.Contracts;
+
+namespace MarketAdvanced.Identity.Infrastructure.Repositories;
 
 public class UserRepository : IUserRepository
 {
@@ -20,7 +23,7 @@ public class UserRepository : IUserRepository
         await _db.SaveChangesAsync();
     }
 
-    public async Task<User> findUserByEmailAsync(string email)
+    public async Task<User> findByEmailAsync(string email)
     {
         return await _db.Users.Where(v => v.Email == email).FirstOrDefaultAsync();
     }

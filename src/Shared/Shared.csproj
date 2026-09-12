@@ -1,8 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
-    <PropertyGroup>
-      <TargetFramework>net10.0</TargetFramework>
-      <Nullable>enable</Nullable>
-      <ImplicitUsings>enable</ImplicitUsings>
-      <RootNamespace>MarketAdvanced.Shared</RootNamespace>
-    </PropertyGroup>
-  </Project>
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>MarketAdvanced.Shared</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- Testing/ — отдельный проект Shared.Testing, в runtime-сборку не входит -->
+    <Compile Remove="Testing\**" />
+  </ItemGroup>
+</Project>

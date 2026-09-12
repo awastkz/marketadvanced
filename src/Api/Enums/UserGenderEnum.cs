@@ -1,3 +1,5 @@
+namespace MarketAdvanced.Api.Enums;
+
 enum UserGenderEnum
 {
     MALE = 1,

@@ -1,32 +1,20 @@
-using System.Security.Claims;
-using MarketAdvanced.Api.DTO;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using MarketAdvanced.Identity.Api.Requests;
+using MarketAdvanced.Identity.Api.Responses;
+using MediatR;
 
-namespace MarketAdvanced.Api.Controllers;
+namespace MarketAdvanced.Identity.Api;
 
 [ApiController]
 [Route("api/[controller]")]        // → /api/users
 public class AuthController : ControllerBase
 {
-    private readonly AuthService _service;
-    private readonly UserService _userService;
-    private readonly RefreshTokenService _refreshTokenService;
     private readonly IHostEnvironment _env;
-    private readonly IConfiguration _config;
-    public AuthController(
-    AuthService service,
-    UserService userService,
-    RefreshTokenService refreshTokenService,
-    IHostEnvironment env,
-    IConfiguration config
-    )
+    private readonly IMediator _mediator;
+    public AuthController(IHostEnvironment env, IMediator mediator)
     {
-        _service = service;
-        _userService = userService;
-        _refreshTokenService = refreshTokenService;
         _env = env;
-        _config = config;
+        _mediator = mediator;
     }
 
     [HttpPost("register")]
@@ -34,8 +22,8 @@ public class AuthController : ControllerBase
     {
         try
         {
-            var user = await _service.registerAsync(r);
-            return Ok(new UserResponse(user.Id, user.Email, user.CreatedAt));
+            var result = await _mediator.Send(new RegisterUserCommand(r.Email, r.Password));
+            return Ok(new UserResponse(result.user.Id, result.user.Email, result.user.CreatedAt));
         }
         catch (Exception ex)
         {
@@ -44,29 +32,30 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> login([FromBody] LoginRequest r, IConfiguration config)
+    public async Task<IActionResult> login([FromBody] LoginRequest r)
     {
         try
         {
-            var user = await _service.getUserAsync(r);
-            var accessToken = _service.generateAccessToken(user, config);
-            var refreshToken = await _service.createRefreshToken(user, Request.Headers.UserAgent.ToString());
-            var userResponse = new UserResponse(user.Id, user.Email, user.CreatedAt);
-            var refreshTokenResponse = new RefreshTokenResponse(refreshToken.Token, refreshToken.ExpiresAt);
+            var userAgent = Request.Headers.UserAgent.ToString();
+            var result = await _mediator.Send(new LoginCommand(r.Email, r.Password, userAgent));
 
-            Response.Cookies.Append("refreshToken", refreshToken.Token, new CookieOptions
+            Response.Cookies.Append("refreshToken", result.RefreshToken, new CookieOptions
             {
                 HttpOnly = true,
                 Secure = !_env.IsDevelopment(),
                 SameSite = SameSiteMode.Lax,
-                Expires = refreshToken.ExpiresAt,
+                Expires = result.RefreshExpiresAt,
                 Path = "/api",
             });
-            return Ok(new {user = userResponse, access_token = accessToken});
+            return Ok(new {user = new UserResponse(result.UserId, result.Email, result.CreatedAt), access_token = result.AccessToken});
         }
-        catch(Exception e)
+        catch (UnauthorizedAccessException e)
         {
-            return Conflict(new {e.Message});
+            return Unauthorized(new { message = e.Message });
+        }
+        catch (Exception e)
+        {
+            return Conflict(new { message = e.Message });
         }
     }
 
@@ -76,29 +65,38 @@ public class AuthController : ControllerBase
         var refreshTokenCookie = Request.Cookies["refreshToken"];
         if(string.IsNullOrEmpty(refreshTokenCookie)) return Unauthorized();
 
-        var stored = await _refreshTokenService.getRefreshTokenAsync(refreshTokenCookie);
-        if (stored is null || stored.IsRevoked || stored.ExpiresAt < DateTime.UtcNow)
-          return Unauthorized();
+        var refreshTokenCommand = new RefreshTokenCommand(refreshTokenCookie, Request.Headers.UserAgent.ToString());
+        RefreshTokenResult result;
+        try
+        {
+            result = await _mediator.Send(refreshTokenCommand);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Unauthorized();
+        }
 
-        var user = await _userService.getByIdAsync(stored.UserId, null);
-        var accessToken = _service.generateAccessToken(user,_config);
-        // ротация: старый токен гасим, выдаём новый — снижает риск при утечке
-      stored.IsRevoked = true;
-      stored.RevokedAt = DateTime.UtcNow;
-
-      await _service.updateAsync(stored);
-
-        var newRefreshToken = await _service.createRefreshToken(user, Request.Headers.UserAgent.ToString());
-
-        Response.Cookies.Append("refreshToken", newRefreshToken.Token, new CookieOptions
+        Response.Cookies.Append("refreshToken", result.RefreshToken, new CookieOptions
             {
                 HttpOnly = true,
                 Secure = !_env.IsDevelopment(),
                 SameSite = SameSiteMode.Lax,
-                Expires = newRefreshToken.ExpiresAt,
+                Expires = result.RefreshExpiresAt,
                 Path = "/api",
             });
-            return Ok(new {user = new UserResponse(user.Id, user.Email, user.CreatedAt), access_token = accessToken});
+            return Ok(new {user = new UserResponse(result.UserId, result.Email, result.CreatedAt), access_token = result.AccessToken});
     }
 
+    [HttpGet("logout")]
+    public async Task<IActionResult> logout()
+    {
+        var token = Request.Cookies["refreshToken"];
+        if (!string.IsNullOrEmpty(token))
+        {
+            await _mediator.Send(new LogoutCommand(token));
+        }
+
+        Response.Cookies.Delete("refreshToken", new CookieOptions { Path = "/api" });
+        return Ok();
+    }
 }

@@ -1,5 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 
+namespace MarketAdvanced.Identity.Api.Requests;
+
 public class UserProfileRequest
 {
     public int Id {get;set;}

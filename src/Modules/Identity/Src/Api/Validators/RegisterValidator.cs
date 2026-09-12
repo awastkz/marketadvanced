@@ -1,5 +1,7 @@
 using FluentValidation;
-using MarketAdvanced.Api.DTO;
+using MarketAdvanced.Identity.Api.Requests;
+
+namespace MarketAdvanced.Identity.Api.Validators;
 
 public class RegisterValidator: AbstractValidator<RegisterRequest>
 {

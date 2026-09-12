@@ -1,5 +1,8 @@
-using MarketAdvanced.Api.Contracts.Repositories;
 using Microsoft.EntityFrameworkCore;
+using MarketAdvanced.Identity.Domain;
+using MarketAdvanced.Identity.Application.Contracts;
+
+namespace MarketAdvanced.Identity.Infrastructure.Repositories;
 
 public class RefreshTokenRepository : IRefreshTokenRepository
 {

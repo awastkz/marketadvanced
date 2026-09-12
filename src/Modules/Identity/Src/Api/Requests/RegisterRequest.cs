@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace MarketAdvanced.Api.DTO;
+namespace MarketAdvanced.Identity.Api.Requests;
 
 public class RegisterRequest
 {

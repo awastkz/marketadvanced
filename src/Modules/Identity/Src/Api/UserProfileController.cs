@@ -1,34 +1,32 @@
-using System.Net;
 using System.Security.Claims;
-using Amazon.S3;
-using Amazon.S3.Model;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MarketAdvanced.Identity.Api.Requests;
+using MarketAdvanced.Identity.Api.Responses;
+using MediatR;
+
+namespace MarketAdvanced.Identity.Api;
 
 [ApiController]
 [Authorize]
 [Route("api/[controller]")]
 public class UserProfileController: ControllerBase
 {
-    private readonly UserService _service;
-  private readonly IAmazonS3 _s3;
-  private readonly string _publicEndpoint;
-  private readonly string _bucket;
+  private readonly IMediator _mediator;
+  private readonly IAvatarStorage _storage;
 
-  public UserProfileController(UserService service, IAmazonS3 s3, IConfiguration config)
+  public UserProfileController(IMediator mediator, IAvatarStorage storage)
   {
-      _service = service;
-      _s3 = s3;
-      _publicEndpoint = config["Minio:PublicEndpoint"]!;   // http://localhost:9000
-      _bucket = config["Minio:Bucket"]!;                   // marketadvanced
+      _mediator = mediator;
+      _storage = storage;
   }
     [HttpGet("index")]
     public async Task<IActionResult> index()
     {
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-        var user = await _service.getProfileAsync(userId);
+        var result = await _mediator.Send(new GetProfileQuery(userId));
 
-        return Ok(ToResponse(user));
+        return Ok(ToResponse(result));
     }
 
     [HttpPost("update")]
@@ -37,8 +35,14 @@ public class UserProfileController: ControllerBase
     {
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
         
-        var user = await _service.updateProfile(userId, r);
-        return Ok(ToResponse(user));
+        var avatar = r.Avatar is null
+            ? null
+            : new UploadedFile(r.Avatar.OpenReadStream(), r.Avatar.FileName, r.Avatar.ContentType);
+
+        var result = await _mediator.Send(new UpdateProfileCommand(
+            userId, r.Email, r.Name, r.Surname, r.Phone, r.Gender, avatar));
+
+        return Ok(ToResponse(result));
     }
     
     
@@ -46,29 +50,19 @@ public class UserProfileController: ControllerBase
     public async Task<IActionResult> removeAvatar()
     {
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-        User user = new User();
-        try
-        {
-            user = await _service.removeAvatarAsync(userId);
-        }
-        catch(Exception e)
-        {
-            return Conflict(new {e.Message});
-        }
+        var result = await _mediator.Send(new RemoveAvatarCommand(userId));
 
-        return Ok(ToResponse(user));
+        return Ok(ToResponse(result));
 
     }
 
-    private UserProfileResponse ToResponse(User user) => new(
-        user.Id,
-        user.Email,
-        user.Profile.FirstName,
-        user.Profile.LastName,
-        user.Profile.Phone,
-        user.Profile.Gender,
-        string.IsNullOrEmpty(user.Profile.AvatarPath)
-          ? null
-          : $"{_publicEndpoint}/{_bucket}/{user.Profile.AvatarPath}"
+    private UserProfileResponse ToResponse(ProfileResult r) => new(
+        r.Id,
+        r.Email,
+        r.FirstName,
+        r.LastName,
+        r.Phone,
+        r.Gender,
+        string.IsNullOrEmpty(r.AvatarPath) ? null : _storage.GetPublicUrl(r.AvatarPath)
     );
 }

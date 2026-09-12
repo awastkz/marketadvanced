@@ -1,5 +1,7 @@
-
 using Microsoft.EntityFrameworkCore;
+using MarketAdvanced.Identity.Domain;
+
+namespace MarketAdvanced.Identity.Infrastructure;
 
 public class IdentityDbContext: DbContext
 {

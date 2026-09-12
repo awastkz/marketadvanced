@@ -1,3 +1,5 @@
+namespace MarketAdvanced.Identity.Domain;
+
 public class UserProfile
 {
     public int Id {get;set;}

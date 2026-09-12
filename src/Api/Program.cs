@@ -1,29 +1,12 @@
+using MarketAdvanced.Identity;
 using System.Text;
-using Amazon.S3;
-using FluentValidation;
-using MarketAdvanced.Api.Contracts.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.RateLimiting;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
-//minio
-
-var minioConfig = builder.Configuration.GetSection("Minio");
-
-var s3Config = new AmazonS3Config
-{
-    ServiceURL = minioConfig["InternalEndpoint"],
-    ForcePathStyle = true,
-};
-
-builder.Services.AddSingleton<IAmazonS3>(
-    new AmazonS3Client(minioConfig["AccessKey"], minioConfig["SecretKey"], s3Config)
-);
 
 //rate limiter
 builder.Services.AddRateLimiter(options =>
@@ -69,9 +52,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 });
 
 builder.Services.AddAuthorization();
-builder.Services.AddControllers();
 builder.Services.AddFluentValidationAutoValidation();
-builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
 builder.Services.AddIdentityModule(builder.Configuration);
 

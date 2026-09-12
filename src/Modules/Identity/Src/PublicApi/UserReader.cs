@@ -1,4 +1,7 @@
-using MarketAdvanced.Api.Contracts.Repositories;
+using MarketAdvanced.Identity.Contracts;
+using MarketAdvanced.Identity.Application.Contracts;
+
+namespace MarketAdvanced.Identity.PublicApi;
 
 public class UserReader : IUserReader
 {

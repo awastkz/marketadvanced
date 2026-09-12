@@ -1,4 +1,7 @@
-namespace MarketAdvanced.Api.Contracts.Repositories;
+using MarketAdvanced.Identity.Domain;
+
+namespace MarketAdvanced.Identity.Application.Contracts;
+
 public interface IRefreshTokenRepository
 {
     Task<RefreshToken?> GetByTokenAsync(string token);

@@ -1,8 +1,17 @@
+using Amazon.S3;
 using FluentValidation;
-using MarketAdvanced.Api.Contracts.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using MarketAdvanced.Shared.Options;
+using MarketAdvanced.Identity.Infrastructure;
+using MarketAdvanced.Identity.Application.Contracts;
+using MarketAdvanced.Identity.Infrastructure.Repositories;
+using MarketAdvanced.Identity.Contracts;
+using MarketAdvanced.Identity.PublicApi;
+
+namespace MarketAdvanced.Identity;
 
 public static class IdentityModule
 {
@@ -11,13 +20,26 @@ public static class IdentityModule
         IConfiguration config
     )
     {
+        services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(IdentityModule).Assembly));
+
+        services.Configure<MinioSettings>(config.GetSection("Minio"));
+        services.AddSingleton<IAmazonS3>(sp =>
+        {
+            var o = sp.GetRequiredService<IOptions<MinioSettings>>().Value;
+            return new AmazonS3Client(o.AccessKey, o.SecretKey, new AmazonS3Config
+            {
+                ServiceURL = o.InternalEndpoint,
+                ForcePathStyle = true,
+            });
+        });
+        services.AddScoped<IAvatarStorage, S3AvatarStorage>();
+
+services.Configure<JwtOptions>(config.GetSection("Jwt"));
         services.AddDbContext<IdentityDbContext>(opt => opt.UseNpgsql(config.GetConnectionString("Postgres")));
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IUserReader, UserReader>();
 services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
-services.AddScoped<AuthService>();
-services.AddScoped<UserService>();
-services.AddScoped<RefreshTokenService>();
+services.AddScoped<ITokenService, TokenService>();
 services.AddValidatorsFromAssembly(typeof(IdentityModule).Assembly);
           // чтобы контроллеры модуля точно подхватились
           services.AddControllers()

@@ -1,3 +1,5 @@
+namespace MarketAdvanced.Identity.Api.Responses;
+
 public record UserProfileResponse(
     int Id,
     string Email,

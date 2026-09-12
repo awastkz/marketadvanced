@@ -1,4 +1,7 @@
 using FluentValidation;
+using MarketAdvanced.Identity.Api.Requests;
+
+namespace MarketAdvanced.Identity.Api.Validators;
 
 public class UserProfileValidator: AbstractValidator<UserProfileRequest>
 {
