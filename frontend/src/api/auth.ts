@@ -4,6 +4,8 @@ export interface User {
   id: string
   email: string
   createdAt: string
+  /** Роли пользователя, например ['Admin']. Пока бэкенд их не отдаёт — поле отсутствует. */
+  roles?: string[]
 }
 
 export interface LoginResponse {
@@ -21,4 +23,8 @@ export function login(email: string, password: string) {
 
 export function refreshTokens() {
   return http.get<LoginResponse>('/api/auth/refresh')
+}
+
+export function logout() {
+  return http.get<void>('/api/auth/logout')
 }

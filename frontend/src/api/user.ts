@@ -38,7 +38,3 @@ export function updateProfile(profile: UpdateProfilePayload) {
 export function removeAvatar() {
   return http.delete<UserProfile>('/api/UserProfile/remove-avatar')
 }
-
-export function logout() {
-  return http.get<void>('/api/user/logout')
-}

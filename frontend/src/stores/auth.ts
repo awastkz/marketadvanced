@@ -15,6 +15,20 @@ interface AuthState {
   logout: () => void
 }
 
+export const ADMIN_ROLE = 'Admin'
+
+/**
+ * Доступ в админку. Пока бэкенд не отдаёт roles, пускаем любого авторизованного —
+ * реальная защита всё равно на сервере. Как только roles появятся, проверка станет строгой.
+ */
+export function isAdmin(user: User | null): boolean {
+  if (!user) return false
+  if (!user.roles) return true
+  return user.roles.includes(ADMIN_ROLE)
+}
+
+let refreshInFlight: Promise<string | null> | null = null
+
 export const useAuthStore = create<AuthState>((set, get) => ({
   accessToken: null,
   user: null,
@@ -46,15 +60,22 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
   },
 
-  async refresh() {
-    try {
-      const { data } = await authApi.refreshTokens()
-      get().setSession(data.access_token, data.user)
-      return data.access_token
-    } catch {
-      get().logout()
-      return null
-    }
+  // refresh-токен одноразовый (ротация на сервере), поэтому параллельные вызовы
+  // должны делить один запрос: второй с той же cookie получит 401 и сбросит сессию
+  refresh() {
+    refreshInFlight ??= (async () => {
+      try {
+        const { data } = await authApi.refreshTokens()
+        get().setSession(data.access_token, data.user)
+        return data.access_token
+      } catch {
+        get().logout()
+        return null
+      } finally {
+        refreshInFlight = null
+      }
+    })()
+    return refreshInFlight
   },
 
   async initialize() {

@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react'
 import { useAuthStore } from '../stores/auth'
 import * as userApi from '../api/user'
-import AppHeader from '../components/AppHeader'
+import AppShell from '../components/AppShell'
+import Alert from '../components/Alert'
+import Avatar from '../components/Avatar'
+import { IconCamera, IconMail, IconPhone, IconTrash, IconUser } from '../components/icons'
 
 function extractErrorMessage(e: unknown): string {
   if (typeof e === 'object' && e !== null && 'response' in e) {
@@ -43,6 +46,10 @@ export default function ProfileView() {
       })
     : null
 
+  const fullName = [firstName, lastName].filter(Boolean).join(' ')
+  const shownAvatar = avatarPreviewUrl || avatarUrl
+  const busy = loading || saving || removingAvatar
+
   function clearAvatarPreview() {
     if (avatarObjectUrlRef.current) URL.revokeObjectURL(avatarObjectUrlRef.current)
     avatarObjectUrlRef.current = null
@@ -71,6 +78,7 @@ export default function ProfileView() {
       return
     }
 
+    setError(null)
     if (avatarObjectUrlRef.current) URL.revokeObjectURL(avatarObjectUrlRef.current)
     const objectUrl = URL.createObjectURL(file)
     avatarObjectUrlRef.current = objectUrl
@@ -147,159 +155,190 @@ export default function ProfileView() {
   }
 
   return (
-    <div>
-      <AppHeader />
-      <main className="profile-page">
-        <div className="profile-card">
+    <AppShell>
+      <div className="page-head">
+        <div>
+          <span className="eyebrow">Аккаунт</span>
           <h1>Профиль</h1>
+          <p>Как вас видят другие участники площадки.</p>
+        </div>
+      </div>
 
-          <div className="profile-avatar">
-            <div className="profile-avatar-inner">
-              {avatarPreviewUrl || avatarUrl ? (
-                <img src={avatarPreviewUrl || avatarUrl} alt="Аватар" className="profile-avatar-img" />
-              ) : (
-                <div className="profile-avatar-placeholder">
-                  {(firstName || email || '?').charAt(0).toUpperCase()}
-                </div>
-              )}
+      <div className="profile-grid">
+        <aside className="card profile-side">
+          <div className="card-body">
+            <Avatar
+              src={shownAvatar || null}
+              name={firstName || email}
+              className={`profile-avatar${loading ? ' is-loading' : ''}`}
+            />
 
-              <label
-                htmlFor="avatarFile"
-                className="avatar-action avatar-action-upload"
-                title="Загрузить фото"
-                aria-label="Загрузить фото"
-              >
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" />
-                  <circle cx="12" cy="13" r="3" />
-                </svg>
+            {loading ? (
+              <>
+                <span className="skeleton" style={{ width: 140, height: 18 }} />
+                <span className="skeleton" style={{ width: 180, margin: '10px 0 22px' }} />
+              </>
+            ) : (
+              <>
+                <div className="profile-name">{fullName || 'Без имени'}</div>
+                <div className="profile-email">{email}</div>
+              </>
+            )}
+
+            <div className="profile-avatar-actions">
+              <label htmlFor="avatarFile" className={`btn btn-ghost btn-sm${busy ? ' is-disabled' : ''}`}>
+                <IconCamera />
+                {shownAvatar ? 'Заменить фото' : 'Загрузить фото'}
               </label>
-
-              {(avatarPreviewUrl || avatarUrl) && (
-                <button
-                  type="button"
-                  className="avatar-action avatar-action-remove"
-                  title="Удалить фото"
-                  aria-label="Удалить фото"
-                  disabled={loading || saving || removingAvatar}
-                  onClick={onRemoveAvatar}
-                >
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M3 6h18" />
-                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
-                    <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                    <line x1="10" y1="11" x2="10" y2="17" />
-                    <line x1="14" y1="11" x2="14" y2="17" />
-                  </svg>
+              {shownAvatar && (
+                <button type="button" className="btn btn-danger btn-sm" disabled={busy} onClick={onRemoveAvatar}>
+                  <IconTrash />
+                  {removingAvatar ? 'Удаляем…' : avatarFile ? 'Отменить' : 'Удалить'}
                 </button>
               )}
+              <input
+                id="avatarFile"
+                ref={avatarFileInputRef}
+                type="file"
+                accept="image/*"
+                className="visually-hidden"
+                disabled={busy}
+                onChange={onAvatarFileChange}
+              />
             </div>
 
-            <input
-              id="avatarFile"
-              ref={avatarFileInputRef}
-              type="file"
-              accept="image/*"
-              className="avatar-file-input"
-              disabled={loading}
-              onChange={onAvatarFileChange}
-            />
-          </div>
+            {avatarFile && <span className="field-hint">Фото загрузится после сохранения</span>}
 
-          <dl className="profile-fields">
-            <div className="profile-field">
-              <dt>ID</dt>
-              <dd>{authUser?.id}</dd>
-            </div>
-            {memberSince && (
-              <div className="profile-field">
-                <dt>Дата регистрации</dt>
-                <dd>{memberSince}</dd>
+            <dl className="kv">
+              <div>
+                <dt>ID</dt>
+                <dd>#{authUser?.id}</dd>
               </div>
-            )}
-          </dl>
+              {memberSince && (
+                <div>
+                  <dt>Регистрация</dt>
+                  <dd>{memberSince}</dd>
+                </div>
+              )}
+            </dl>
+          </div>
+        </aside>
 
-          <form className="profile-edit" onSubmit={onSave}>
-            {error && <p className="error-message">{error}</p>}
-            {saved && <p className="success-message">Сохранено</p>}
+        <form className="card" onSubmit={onSave}>
+          <section className="form-section">
+            <h2>Контакты</h2>
+            <p>Email используется для входа и уведомлений.</p>
+
+            {error && <Alert kind="error">{error}</Alert>}
 
             <div className="field">
               <label htmlFor="email">Email</label>
-              <input
-                id="email"
-                type="email"
-                disabled={loading}
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-
-            <div className="field">
-              <label htmlFor="firstName">Имя</label>
-              <input
-                id="firstName"
-                type="text"
-                disabled={loading}
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-              />
-            </div>
-
-            <div className="field">
-              <label htmlFor="lastName">Фамилия</label>
-              <input
-                id="lastName"
-                type="text"
-                disabled={loading}
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-              />
+              <div className="control">
+                <IconMail />
+                <input
+                  id="email"
+                  className="input"
+                  type="email"
+                  autoComplete="email"
+                  disabled={loading}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </div>
             </div>
 
             <div className="field">
               <label htmlFor="phone">Телефон</label>
-              <input
-                id="phone"
-                type="tel"
-                disabled={loading}
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-              />
+              <div className="control">
+                <IconPhone />
+                <input
+                  id="phone"
+                  className="input"
+                  type="tel"
+                  autoComplete="tel"
+                  placeholder="+7 700 000 00 00"
+                  disabled={loading}
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                />
+              </div>
+            </div>
+          </section>
+
+          <section className="form-section">
+            <h2>Личные данные</h2>
+            <p>Имя показывается рядом с вашими объявлениями и отзывами.</p>
+
+            <div className="field-row">
+              <div className="field">
+                <label htmlFor="firstName">Имя</label>
+                <div className="control">
+                  <IconUser />
+                  <input
+                    id="firstName"
+                    className="input"
+                    type="text"
+                    autoComplete="given-name"
+                    disabled={loading}
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="field">
+                <label htmlFor="lastName">Фамилия</label>
+                <input
+                  id="lastName"
+                  className="input"
+                  type="text"
+                  autoComplete="family-name"
+                  disabled={loading}
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                />
+              </div>
             </div>
 
             <div className="field">
-              <label htmlFor="gender">Пол</label>
-              <select
-                id="gender"
-                disabled={loading}
-                value={gender}
-                onChange={(e) => setGender(Number(e.target.value))}
-              >
-                <option value={1}>Мужской</option>
-                <option value={2}>Женский</option>
-              </select>
+              <span className="field-label">Пол</span>
+              <div className="segmented" role="radiogroup" aria-label="Пол">
+                <label>
+                  <input
+                    type="radio"
+                    name="gender"
+                    value={1}
+                    checked={gender === 1}
+                    disabled={loading}
+                    onChange={() => setGender(1)}
+                  />
+                  Мужской
+                </label>
+                <label>
+                  <input
+                    type="radio"
+                    name="gender"
+                    value={2}
+                    checked={gender === 2}
+                    disabled={loading}
+                    onChange={() => setGender(2)}
+                  />
+                  Женский
+                </label>
+              </div>
             </div>
+          </section>
 
-            <button className="primary" type="submit" disabled={loading || saving}>
+          <div className="form-actions">
+            <span className={`status${saved ? ' is-success' : ''}`} aria-live="polite">
+              {saving ? 'Сохраняем…' : saved ? 'Изменения сохранены' : ''}
+            </span>
+            <button className="btn btn-primary" type="submit" disabled={loading || saving}>
               {saving ? 'Сохраняем…' : 'Сохранить'}
             </button>
-          </form>
-        </div>
-      </main>
-    </div>
+          </div>
+        </form>
+      </div>
+    </AppShell>
   )
 }

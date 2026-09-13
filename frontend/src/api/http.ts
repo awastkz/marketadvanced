@@ -14,8 +14,6 @@ http.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   return config
 })
 
-let refreshPromise: Promise<string | null> | null = null
-
 http.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -25,14 +23,7 @@ http.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
       originalRequest._retry = true
 
-      refreshPromise ??= useAuthStore
-        .getState()
-        .refresh()
-        .finally(() => {
-          refreshPromise = null
-        })
-
-      const newAccessToken = await refreshPromise
+      const newAccessToken = await useAuthStore.getState().refresh()
       if (newAccessToken) {
         originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`
         return http(originalRequest)

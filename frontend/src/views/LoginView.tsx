@@ -1,6 +1,10 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuthStore } from '../stores/auth'
+import AuthLayout from '../components/AuthLayout'
+import Alert from '../components/Alert'
+import PasswordField from '../components/PasswordField'
+import { IconMail } from '../components/icons'
 
 export default function LoginView() {
   const login = useAuthStore((s) => s.login)
@@ -26,44 +30,46 @@ export default function LoginView() {
   }
 
   return (
-    <div className="auth-page">
-      <form className="auth-card" onSubmit={onSubmit}>
-        <h1>Вход</h1>
-
-        {error && <p className="error-message">{error}</p>}
+    <AuthLayout title="С возвращением" lead="Войдите, чтобы продолжить работу с MarketAdvanced.">
+      <form onSubmit={onSubmit} noValidate={false}>
+        {error && <Alert kind="error">{error}</Alert>}
 
         <div className="field">
           <label htmlFor="email">Email</label>
-          <input
-            id="email"
-            type="email"
-            autoComplete="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
+          <div className="control">
+            <IconMail />
+            <input
+              id="email"
+              className="input"
+              type="email"
+              autoComplete="email"
+              placeholder="you@example.com"
+              required
+              autoFocus
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
         </div>
 
-        <div className="field">
-          <label htmlFor="password">Пароль</label>
-          <input
-            id="password"
-            type="password"
-            autoComplete="current-password"
-            required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
+        <PasswordField
+          id="password"
+          label="Пароль"
+          autoComplete="current-password"
+          placeholder="••••••••"
+          required
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
 
-        <button className="primary" type="submit" disabled={submitting}>
+        <button className="btn btn-primary btn-block" type="submit" disabled={submitting}>
           {submitting ? 'Входим…' : 'Войти'}
         </button>
 
         <p className="auth-switch">
-          Нет аккаунта? <Link to="/register">Зарегистрироваться</Link>
+          Нет аккаунта? <Link to="/register">Создать</Link>
         </p>
       </form>
-    </div>
+    </AuthLayout>
   )
 }
