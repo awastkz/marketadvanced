@@ -1,6 +1,5 @@
 # .NET
-**/bin/
-**/obj/
+artifacts/
 *.user
 .vs/
 

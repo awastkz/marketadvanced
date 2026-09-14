@@ -37,6 +37,7 @@ let attributes: Attribute[] = [
   { id: 3, name: 'Объём памяти', slug: 'storage', unit: 'ГБ', sortOrder: 3 },
   { id: 4, name: 'Вес', slug: 'weight', unit: 'г', sortOrder: 4 },
   { id: 5, name: 'Материал', slug: 'material', unit: null, sortOrder: 5 },
+  { id: 6, name: 'Размер', slug: 'size', unit: null, sortOrder: 6 },
 ]
 
 let products: ProductDetails[] = [
@@ -51,9 +52,9 @@ let products: ProductDetails[] = [
     createdAt: '2026-08-02T10:00:00Z',
     updatedAt: '2026-09-10T14:20:00Z',
     variants: [
-      { id: 1, sku: 'IP16P-128-BLK', name: '128 ГБ, чёрный титан', price: 549990, oldPrice: 599990, stock: 12, isActive: true },
-      { id: 2, sku: 'IP16P-256-BLK', name: '256 ГБ, чёрный титан', price: 619990, oldPrice: null, stock: 4, isActive: true },
-      { id: 3, sku: 'IP16P-256-WHT', name: '256 ГБ, белый титан', price: 619990, oldPrice: null, stock: 0, isActive: false },
+      { id: 1, sku: 'IP16P-128-BLK', name: '128 ГБ, Чёрный титан', price: 549990, stock: 12, isActive: true, attributes: [{ attributeId: 3, value: '128' }, { attributeId: 1, value: 'Чёрный титан' }] },
+      { id: 2, sku: 'IP16P-256-BLK', name: '256 ГБ, Чёрный титан', price: 619990, stock: 4, isActive: true, attributes: [{ attributeId: 3, value: '256' }, { attributeId: 1, value: 'Чёрный титан' }] },
+      { id: 3, sku: 'IP16P-256-WHT', name: '256 ГБ, Белый титан', price: 619990, stock: 0, isActive: false, attributes: [{ attributeId: 3, value: '256' }, { attributeId: 1, value: 'Белый титан' }] },
     ],
     images: [
       { id: 1, url: pic('p1-a'), alt: null, sortOrder: 0, isMain: true },
@@ -61,7 +62,6 @@ let products: ProductDetails[] = [
       { id: 3, url: pic('p1-c'), alt: null, sortOrder: 2, isMain: false },
     ],
     attributes: [
-      { attributeId: 1, value: 'Чёрный титан' },
       { attributeId: 2, value: '6.3' },
       { attributeId: 4, value: '199' },
     ],
@@ -77,14 +77,11 @@ let products: ProductDetails[] = [
     createdAt: '2026-08-05T09:00:00Z',
     updatedAt: null,
     variants: [
-      { id: 4, sku: 'S25U-256-GRY', name: '256 ГБ, серый', price: 489990, oldPrice: null, stock: 7, isActive: true },
-      { id: 5, sku: 'S25U-512-GRY', name: '512 ГБ, серый', price: 549990, oldPrice: null, stock: 2, isActive: true },
+      { id: 4, sku: 'S25U-256-GRY', name: '256 ГБ, Серый', price: 489990, stock: 7, isActive: true, attributes: [{ attributeId: 3, value: '256' }, { attributeId: 1, value: 'Серый' }] },
+      { id: 5, sku: 'S25U-512-GRY', name: '512 ГБ, Серый', price: 549990, stock: 2, isActive: true, attributes: [{ attributeId: 3, value: '512' }, { attributeId: 1, value: 'Серый' }] },
     ],
     images: [{ id: 4, url: pic('p2-a'), alt: null, sortOrder: 0, isMain: true }],
-    attributes: [
-      { attributeId: 1, value: 'Серый' },
-      { attributeId: 2, value: '6.9' },
-    ],
+    attributes: [{ attributeId: 2, value: '6.9' }],
   },
   {
     id: 3,
@@ -97,8 +94,8 @@ let products: ProductDetails[] = [
     createdAt: '2026-08-11T12:00:00Z',
     updatedAt: '2026-09-01T08:00:00Z',
     variants: [
-      { id: 6, sku: 'MBA15-M4-256', name: '16/256 ГБ', price: 699990, oldPrice: null, stock: 5, isActive: true },
-      { id: 7, sku: 'MBA15-M4-512', name: '16/512 ГБ', price: 799990, oldPrice: 849990, stock: 3, isActive: true },
+      { id: 6, sku: 'MBA15-M4-256', name: '256 ГБ', price: 699990, stock: 5, isActive: true, attributes: [{ attributeId: 3, value: '256' }] },
+      { id: 7, sku: 'MBA15-M4-512', name: '512 ГБ', price: 799990, stock: 3, isActive: true, attributes: [{ attributeId: 3, value: '512' }] },
     ],
     images: [
       { id: 5, url: pic('p3-a'), alt: null, sortOrder: 0, isMain: true },
@@ -119,9 +116,9 @@ let products: ProductDetails[] = [
     isActive: false,
     createdAt: '2026-08-20T12:00:00Z',
     updatedAt: null,
-    variants: [{ id: 8, sku: 'RN14-128-BLU', name: '128 ГБ, синий', price: 89990, oldPrice: null, stock: 40, isActive: true }],
+    variants: [{ id: 8, sku: 'RN14-128-BLU', name: '128 ГБ, Синий', price: 89990, stock: 40, isActive: true, attributes: [{ attributeId: 3, value: '128' }, { attributeId: 1, value: 'Синий' }] }],
     images: [],
-    attributes: [{ attributeId: 1, value: 'Синий' }],
+    attributes: [{ attributeId: 2, value: '6.67' }],
   },
   {
     id: 5,
@@ -134,19 +131,16 @@ let products: ProductDetails[] = [
     createdAt: '2026-08-25T12:00:00Z',
     updatedAt: '2026-09-12T10:00:00Z',
     variants: [
-      { id: 9, sku: 'AM270-41-BLK', name: '41, чёрные', price: 64990, oldPrice: 79990, stock: 6, isActive: true },
-      { id: 10, sku: 'AM270-42-BLK', name: '42, чёрные', price: 64990, oldPrice: 79990, stock: 9, isActive: true },
-      { id: 11, sku: 'AM270-43-BLK', name: '43, чёрные', price: 64990, oldPrice: 79990, stock: 0, isActive: true },
-      { id: 12, sku: 'AM270-42-WHT', name: '42, белые', price: 64990, oldPrice: null, stock: 3, isActive: true },
+      { id: 9, sku: 'AM270-41-BLK', name: '41, Чёрный', price: 64990, stock: 6, isActive: true, attributes: [{ attributeId: 6, value: '41' }, { attributeId: 1, value: 'Чёрный' }] },
+      { id: 10, sku: 'AM270-42-BLK', name: '42, Чёрный', price: 64990, stock: 9, isActive: true, attributes: [{ attributeId: 6, value: '42' }, { attributeId: 1, value: 'Чёрный' }] },
+      { id: 11, sku: 'AM270-43-BLK', name: '43, Чёрный', price: 64990, stock: 0, isActive: true, attributes: [{ attributeId: 6, value: '43' }, { attributeId: 1, value: 'Чёрный' }] },
+      { id: 12, sku: 'AM270-42-WHT', name: '42, Белый', price: 64990, stock: 3, isActive: true, attributes: [{ attributeId: 6, value: '42' }, { attributeId: 1, value: 'Белый' }] },
     ],
     images: [
       { id: 7, url: pic('p5-a'), alt: null, sortOrder: 0, isMain: true },
       { id: 8, url: pic('p5-b'), alt: null, sortOrder: 1, isMain: false },
     ],
-    attributes: [
-      { attributeId: 1, value: 'Чёрный' },
-      { attributeId: 5, value: 'Текстиль, синтетика' },
-    ],
+    attributes: [{ attributeId: 5, value: 'Текстиль, синтетика' }],
   },
   {
     id: 6,
@@ -158,7 +152,7 @@ let products: ProductDetails[] = [
     isActive: true,
     createdAt: '2026-09-03T12:00:00Z',
     updatedAt: null,
-    variants: [{ id: 13, sku: 'HOSE-25', name: '', price: 7990, oldPrice: null, stock: 120, isActive: true }],
+    variants: [{ id: 13, sku: 'HOSE-25', name: '', price: 7990, stock: 120, isActive: true, attributes: [] }],
     images: [{ id: 9, url: pic('p6-a'), alt: null, sortOrder: 0, isMain: true }],
     attributes: [{ attributeId: 5, value: 'ПВХ' }],
   },
@@ -289,7 +283,10 @@ export const mockCatalogApi: CatalogAdminApi = {
     async remove(aid) {
       await delay()
       attributes = attributes.filter((a) => a.id !== aid)
-      for (const p of products) p.attributes = p.attributes.filter((v) => v.attributeId !== aid)
+      for (const p of products) {
+        p.attributes = p.attributes.filter((v) => v.attributeId !== aid)
+        for (const v of p.variants) v.attributes = v.attributes.filter((a) => a.attributeId !== aid)
+      }
     },
   },
 

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { catalogAdmin } from '../../api/admin/catalog'
-import type { Attribute, Brand, Category, ProductAttributeValue, ProductDetails, ProductImage, ProductPayload, ProductVariant } from '../../api/admin/types'
+import type { Attribute, ProductAttributeValue, ProductDetails, ProductImage, ProductPayload, ProductVariant } from '../../api/admin/types'
 import { useLoad } from '../../utils/useLoad'
 import { flattenTree, indent } from '../../utils/categories'
 import { slugify } from '../../utils/slug'
@@ -10,7 +10,7 @@ import { toast } from '../../stores/toast'
 import Alert from '../../components/Alert'
 import Toggle from '../../components/admin/Toggle'
 import ConfirmDialog from '../../components/admin/ConfirmDialog'
-import { IconChevronLeft, IconPlus, IconSave, IconStar, IconTrash, IconUpload, IconX } from '../../components/icons'
+import { IconChevronLeft, IconLayers, IconPlus, IconSave, IconStar, IconTrash, IconUpload, IconX } from '../../components/icons'
 
 interface FormState {
   name: string
@@ -20,6 +20,8 @@ interface FormState {
   categoryId: number | null
   brandId: number | null
   isActive: boolean
+  /** Признаки, по которым различаются варианты (id атрибутов), в порядке колонок. */
+  axes: number[]
   variants: ProductVariant[]
   attributes: ProductAttributeValue[]
 }
@@ -30,9 +32,29 @@ interface PendingImage {
   url: string
 }
 
-const emptyVariant = (): ProductVariant => ({ id: null, sku: '', name: '', price: 0, oldPrice: null, stock: 0, isActive: true })
+const emptyVariant = (axes: number[]): ProductVariant => ({
+  id: null,
+  sku: '',
+  name: '',
+  price: 0,
+  stock: 0,
+  isActive: true,
+  attributes: axes.map((attributeId) => ({ attributeId, value: '' })),
+})
+
+/** Признаки вариантов выводим из самих вариантов: объединение attributeId в порядке появления. */
+function axesOf(variants: ProductVariant[]): number[] {
+  const out: number[] = []
+  for (const v of variants) for (const a of v.attributes) if (!out.includes(a.attributeId)) out.push(a.attributeId)
+  return out
+}
 
 function fromProduct(p: ProductDetails | null): FormState {
+  const variants = p?.variants.length ? p.variants.map((v) => ({ ...v, attributes: v.attributes.map((a) => ({ ...a })) })) : [emptyVariant([])]
+  const axes = axesOf(variants)
+  for (const v of variants) {
+    v.attributes = axes.map((id) => v.attributes.find((a) => a.attributeId === id) ?? { attributeId: id, value: '' })
+  }
   return {
     name: p?.name ?? '',
     slug: p?.slug ?? '',
@@ -41,9 +63,29 @@ function fromProduct(p: ProductDetails | null): FormState {
     categoryId: p?.categoryId ?? null,
     brandId: p?.brandId ?? null,
     isActive: p?.isActive ?? true,
-    variants: p?.variants.length ? p.variants.map((v) => ({ ...v })) : [emptyVariant()],
+    axes,
+    variants,
     attributes: p?.attributes.map((a) => ({ ...a })) ?? [],
   }
+}
+
+function axisValue(v: ProductVariant, attributeId: number) {
+  return v.attributes.find((a) => a.attributeId === attributeId)?.value ?? ''
+}
+
+function variantName(v: ProductVariant, axes: number[], attrById: Map<number, Attribute>) {
+  return axes
+    .map((id) => {
+      const value = axisValue(v, id).trim()
+      const unit = attrById.get(id)?.unit
+      return value ? (unit ? `${value} ${unit}` : value) : ''
+    })
+    .filter(Boolean)
+    .join(', ')
+}
+
+function comboKey(v: ProductVariant, axes: number[]) {
+  return axes.map((id) => axisValue(v, id).trim().toLowerCase()).join('|')
 }
 
 let pendingSeq = 0
@@ -60,7 +102,7 @@ export default function ProductEditView() {
       catalogAdmin.brands.list(),
       catalogAdmin.attributes.list(),
     ])
-    return { categories, brands, attributes }
+    return { categories, brands, attributes: [...attributes].sort((a, b) => a.sortOrder - b.sortOrder) }
   }, [])
 
   const product = useLoad(() => (productId ? catalogAdmin.products.get(productId) : Promise.resolve(null)), [productId])
@@ -83,11 +125,69 @@ export default function ProductEditView() {
 
   useEffect(() => () => pending.forEach((p) => URL.revokeObjectURL(p.url)), [pending])
 
+  const categories = useMemo(() => flattenTree(dicts.data?.categories ?? []), [dicts.data])
+  const attrById = useMemo(() => new Map((dicts.data?.attributes ?? []).map((a) => [a.id, a])), [dicts.data])
+
   const set = <K extends keyof FormState>(key: K, value: FormState[K]) => setForm((f) => ({ ...f, [key]: value }))
 
   function onName(value: string) {
     setForm((f) => ({ ...f, name: value, slug: f.slugTouched ? f.slug : slugify(value) }))
   }
+
+  /* ---------- признаки вариантов ---------- */
+
+  const usedByProduct = new Set(form.attributes.map((a) => a.attributeId))
+  const usedByAxes = new Set(form.axes)
+  const freeAttributes = (dicts.data?.attributes ?? []).filter((a) => !usedByAxes.has(a.id) && !usedByProduct.has(a.id))
+
+  function addAxis(attributeId: number) {
+    setForm((f) => ({
+      ...f,
+      axes: [...f.axes, attributeId],
+      variants: f.variants.map((v) => ({ ...v, attributes: [...v.attributes, { attributeId, value: '' }] })),
+    }))
+  }
+
+  function removeAxis(attributeId: number) {
+    setForm((f) => ({
+      ...f,
+      axes: f.axes.filter((id) => id !== attributeId),
+      variants: f.variants.map((v) => ({ ...v, attributes: v.attributes.filter((a) => a.attributeId !== attributeId) })),
+    }))
+  }
+
+  /** Значения, уже введённые по этому признаку в других строках: для подсказок и генерации. */
+  function axisValues(attributeId: number): string[] {
+    const out: string[] = []
+    for (const v of form.variants) {
+      const val = axisValue(v, attributeId).trim()
+      if (val && !out.some((x) => x.toLowerCase() === val.toLowerCase())) out.push(val)
+    }
+    return out
+  }
+
+  /** Добавляет строки для всех комбинаций введённых значений, которых ещё нет. */
+  function generateCombos() {
+    const lists = form.axes.map((id) => axisValues(id))
+    if (lists.some((l) => l.length === 0)) return
+    const combos = lists.reduce<string[][]>((acc, list) => acc.flatMap((c) => list.map((v) => [...c, v])), [[]])
+    const existing = new Set(form.variants.map((v) => comboKey(v, form.axes)))
+    const fresh: ProductVariant[] = []
+    for (const combo of combos) {
+      const v: ProductVariant = { ...emptyVariant(form.axes), attributes: form.axes.map((id, i) => ({ attributeId: id, value: combo[i] })) }
+      if (!existing.has(comboKey(v, form.axes))) fresh.push(v)
+    }
+    if (!fresh.length) {
+      toast.success('Все комбинации уже есть')
+      return
+    }
+    // пустые строки-заготовки заменяем сгенерированными
+    const kept = form.variants.filter((v) => v.sku || v.price || v.attributes.some((a) => a.value.trim()))
+    set('variants', [...kept, ...fresh])
+    toast.success(`Добавлено вариантов: ${fresh.length}`)
+  }
+
+  const canGenerate = form.axes.length > 0 && form.axes.every((id) => axisValues(id).length > 0)
 
   /* ---------- варианты ---------- */
 
@@ -95,14 +195,20 @@ export default function ProductEditView() {
     setForm((f) => ({ ...f, variants: f.variants.map((v, idx) => (idx === i ? { ...v, ...patch } : v)) }))
   }
 
+  function updateVariantAxis(i: number, attributeId: number, value: string) {
+    setForm((f) => ({
+      ...f,
+      variants: f.variants.map((v, idx) =>
+        idx === i ? { ...v, attributes: v.attributes.map((a) => (a.attributeId === attributeId ? { ...a, value } : a)) } : v,
+      ),
+    }))
+  }
+
   function removeVariant(i: number) {
     setForm((f) => ({ ...f, variants: f.variants.length > 1 ? f.variants.filter((_, idx) => idx !== i) : f.variants }))
   }
 
-  /* ---------- характеристики ---------- */
-
-  const usedAttributeIds = new Set(form.attributes.map((a) => a.attributeId))
-  const freeAttributes = (dicts.data?.attributes ?? []).filter((a) => !usedAttributeIds.has(a.id))
+  /* ---------- характеристики товара ---------- */
 
   function addAttribute() {
     const next = freeAttributes[0]
@@ -170,14 +276,23 @@ export default function ProductEditView() {
     if (!form.slug.trim()) e.slug = 'Укажите slug'
     else if (!/^[a-z0-9-]+$/.test(form.slug)) e.slug = 'Только латиница, цифры и дефис'
     if (form.categoryId == null) e.categoryId = 'Выберите категорию'
+
+    const skus = form.variants.map((v) => v.sku.trim().toLowerCase())
+    const combos = form.variants.map((v) => comboKey(v, form.axes))
     form.variants.forEach((v, i) => {
       if (!v.sku.trim()) e[`variant.${i}.sku`] = 'SKU обязателен'
+      else if (skus.indexOf(skus[i]) !== i) e[`variant.${i}.sku`] = 'SKU повторяется'
       if (!(v.price > 0)) e[`variant.${i}.price`] = 'Цена должна быть больше 0'
-      if (v.oldPrice != null && v.oldPrice <= v.price) e[`variant.${i}.oldPrice`] = 'Старая цена должна быть выше'
-    })
-    const skus = form.variants.map((v) => v.sku.trim().toLowerCase())
-    skus.forEach((s, i) => {
-      if (s && skus.indexOf(s) !== i) e[`variant.${i}.sku`] = 'SKU повторяется'
+      let axesFilled = true
+      for (const id of form.axes) {
+        if (!axisValue(v, id).trim()) {
+          axesFilled = false
+          e[`variant.${i}.axis.${id}`] = `Укажите «${attrById.get(id)?.name ?? 'значение'}»`
+        }
+      }
+      if (form.axes.length && axesFilled && combos.indexOf(combos[i]) !== i) {
+        e[`variant.${i}.combo`] = 'Такая комбинация уже есть'
+      }
     })
     form.attributes.forEach((a, i) => {
       if (!a.value.trim()) e[`attr.${i}`] = 'Заполните значение'
@@ -201,7 +316,12 @@ export default function ProductEditView() {
       categoryId: form.categoryId!,
       brandId: form.brandId,
       isActive: form.isActive,
-      variants: form.variants.map((v) => ({ ...v, sku: v.sku.trim(), name: v.name.trim() })),
+      variants: form.variants.map((v) => ({
+        ...v,
+        sku: v.sku.trim(),
+        name: form.axes.length ? variantName(v, form.axes, attrById) : v.name.trim(),
+        attributes: v.attributes.map((a) => ({ ...a, value: a.value.trim() })),
+      })),
       attributes: form.attributes.map((a) => ({ ...a, value: a.value.trim() })),
     }
     try {
@@ -227,11 +347,10 @@ export default function ProductEditView() {
     navigate('/admin/products', { replace: true })
   }
 
-  const categories = useMemo(() => flattenTree(dicts.data?.categories ?? []), [dicts.data])
-  const attrById = useMemo(() => new Map((dicts.data?.attributes ?? []).map((a) => [a.id, a])), [dicts.data])
-
   const busy = saving || uploading
   const loading = dicts.loading || product.loading
+  const variantError = Object.entries(errors).find(([k]) => k.startsWith('variant.'))?.[1]
+  const previewNames = form.variants.map((v) => variantName(v, form.axes, attrById)).filter(Boolean)
 
   if (product.error) {
     return (
@@ -304,78 +423,13 @@ export default function ProductEditView() {
             </div>
           </section>
 
-          {/* Варианты */}
-          <section className="card">
-            <div className="form-section">
-              <div className="section-head">
-                <div>
-                  <h2>Варианты</h2>
-                  <p>Артикулы, цены и остатки. Минимум один вариант.</p>
-                </div>
-                <button type="button" className="btn btn-ghost btn-sm" onClick={() => set('variants', [...form.variants, emptyVariant()])}>
-                  <IconPlus />
-                  Вариант
-                </button>
-              </div>
-              <div className="table-wrap">
-                <table className="table table-edit">
-                  <thead>
-                    <tr>
-                      <th style={{ width: 160 }}>SKU</th>
-                      <th>Название</th>
-                      <th style={{ width: 130 }}>Цена</th>
-                      <th style={{ width: 130 }}>Старая цена</th>
-                      <th style={{ width: 96 }}>Остаток</th>
-                      <th style={{ width: 70 }}>Вкл.</th>
-                      <th className="actions" />
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {form.variants.map((v, i) => (
-                      <tr key={v.id ?? `new-${i}`}>
-                        <td>
-                          <input className={`input input-sm mono${errors[`variant.${i}.sku`] ? ' is-invalid' : ''}`} value={v.sku} onChange={(e) => updateVariant(i, { sku: e.target.value.toUpperCase() })} placeholder="SKU-001" title={errors[`variant.${i}.sku`]} />
-                        </td>
-                        <td>
-                          <input className="input input-sm" value={v.name} onChange={(e) => updateVariant(i, { name: e.target.value })} placeholder="256 ГБ, чёрный" />
-                        </td>
-                        <td>
-                          <input type="number" min={0} step="1" className={`input input-sm num${errors[`variant.${i}.price`] ? ' is-invalid' : ''}`} value={v.price || ''} onChange={(e) => updateVariant(i, { price: Number(e.target.value) })} title={errors[`variant.${i}.price`]} />
-                        </td>
-                        <td>
-                          <input type="number" min={0} step="1" className={`input input-sm num${errors[`variant.${i}.oldPrice`] ? ' is-invalid' : ''}`} value={v.oldPrice ?? ''} onChange={(e) => updateVariant(i, { oldPrice: e.target.value === '' ? null : Number(e.target.value) })} placeholder="—" title={errors[`variant.${i}.oldPrice`]} />
-                        </td>
-                        <td>
-                          <input type="number" min={0} step="1" className="input input-sm num" value={v.stock} onChange={(e) => updateVariant(i, { stock: Number(e.target.value) })} />
-                        </td>
-                        <td>
-                          <Toggle checked={v.isActive} onChange={(val) => updateVariant(i, { isActive: val })} />
-                        </td>
-                        <td className="actions">
-                          <button type="button" className="btn btn-ghost btn-icon btn-sm is-danger" onClick={() => removeVariant(i)} disabled={form.variants.length === 1} title="Удалить вариант">
-                            <IconTrash />
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              {Object.keys(errors).some((k) => k.startsWith('variant.')) && (
-                <span className="field-hint is-error">
-                  {Object.entries(errors).find(([k]) => k.startsWith('variant.'))?.[1]}
-                </span>
-              )}
-            </div>
-          </section>
-
-          {/* Характеристики */}
+          {/* Характеристики товара */}
           <section className="card">
             <div className="form-section">
               <div className="section-head">
                 <div>
                   <h2>Характеристики</h2>
-                  <p>Значения атрибутов из справочника</p>
+                  <p>Общее для всех вариантов: диагональ, вес, материал</p>
                 </div>
                 <button type="button" className="btn btn-ghost btn-sm" onClick={addAttribute} disabled={!freeAttributes.length}>
                   <IconPlus />
@@ -383,20 +437,19 @@ export default function ProductEditView() {
                 </button>
               </div>
               {form.attributes.length === 0 ? (
-                <p className="muted small">
-                  Пока нет характеристик.{' '}
+                <p className="muted small" style={{ margin: 0 }}>
                   {dicts.data && dicts.data.attributes.length === 0 ? (
                     <>
-                      Сначала создайте атрибуты в <Link to="/admin/attributes">справочнике</Link>.
+                      Справочник пуст. Сначала создайте атрибуты в разделе <Link to="/admin/attributes">Атрибуты</Link>.
                     </>
                   ) : (
-                    'Добавьте цвет, размер, материал — то, по чему покупатели фильтруют.'
+                    'Пока нет характеристик. То, чем варианты отличаются друг от друга, задаётся ниже в блоке «Варианты».'
                   )}
                 </p>
               ) : (
                 <div className="attr-rows">
                   {form.attributes.map((a, i) => {
-                    const attr: Attribute | undefined = attrById.get(a.attributeId)
+                    const attr = attrById.get(a.attributeId)
                     return (
                       <div key={a.attributeId} className="attr-row">
                         <select className="select input-sm" value={a.attributeId} onChange={(e) => updateAttribute(i, { attributeId: Number(e.target.value) })}>
@@ -422,13 +475,150 @@ export default function ProductEditView() {
             </div>
           </section>
 
+          {/* Варианты */}
+          <section className="card">
+            <div className="form-section">
+              <div className="section-head">
+                <div>
+                  <h2>Варианты</h2>
+                  <p>То, что покупатель кладёт в корзину: свой SKU, цена и остаток</p>
+                </div>
+                <div className="page-actions">
+                  {form.axes.length > 0 && (
+                    <button type="button" className="btn btn-ghost btn-sm" onClick={generateCombos} disabled={!canGenerate} title="Создать строки для всех сочетаний введённых значений">
+                      <IconLayers />
+                      Все комбинации
+                    </button>
+                  )}
+                  <button type="button" className="btn btn-ghost btn-sm" onClick={() => set('variants', [...form.variants, emptyVariant(form.axes)])}>
+                    <IconPlus />
+                    Вариант
+                  </button>
+                </div>
+              </div>
+
+              <div className="axes">
+                <span className="axes-label">Варьируется по:</span>
+                {form.axes.map((id) => (
+                  <span key={id} className="chip">
+                    {attrById.get(id)?.name ?? `#${id}`}
+                    <button type="button" onClick={() => removeAxis(id)} aria-label="Убрать признак">
+                      <IconX />
+                    </button>
+                  </span>
+                ))}
+                {freeAttributes.length > 0 ? (
+                  <select className="select axes-add" value="" onChange={(e) => e.target.value && addAxis(Number(e.target.value))}>
+                    <option value="">{form.axes.length ? '+ ещё признак' : '+ добавить признак'}</option>
+                    {freeAttributes.map((a) => (
+                      <option key={a.id} value={a.id}>
+                        {a.name}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  form.axes.length === 0 && <span className="muted small">нет свободных атрибутов</span>
+                )}
+                {form.axes.length === 0 && <span className="axes-hint muted small">Например: память, цвет, размер. Появятся колонками в таблице.</span>}
+              </div>
+
+              <div className="table-wrap">
+                <table className="table table-edit">
+                  <thead>
+                    <tr>
+                      <th style={{ width: 140 }}>SKU</th>
+                      {form.axes.length === 0 ? (
+                        <th>Название</th>
+                      ) : (
+                        form.axes.map((id) => (
+                          <th key={id} className="axis">
+                            {attrById.get(id)?.name}
+                            {attrById.get(id)?.unit && <span className="muted">, {attrById.get(id)?.unit}</span>}
+                          </th>
+                        ))
+                      )}
+                      <th style={{ width: 110 }}>Цена</th>
+                      <th style={{ width: 84 }}>Остаток</th>
+                      <th style={{ width: 60 }}>Вкл.</th>
+                      <th className="actions" />
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {form.variants.map((v, i) => {
+                      const comboErr = errors[`variant.${i}.combo`]
+                      return (
+                        <tr key={v.id ?? `new-${i}`} className={comboErr ? 'is-invalid-row' : undefined} title={comboErr}>
+                          <td>
+                            <input className={`input input-sm mono${errors[`variant.${i}.sku`] ? ' is-invalid' : ''}`} value={v.sku} onChange={(e) => updateVariant(i, { sku: e.target.value.toUpperCase() })} placeholder="SKU-001" title={errors[`variant.${i}.sku`]} />
+                          </td>
+                          {form.axes.length === 0 ? (
+                            <td>
+                              <input className="input input-sm" value={v.name} onChange={(e) => updateVariant(i, { name: e.target.value })} placeholder="Необязательно" />
+                            </td>
+                          ) : (
+                            form.axes.map((id) => (
+                              <td key={id} className="axis">
+                                <input
+                                  className={`input input-sm${errors[`variant.${i}.axis.${id}`] || comboErr ? ' is-invalid' : ''}`}
+                                  list={`axis-${id}`}
+                                  value={axisValue(v, id)}
+                                  onChange={(e) => updateVariantAxis(i, id, e.target.value)}
+                                  placeholder={attrById.get(id)?.name}
+                                  title={errors[`variant.${i}.axis.${id}`]}
+                                />
+                              </td>
+                            ))
+                          )}
+                          <td>
+                            <input type="number" min={0} step="1" className={`input input-sm num${errors[`variant.${i}.price`] ? ' is-invalid' : ''}`} value={v.price || ''} onChange={(e) => updateVariant(i, { price: Number(e.target.value) })} title={errors[`variant.${i}.price`]} />
+                          </td>
+                          <td>
+                            <input type="number" min={0} step="1" className="input input-sm num" value={v.stock} onChange={(e) => updateVariant(i, { stock: Number(e.target.value) })} />
+                          </td>
+                          <td>
+                            <Toggle checked={v.isActive} onChange={(val) => updateVariant(i, { isActive: val })} />
+                          </td>
+                          <td className="actions">
+                            <button type="button" className="btn btn-ghost btn-icon btn-sm is-danger" onClick={() => removeVariant(i)} disabled={form.variants.length === 1} title="Удалить вариант">
+                              <IconTrash />
+                            </button>
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+                {form.axes.map((id) => (
+                  <datalist key={id} id={`axis-${id}`}>
+                    {axisValues(id).map((val) => (
+                      <option key={val} value={val} />
+                    ))}
+                  </datalist>
+                ))}
+              </div>
+
+              {form.axes.length > 0 && (
+                <div className="variants-preview muted small">
+                  <span>Названия вариантов соберутся автоматически:</span>
+                  {previewNames.length === 0 && <em>заполните значения в таблице</em>}
+                  {previewNames.map((n, i) => (
+                    <span key={i} className="badge">
+                      {n}
+                    </span>
+                  ))}
+                </div>
+              )}
+              {variantError && <span className="field-hint is-error">{variantError}</span>}
+            </div>
+          </section>
+
           {/* Фото */}
           <section className="card">
             <div className="form-section">
               <div className="section-head">
                 <div>
                   <h2>Фотографии</h2>
-                  <p>Первое фото со звёздочкой показывается в каталоге</p>
+                  <p>Фото со звёздочкой показывается в каталоге</p>
                 </div>
               </div>
               <div className="gallery">
@@ -463,7 +653,16 @@ export default function ProductEditView() {
                   <IconUpload />
                   <span>Добавить фото</span>
                   <small>или перетащите сюда</small>
-                  <input type="file" accept="image/*" multiple className="visually-hidden" onChange={(e) => { addFiles(e.target.files); e.target.value = '' }} />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    className="visually-hidden"
+                    onChange={(e) => {
+                      addFiles(e.target.files)
+                      e.target.value = ''
+                    }}
+                  />
                 </label>
               </div>
               {pending.length > 0 && !isNew && (
@@ -500,7 +699,7 @@ export default function ProductEditView() {
                 <label htmlFor="category">Категория</label>
                 <select id="category" className={`select${errors.categoryId ? ' is-invalid' : ''}`} value={form.categoryId ?? ''} onChange={(e) => set('categoryId', e.target.value ? Number(e.target.value) : null)} disabled={loading}>
                   <option value="">Выберите категорию</option>
-                  {categories.map((c: Category & { depth: number }) => (
+                  {categories.map((c) => (
                     <option key={c.id} value={c.id}>
                       {indent(c.depth)}
                       {c.name}
@@ -513,7 +712,7 @@ export default function ProductEditView() {
                 <label htmlFor="brand">Бренд</label>
                 <select id="brand" className="select" value={form.brandId ?? ''} onChange={(e) => set('brandId', e.target.value ? Number(e.target.value) : null)} disabled={loading}>
                   <option value="">Без бренда</option>
-                  {dicts.data?.brands.map((b: Brand) => (
+                  {dicts.data?.brands.map((b) => (
                     <option key={b.id} value={b.id}>
                       {b.name}
                     </option>
@@ -523,31 +722,33 @@ export default function ProductEditView() {
             </div>
           </section>
 
-          {!isNew && (
-            <section className="card">
-              <div className="form-section">
-                <h2>Сводка</h2>
-                <dl className="kv">
-                  <div>
-                    <dt>Вариантов</dt>
-                    <dd>{form.variants.length}</dd>
-                  </div>
-                  <div>
-                    <dt>Остаток</dt>
-                    <dd>{form.variants.reduce((s, v) => s + (v.stock || 0), 0)}</dd>
-                  </div>
-                  <div>
-                    <dt>Фото</dt>
-                    <dd>{images.length}</dd>
-                  </div>
-                  <div>
-                    <dt>Характеристик</dt>
-                    <dd>{form.attributes.length}</dd>
-                  </div>
-                </dl>
-              </div>
-            </section>
-          )}
+          <section className="card">
+            <div className="form-section">
+              <h2>Сводка</h2>
+              <dl className="kv">
+                <div>
+                  <dt>Вариантов</dt>
+                  <dd>{form.variants.length}</dd>
+                </div>
+                <div>
+                  <dt>Признаки</dt>
+                  <dd>{form.axes.length ? form.axes.map((id) => attrById.get(id)?.name).join(', ') : '—'}</dd>
+                </div>
+                <div>
+                  <dt>Остаток</dt>
+                  <dd>{form.variants.reduce((s, v) => s + (v.stock || 0), 0)}</dd>
+                </div>
+                <div>
+                  <dt>Фото</dt>
+                  <dd>{images.length + pending.length}</dd>
+                </div>
+                <div>
+                  <dt>Характеристик</dt>
+                  <dd>{form.attributes.length}</dd>
+                </div>
+              </dl>
+            </div>
+          </section>
         </aside>
       </div>
 

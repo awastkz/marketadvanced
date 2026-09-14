@@ -1,0 +1,47 @@
+using MediatR;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using MarketAdvanced.Catalog.Api.Requests;
+using MarketAdvanced.Catalog.Application.Features.Attributes.CreateProductAttribute;
+using MarketAdvanced.Catalog.Application.Features.Attributes.DeleteProductAttribute;
+using MarketAdvanced.Catalog.Application.Features.Attributes.GetProductAttribute;
+using MarketAdvanced.Catalog.Application.Features.Attributes.ListAttributes;
+using MarketAdvanced.Catalog.Application.Features.Attributes.UpdateProductAttribute;
+
+namespace MarketAdvanced.Catalog.Api.Admin;
+
+[ApiController]
+[Authorize]
+[Route("api/admin/attributes")]
+public sealed class AttributesController : ControllerBase
+{
+    private readonly IMediator _mediator;
+
+    public AttributesController(IMediator mediator)
+    {
+        _mediator = mediator;
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> List(CancellationToken ct) =>
+        Ok(await _mediator.Send(new ListAttributesQuery(), ct));
+
+    [HttpGet("{id:int}")]
+    public async Task<IActionResult> Get(int id, CancellationToken ct) =>
+        Ok(await _mediator.Send(new GetProductAttributeQuery(id), ct));
+
+    [HttpPost]
+    public async Task<IActionResult> Create([FromBody] ProductAttributeRequest r, CancellationToken ct) =>
+        Ok(await _mediator.Send(new CreateProductAttributeCommand(r.Name.Trim(), r.Slug.Trim(), r.Unit?.Trim(), r.SortOrder), ct));
+
+    [HttpPut("{id:int}")]
+    public async Task<IActionResult> Update(int id, [FromBody] ProductAttributeRequest r, CancellationToken ct) =>
+        Ok(await _mediator.Send(new UpdateProductAttributeCommand(id, r.Name.Trim(), r.Slug.Trim(), r.Unit?.Trim(), r.SortOrder), ct));
+
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> Delete(int id, CancellationToken ct)
+    {
+        await _mediator.Send(new DeleteProductAttributeCommand(id), ct);
+        return NoContent();
+    }
+}

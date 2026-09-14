@@ -9,4 +9,11 @@
     <!-- Testing/ — отдельный проект Shared.Testing, в runtime-сборку не входит -->
     <Compile Remove="Testing\**" />
   </ItemGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  <ItemGroup>
+  <PackageReference Include="AWSSDK.S3" Version="4.0.102.4" />
+  </ItemGroup>
+
 </Project>

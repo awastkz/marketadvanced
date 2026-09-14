@@ -12,7 +12,6 @@
     <PackageReference Include="AspNetCore.HealthChecks.Rabbitmq" Version="9.0.0" />
     <PackageReference Include="AspNetCore.HealthChecks.Redis" Version="9.0.0" />
     <PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="9.0.0" />
-    <PackageReference Include="AWSSDK.S3" Version="4.0.102.4" />
     <PackageReference Include="Confluent.Kafka" Version="2.15.0" />
     <PackageReference Include="FluentValidation" Version="12.1.1" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
@@ -29,6 +28,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Modules\Identity\Src\Identity.csproj" />
+    <ProjectReference Include="..\Modules\Catalog\Src\Catalog.csproj" />
   </ItemGroup>
 
 </Project>

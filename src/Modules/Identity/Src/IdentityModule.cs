@@ -1,8 +1,6 @@
 using Amazon.S3;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using MarketAdvanced.Shared.Options;
 using MarketAdvanced.Identity.Infrastructure;
@@ -21,17 +19,6 @@ public static class IdentityModule
     )
     {
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(IdentityModule).Assembly));
-
-        services.Configure<MinioSettings>(config.GetSection("Minio"));
-        services.AddSingleton<IAmazonS3>(sp =>
-        {
-            var o = sp.GetRequiredService<IOptions<MinioSettings>>().Value;
-            return new AmazonS3Client(o.AccessKey, o.SecretKey, new AmazonS3Config
-            {
-                ServiceURL = o.InternalEndpoint,
-                ForcePathStyle = true,
-            });
-        });
         services.AddScoped<IAvatarStorage, S3AvatarStorage>();
 
 services.Configure<JwtOptions>(config.GetSection("Jwt"));

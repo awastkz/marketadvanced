@@ -83,11 +83,13 @@ export interface ProductListItem {
 export interface ProductVariant {
   id: number | null
   sku: string
+  /** Собирается фронтом из значений признаков: «256 ГБ, Чёрный». Если признаков нет — вводится вручную. */
   name: string
   price: number
-  oldPrice: number | null
   stock: number
   isActive: boolean
+  /** Чем этот вариант отличается от других: память, цвет, размер. */
+  attributes: ProductAttributeValue[]
 }
 
 export interface ProductImage {
