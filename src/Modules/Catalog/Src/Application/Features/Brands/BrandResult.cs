@@ -8,9 +8,10 @@ public sealed record BrandResult(
     string Slug,
     string? Description,
     string? LogoUrl,
-    int ProductsCount)
+    int ProductsCount,
+    int UserId)
 {
     // LogoUrl появится вместе с S3-хранилищем, пока отдаём путь как есть
     public static BrandResult From(Brand b, int productsCount) =>
-        new(b.Id, b.Name, b.Slug, b.Description, b.LogoPath, productsCount);
+        new(b.Id, b.Name, b.Slug, b.Description, b.LogoPath, productsCount, b.UserId);
 }

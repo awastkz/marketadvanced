@@ -5,7 +5,6 @@ WORKDIR /src
 COPY Api/api.csproj Api/
 COPY Shared/Shared.csproj Shared/
 COPY Modules/Identity/Src/Identity.csproj Modules/Identity/Src/
-COPY Modules/Identity/Contracts/Identity.Contracts.csproj Modules/Identity/Contracts/
 RUN dotnet restore Api/api.csproj
 
 COPY . .

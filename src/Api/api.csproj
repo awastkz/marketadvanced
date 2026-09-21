@@ -17,6 +17,7 @@
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.11" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.11" />
+    <PackageReference Include="Scalar.AspNetCore" Version="2.17.6" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.11">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
@@ -29,6 +30,9 @@
   <ItemGroup>
     <ProjectReference Include="..\Modules\Identity\Src\Identity.csproj" />
     <ProjectReference Include="..\Modules\Catalog\Src\Catalog.csproj" />
+    <ProjectReference Include="..\Modules\Cart\Src\Cart.csproj" />
+    <ProjectReference Include="..\Modules\Order\Src\Order.csproj" />
+    <ProjectReference Include="..\Modules\Payment\Src\Payment.csproj" />
   </ItemGroup>
 
 </Project>

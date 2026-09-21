@@ -1,6 +1,6 @@
 using MediatR;
 using MarketAdvanced.Catalog.Application.Abstractions;
-using MarketAdvanced.Catalog.Application.Common;
+using MarketAdvanced.Shared.Exceptions;
 using MarketAdvanced.Catalog.Domain;
 
 namespace MarketAdvanced.Catalog.Application.Features.Products.UpdateProduct;

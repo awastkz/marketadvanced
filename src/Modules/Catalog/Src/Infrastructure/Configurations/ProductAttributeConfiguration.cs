@@ -14,5 +14,7 @@ public class ProductAttributeConfiguration : IEntityTypeConfiguration<ProductAtt
         builder.HasIndex(v => v.Slug).IsUnique();
         builder.Property(v => v.Unit).HasMaxLength(20);
         builder.Property(v => v.CreatedAt).IsRequired();
+        builder.Property(v => v.UserId).IsRequired();
+        builder.HasIndex(v => v.UserId);
     }
 }

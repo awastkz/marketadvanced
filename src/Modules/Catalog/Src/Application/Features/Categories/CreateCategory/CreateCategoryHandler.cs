@@ -1,6 +1,6 @@
 using MediatR;
 using MarketAdvanced.Catalog.Application.Abstractions;
-using MarketAdvanced.Catalog.Application.Common;
+using MarketAdvanced.Shared.Exceptions;
 using MarketAdvanced.Catalog.Domain;
 
 namespace MarketAdvanced.Catalog.Application.Features.Categories.CreateCategory;
@@ -28,6 +28,7 @@ public sealed class CreateCategoryHandler : IRequestHandler<CreateCategoryComman
             Slug = request.Slug,
             SortOrder = request.SortOrder,
             ParentId = request.ParentId,
+            UserId = request.UserId,
         };
 
         await _repo.AddAsync(category, cancellationToken);

@@ -5,6 +5,12 @@ using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.IdentityModel.Tokens;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 using MarketAdvanced.Catalog;
+using MarketAdvanced.Cart;
+using MarketAdvanced.Order;
+using MarketAdvanced.Payment;
+using MarketAdvanced.Shared.Api;
+using Scalar.AspNetCore;
+using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -54,9 +60,16 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 builder.Services.AddFluentValidationAutoValidation();
+// NotFoundException -> 404, ConflictException -> 409, тело { message }; общий для всех модулей
+builder.Services.Configure<MvcOptions>(o => o.Filters.Add<ApiExceptionFilter>());
 builder.Services.AddS3Storage(builder.Configuration);
-builder.Services.AddIdentityModule(builder.Configuration);
-builder.Services.AddCatalogModule(builder.Configuration);
+builder.Services.AddCurrentUser();
+
+builder.Services.AddIdentityServiceAPI(builder.Configuration);
+builder.Services.AddCatalogServiceAPI(builder.Configuration);
+builder.Services.AddCartServiceAPI(builder.Configuration);
+builder.Services.AddOrderServiceAPI(builder.Configuration);
+builder.Services.AddPaymentServiceAPI(builder.Configuration);
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
@@ -71,6 +84,7 @@ app.MapGet("api/refresh", () => "ok").RequireRateLimiting("api");
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.MapScalarApiReference(); // документация на /scalar, читает /openapi/v1.json
 }
 
 app.UseCors("Frontend");

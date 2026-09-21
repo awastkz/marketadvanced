@@ -9,9 +9,10 @@ public sealed record CategoryResult(
     string? ImageUrl,
     int SortOrder,
     int? ParentId,
-    int ProductsCount)
+    int ProductsCount,
+    int UserId)
 {
     // ImageUrl появится вместе с S3-хранилищем, пока отдаём путь как есть
     public static CategoryResult From(Category c, int productsCount) =>
-        new(c.Id, c.Name, c.Slug, c.ImagePath, c.SortOrder, c.ParentId, productsCount);
+        new(c.Id, c.Name, c.Slug, c.ImagePath, c.SortOrder, c.ParentId, productsCount, c.UserId);
 }

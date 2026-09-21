@@ -16,10 +16,12 @@ namespace MarketAdvanced.Catalog.Api.Admin;
 public sealed class AttributesController : ControllerBase
 {
     private readonly IMediator _mediator;
+    private readonly ICurrentUser _currentUser;
 
-    public AttributesController(IMediator mediator)
+    public AttributesController(IMediator mediator, ICurrentUser currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
     }
 
     [HttpGet]
@@ -32,7 +34,7 @@ public sealed class AttributesController : ControllerBase
 
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] ProductAttributeRequest r, CancellationToken ct) =>
-        Ok(await _mediator.Send(new CreateProductAttributeCommand(r.Name.Trim(), r.Slug.Trim(), r.Unit?.Trim(), r.SortOrder), ct));
+        Ok(await _mediator.Send(new CreateProductAttributeCommand(_currentUser.Id, r.Name.Trim(), r.Slug.Trim(), r.Unit?.Trim(), r.SortOrder), ct));
 
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, [FromBody] ProductAttributeRequest r, CancellationToken ct) =>

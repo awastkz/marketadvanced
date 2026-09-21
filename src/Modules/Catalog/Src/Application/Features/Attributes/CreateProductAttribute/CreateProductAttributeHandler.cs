@@ -1,6 +1,6 @@
 using MediatR;
 using MarketAdvanced.Catalog.Application.Abstractions;
-using MarketAdvanced.Catalog.Application.Common;
+using MarketAdvanced.Shared.Exceptions;
 using MarketAdvanced.Catalog.Domain;
 
 namespace MarketAdvanced.Catalog.Application.Features.Attributes.CreateProductAttribute;
@@ -25,6 +25,7 @@ public sealed class CreateProductAttributeHandler : IRequestHandler<CreateProduc
             Slug = request.Slug,
             Unit = string.IsNullOrWhiteSpace(request.Unit) ? null : request.Unit,
             SortOrder = request.SortOrder,
+            UserId = request.UserId,
         };
 
         await _repo.AddAsync(attribute, cancellationToken);

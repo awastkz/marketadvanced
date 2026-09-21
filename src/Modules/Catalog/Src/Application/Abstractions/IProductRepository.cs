@@ -15,6 +15,12 @@ public interface IProductRepository
     /// <summary>Товар со всеми вложенностями: варианты и их признаки, фото, характеристики.</summary>
     Task<Product?> GetWithDetailsAsync(int id, CancellationToken ct);
 
+    /// <summary>Вариант вместе с товаром-владельцем, только чтение.</summary>
+    Task<ProductVariant?> GetVariantAsync(int variantId, CancellationToken ct);
+
+    /// <summary>Варианты по списку id вместе с товарами, только чтение. Отсутствующие id молча пропускаются.</summary>
+    Task<IReadOnlyList<ProductVariant>> GetVariantsAsync(IReadOnlyCollection<int> variantIds, CancellationToken ct);
+
     Task<bool> SlugExistsAsync(string slug, int? exceptProductId, CancellationToken ct);
 
     /// <summary>Какие из переданных SKU уже заняты другими товарами.</summary>

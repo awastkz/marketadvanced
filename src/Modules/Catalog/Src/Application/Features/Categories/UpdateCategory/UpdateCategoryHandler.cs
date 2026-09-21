@@ -1,6 +1,6 @@
 using MediatR;
 using MarketAdvanced.Catalog.Application.Abstractions;
-using MarketAdvanced.Catalog.Application.Common;
+using MarketAdvanced.Shared.Exceptions;
 
 namespace MarketAdvanced.Catalog.Application.Features.Categories.UpdateCategory;
 

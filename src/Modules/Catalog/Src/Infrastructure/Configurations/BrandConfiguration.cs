@@ -15,6 +15,8 @@ public class BrandConfiguration : IEntityTypeConfiguration<Brand>
         builder.Property(v => v.Description).HasMaxLength(2000);
         builder.Property(v => v.LogoPath).HasMaxLength(500);
         builder.Property(v => v.CreatedAt).IsRequired();
+        builder.Property(v => v.UserId).IsRequired();
+        builder.HasIndex(v => v.UserId);
         builder.HasMany(v => v.Products).WithOne(v => v.Brand).HasForeignKey(v => v.BrandId).OnDelete(DeleteBehavior.SetNull);
     }
 }

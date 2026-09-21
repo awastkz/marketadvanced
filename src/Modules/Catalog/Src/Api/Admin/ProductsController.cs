@@ -22,9 +22,12 @@ public class ProductsController: ControllerBase
 
   private readonly IMediator _mediator;
 
-  public ProductsController(IMediator mediator)
+  private readonly ICurrentUser _currentUser;
+
+  public ProductsController(IMediator mediator, ICurrentUser currentUser)
   {
       _mediator = mediator;
+      _currentUser = currentUser;
   }
 
   /// <summary>Список с фильтрами и пагинацией: { items, total }.</summary>
@@ -52,6 +55,7 @@ public class ProductsController: ControllerBase
   public async Task<IActionResult> create([FromBody] ProductRequest request, CancellationToken ct)
   {
       var command = new CreateProductCommand(
+          _currentUser.Id,
           request.Name,
           request.Slug,
           request.Description,

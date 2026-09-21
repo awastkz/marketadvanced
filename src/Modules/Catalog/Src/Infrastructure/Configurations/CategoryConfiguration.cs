@@ -14,6 +14,8 @@ public class CategoryConfiguration : IEntityTypeConfiguration<Category>
         builder.HasIndex(v => v.Slug).IsUnique();
         builder.Property(v => v.ImagePath).HasMaxLength(500);
         builder.Property(v => v.CreatedAt).IsRequired();
+        builder.Property(v => v.UserId).IsRequired();
+        builder.HasIndex(v => v.UserId);
         builder.HasOne(v => v.Parent).WithMany(v => v.Children).HasForeignKey(v => v.ParentId).OnDelete(DeleteBehavior.Restrict);
     }
 }

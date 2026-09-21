@@ -37,6 +37,7 @@ public sealed class CreateProductHandler : IRequestHandler<CreateProductCommand,
             CategoryId = request.CategoryId,
             BrandId = request.BrandId,
             IsActive = request.IsActive,
+            UserId = request.UserId,
             Attributes = request.Attributes
                 .Select(a => new ProductAttributeValue { AttributeId = a.AttributeId, Value = a.Value })
                 .ToList(),

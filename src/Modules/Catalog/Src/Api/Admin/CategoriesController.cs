@@ -16,10 +16,12 @@ namespace MarketAdvanced.Catalog.Api.Admin;
 public sealed class CategoriesController : ControllerBase
 {
     private readonly IMediator _mediator;
+    private readonly ICurrentUser _currentUser;
 
-    public CategoriesController(IMediator mediator)
+    public CategoriesController(IMediator mediator, ICurrentUser currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
     }
 
     /// <summary>Плоский список, дерево фронт строит по parentId.</summary>
@@ -33,7 +35,7 @@ public sealed class CategoriesController : ControllerBase
 
     [HttpPost]
     public async Task<IActionResult> Create([FromForm] CategoryRequest r, CancellationToken ct) =>
-        Ok(await _mediator.Send(new CreateCategoryCommand(r.Name.Trim(), r.Slug.Trim(), r.SortOrder, r.ParentId), ct));
+        Ok(await _mediator.Send(new CreateCategoryCommand(_currentUser.Id, r.Name.Trim(), r.Slug.Trim(), r.SortOrder, r.ParentId), ct));
 
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, [FromForm] CategoryRequest r, CancellationToken ct) =>

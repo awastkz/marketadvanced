@@ -24,6 +24,7 @@ public sealed record ProductResult(
     bool IsActive,
     DateTime CreatedAt,
     DateTime? UpdatedAt,
+    int UserId,
     IReadOnlyList<VariantResult> Variants,
     IReadOnlyList<ProductImageResult> Images,
     IReadOnlyList<AttributeValueResult> Attributes)
@@ -39,6 +40,7 @@ public sealed record ProductResult(
         p.IsActive,
         p.CreatedAt,
         p.UpdatedAt,
+        p.UserId,
         p.Variants
             .Select(v => new VariantResult(
                 v.Id, v.Sku, v.Name, v.Price, v.Stock, v.IsActive,

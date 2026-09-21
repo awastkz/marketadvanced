@@ -5,7 +5,22 @@ import * as authApi from '../../api/auth'
 import Logo from '../Logo'
 import Avatar from '../Avatar'
 import Toaster from '../Toaster'
-import { IconBox, IconExternal, IconHome, IconLayers, IconLogout, IconMenu, IconSliders, IconTag, IconX } from '../icons'
+import {
+  IconBag,
+  IconBox,
+  IconCard,
+  IconExternal,
+  IconFolder,
+  IconHome,
+  IconInbox,
+  IconLayers,
+  IconLogout,
+  IconMenu,
+  IconSliders,
+  IconTag,
+  IconUser,
+  IconX,
+} from '../icons'
 
 const NAV = [
   { to: '/admin', label: 'Обзор', icon: IconHome, end: true },
@@ -13,6 +28,11 @@ const NAV = [
   { to: '/admin/categories', label: 'Категории', icon: IconLayers },
   { to: '/admin/brands', label: 'Бренды', icon: IconTag },
   { to: '/admin/attributes', label: 'Атрибуты', icon: IconSliders },
+  { to: '/admin/dictionaries', label: 'Справочники', icon: IconFolder },
+  { to: '/admin/orders', label: 'Заказы', icon: IconInbox },
+  { to: '/admin/payments', label: 'Платежи', icon: IconCard },
+  { to: '/admin/carts', label: 'Корзины', icon: IconBag },
+  { to: '/admin/users', label: 'Пользователи', icon: IconUser },
 ]
 
 export default function AdminShell() {

@@ -1,3 +1,35 @@
+# общее окружение и зависимости для api и worker
+x-app-env: &app-env
+  ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+  ConnectionStrings__Postgres: "Host=postgres;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}"
+  ConnectionStrings__Redis: "redis:6379,password=${REDIS_PASSWORD}"
+  RabbitMQ__Host: rabbitmq
+  RabbitMQ__Port: "5672"
+  RabbitMQ__User: ${RABBITMQ_USER}
+  RabbitMQ__Password: ${RABBITMQ_PASSWORD}
+  RabbitMQ__VirtualHost: ${RABBITMQ_VHOST:-/}
+  Kafka__BootstrapServers: kafka:9092
+  Minio__InternalEndpoint: "http://minio:9000"
+  Minio__PublicEndpoint: "http://localhost:${MINIO_PORT}"
+  Minio__AccessKey: ${MINIO_AVATARS_ACCESS_KEY}
+  Minio__SecretKey: ${MINIO_AVATARS_SECRET_KEY}
+  Minio__Bucket: "marketadvanced"
+  # Hangfire хранит задачи в том же Postgres, в схеме hangfire
+  Hangfire__Schema: hangfire
+  Catalog__BaseUrl: "http://api:8080"
+
+x-app-depends: &app-depends
+  postgres:
+    condition: service_healthy
+  redis:
+    condition: service_healthy
+  rabbitmq:
+    condition: service_healthy
+  kafka:
+    condition: service_healthy
+  minio:
+    condition: service_healthy
+
 services:
   postgres:
     image: postgres:17-alpine
@@ -38,6 +70,7 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+      RABBITMQ_DEFAULT_VHOST: ${RABBITMQ_VHOST:-/}
     ports:
       - "${RABBITMQ_PORT}:5672"
       - "${RABBITMQ_MANAGEMENT_PORT}:15672"
@@ -110,34 +143,32 @@ services:
       context: ./src
       dockerfile: Api/Dockerfile
     restart: unless-stopped
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
-      kafka:
-        condition: service_healthy
-      minio:
-        condition: service_healthy
+    depends_on: *app-depends
     environment:
-      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+      <<: *app-env
       ASPNETCORE_URLS: http://+:8080
-      ConnectionStrings__Postgres: "Host=postgres;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}"
-      ConnectionStrings__Redis: "redis:6379,password=${REDIS_PASSWORD}"
-      RabbitMQ__Host: rabbitmq
-      RabbitMQ__Port: "5672"
-      RabbitMQ__User: ${RABBITMQ_USER}
-      RabbitMQ__Password: ${RABBITMQ_PASSWORD}
-      Kafka__BootstrapServers: kafka:9092
-      Minio__InternalEndpoint: "http://minio:9000"
-      Minio__PublicEndpoint: "http://localhost:${MINIO_PORT}"
-      Minio__AccessKey: ${MINIO_AVATARS_ACCESS_KEY}
-      Minio__SecretKey: ${MINIO_AVATARS_SECRET_KEY}
-      Minio__Bucket: "marketadvanced"
+      # api только ставит задачи и показывает дашборд /hangfire, сервер Hangfire не запускает
+      Hangfire__Server: "false"
+      # api только публикует сообщения в RabbitMQ, консьюмеры MassTransit не поднимает
+      MassTransit__Consumers: "false"
     ports:
       - "${API_PORT}:8080"
+
+  # тот же образ, что и api, но выполняет только фоновые задачи Hangfire
+  # и консьюмеры MassTransit (без HTTP наружу)
+  worker:
+    build:
+      context: ./src
+      dockerfile: Api/Dockerfile
+    restart: unless-stopped
+    depends_on: *app-depends
+    environment:
+      <<: *app-env
+      ASPNETCORE_URLS: http://+:8080
+      Hangfire__Server: "true"
+      Hangfire__WorkerCount: ${HANGFIRE_WORKER_COUNT:-4}
+      MassTransit__Consumers: "true"
+      MassTransit__PrefetchCount: ${MASSTRANSIT_PREFETCH_COUNT:-16}
 
 volumes:
   postgres_data:

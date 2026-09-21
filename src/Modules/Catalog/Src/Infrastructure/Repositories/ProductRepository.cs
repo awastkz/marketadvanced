@@ -21,6 +21,19 @@ public sealed class ProductRepository : IProductRepository
             .AsSplitQuery()
             .FirstOrDefaultAsync(p => p.Id == id, ct);
 
+    public Task<ProductVariant?> GetVariantAsync(int variantId, CancellationToken ct) =>
+        _db.ProductVariant
+            .AsNoTracking()
+            .Include(v => v.Product)
+            .FirstOrDefaultAsync(v => v.Id == variantId, ct);
+
+    public async Task<IReadOnlyList<ProductVariant>> GetVariantsAsync(IReadOnlyCollection<int> variantIds, CancellationToken ct) =>
+        await _db.ProductVariant
+            .AsNoTracking()
+            .Include(v => v.Product)
+            .Where(v => variantIds.Contains(v.Id))
+            .ToListAsync(ct);
+
     public Task<bool> SlugExistsAsync(string slug, int? exceptProductId, CancellationToken ct) =>
         _db.Product.AnyAsync(p => p.Slug == slug && (exceptProductId == null || p.Id != exceptProductId), ct);
 

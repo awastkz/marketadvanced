@@ -11,6 +11,15 @@ import ProductEditView from './views/admin/ProductEditView'
 import CategoriesView from './views/admin/CategoriesView'
 import BrandsView from './views/admin/BrandsView'
 import AttributesView from './views/admin/AttributesView'
+import UsersView from './views/admin/users/UsersView'
+import UserDetailView from './views/admin/users/UserDetailView'
+import CartsView from './views/admin/carts/CartsView'
+import CartDetailView from './views/admin/carts/CartDetailView'
+import OrdersView from './views/admin/orders/OrdersView'
+import OrderDetailView from './views/admin/orders/OrderDetailView'
+import PaymentsView from './views/admin/payments/PaymentsView'
+import PaymentDetailView from './views/admin/payments/PaymentDetailView'
+import DictionariesView from './views/admin/dictionaries/DictionariesView'
 import HomeView from './views/HomeView'
 import ProfileView from './views/ProfileView'
 import LoginView from './views/LoginView'
@@ -61,6 +70,15 @@ function App() {
         <Route path="categories" element={<CategoriesView />} />
         <Route path="brands" element={<BrandsView />} />
         <Route path="attributes" element={<AttributesView />} />
+        <Route path="users" element={<UsersView />} />
+        <Route path="users/:id" element={<UserDetailView />} />
+        <Route path="carts" element={<CartsView />} />
+        <Route path="carts/:id" element={<CartDetailView />} />
+        <Route path="orders" element={<OrdersView />} />
+        <Route path="orders/:id" element={<OrderDetailView />} />
+        <Route path="payments" element={<PaymentsView />} />
+        <Route path="payments/:id" element={<PaymentDetailView />} />
+        <Route path="dictionaries" element={<DictionariesView />} />
       </Route>
       <Route
         path="/login"

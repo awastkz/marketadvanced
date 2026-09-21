@@ -9,5 +9,16 @@ services:
     environment:
       DOTNET_USE_POLLING_FILE_WATCHER: "true"
 
+  worker:
+    build:
+      context: ./src
+      dockerfile: Api/Dockerfile.dev
+    volumes:
+      - ./src:/src
+      - worker_artifacts:/src/artifacts
+    environment:
+      DOTNET_USE_POLLING_FILE_WATCHER: "true"
+
 volumes:
   api_artifacts:
+  worker_artifacts:

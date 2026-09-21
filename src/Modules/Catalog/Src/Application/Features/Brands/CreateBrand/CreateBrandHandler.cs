@@ -1,6 +1,6 @@
 using MediatR;
 using MarketAdvanced.Catalog.Application.Abstractions;
-using MarketAdvanced.Catalog.Application.Common;
+using MarketAdvanced.Shared.Exceptions;
 using MarketAdvanced.Catalog.Domain;
 
 namespace MarketAdvanced.Catalog.Application.Features.Brands.CreateBrand;
@@ -24,6 +24,7 @@ public sealed class CreateBrandHandler : IRequestHandler<CreateBrandCommand, Bra
             Name = request.Name,
             Slug = request.Slug,
             Description = string.IsNullOrWhiteSpace(request.Description) ? null : request.Description,
+            UserId = request.UserId,
         };
 
         await _repo.AddAsync(brand, cancellationToken);

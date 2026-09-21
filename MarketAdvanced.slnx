@@ -9,11 +9,19 @@
   <Folder Name="/src/modules/" />
   <Folder Name="/src/modules/identity/">
     <Project Path="src\Modules\Identity\Src\Identity.csproj" />
-    <Project Path="src\Modules\Identity\Contracts\Identity.Contracts.csproj" />
     <Project Path="src\Modules\Identity\Tests\Integration\Identity.IntegrationTests.csproj" />
     <Project Path="src\Modules\Identity\Tests\Unit\IdentityUnitTests.csproj" />
   </Folder>
   <Folder Name="/src/modules/catalog/">
     <Project Path="src\Modules\Catalog\Src\Catalog.csproj" />
+  </Folder>
+  <Folder Name="/src/modules/cart/">
+    <Project Path="src\Modules\Cart\Src\Cart.csproj" />
+  </Folder>
+  <Folder Name="/src/modules/order/">
+    <Project Path="src\Modules\Order\Src\Order.csproj" />
+  </Folder>
+  <Folder Name="/src/modules/payment/">
+    <Project Path="src\Modules\Payment\Src\Payment.csproj" />
   </Folder>
 </Solution>

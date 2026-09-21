@@ -15,6 +15,8 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.Property(v => v.Description).HasMaxLength(4000);
         builder.Property(v => v.ImagePath).HasMaxLength(500);
         builder.Property(v => v.CreatedAt).IsRequired();
+        builder.Property(v => v.UserId).IsRequired();
+        builder.HasIndex(v => v.UserId);
         builder.HasOne(v => v.Category).WithMany(v => v.Products).HasForeignKey(v => v.CategoryId).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne(v => v.Brand).WithMany(v => v.Products).HasForeignKey(v => v.BrandId);
     }

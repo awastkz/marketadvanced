@@ -16,10 +16,12 @@ namespace MarketAdvanced.Catalog.Api.Admin;
 public sealed class BrandsController : ControllerBase
 {
     private readonly IMediator _mediator;
+    private readonly ICurrentUser _currentUser;
 
-    public BrandsController(IMediator mediator)
+    public BrandsController(IMediator mediator, ICurrentUser currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
     }
 
     [HttpGet]
@@ -32,7 +34,7 @@ public sealed class BrandsController : ControllerBase
 
     [HttpPost]
     public async Task<IActionResult> Create([FromForm] BrandRequest r, CancellationToken ct) =>
-        Ok(await _mediator.Send(new CreateBrandCommand(r.Name.Trim(), r.Slug.Trim(), r.Description?.Trim()), ct));
+        Ok(await _mediator.Send(new CreateBrandCommand(_currentUser.Id, r.Name.Trim(), r.Slug.Trim(), r.Description?.Trim()), ct));
 
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, [FromForm] BrandRequest r, CancellationToken ct) =>
