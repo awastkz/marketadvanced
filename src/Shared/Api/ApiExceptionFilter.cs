@@ -15,6 +15,7 @@ public sealed class ApiExceptionFilter : IExceptionFilter
             NotFoundException e => (StatusCodes.Status404NotFound, e.Message),
             ConflictException e => (StatusCodes.Status409Conflict, e.Message),
             UnauthorizedException e => (StatusCodes.Status401Unauthorized, e.Message),
+            ServiceUnavailableException e => (StatusCodes.Status503ServiceUnavailable, e.Message),
             _ => (0, string.Empty),
         };
 

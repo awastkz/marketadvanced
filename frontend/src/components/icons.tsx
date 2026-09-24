@@ -302,3 +302,33 @@ export const IconRotateCcw = (p: IconProps) => (
     <path d="M3 4v5h5" />
   </svg>
 )
+
+export const IconCart = (p: IconProps) => (
+  <svg {...base(p)}>
+    <circle cx="9" cy="20" r="1.5" />
+    <circle cx="18" cy="20" r="1.5" />
+    <path d="M3 4h2l2.4 12.2a2 2 0 0 0 2 1.6h8.2a2 2 0 0 0 2-1.6L21 8H6" />
+  </svg>
+)
+
+export const IconMinus = (p: IconProps) => (
+  <svg {...base(p)}>
+    <path d="M5 12h14" />
+  </svg>
+)
+
+export const IconDownload = (p: IconProps) => (
+  <svg {...base(p)}>
+    <path d="M12 3v12" />
+    <path d="m7 10 5 5 5-5" />
+    <path d="M4 19h16" />
+  </svg>
+)
+
+export const IconBarChart = (p: IconProps) => (
+  <svg {...base(p)}>
+    <path d="M4 20V10" />
+    <path d="M12 20V4" />
+    <path d="M20 20v-6" />
+  </svg>
+)

@@ -1,0 +1,22 @@
+# Tempo в одном процессе, трассы на диске контейнера (volume tempo_data).
+# Приём по OTLP от otel-collector, Grafana читает по HTTP :3200.
+
+server:
+  http_listen_port: 3200
+
+distributor:
+  receivers:
+    otlp:
+      protocols:
+        grpc:
+          endpoint: 0.0.0.0:4317
+        http:
+          endpoint: 0.0.0.0:4318
+
+storage:
+  trace:
+    backend: local
+    local:
+      path: /var/tempo/blocks
+    wal:
+      path: /var/tempo/wal

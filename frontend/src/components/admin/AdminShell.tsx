@@ -7,6 +7,7 @@ import Avatar from '../Avatar'
 import Toaster from '../Toaster'
 import {
   IconBag,
+  IconBarChart,
   IconBox,
   IconCard,
   IconExternal,
@@ -18,6 +19,7 @@ import {
   IconMenu,
   IconSliders,
   IconTag,
+  IconUpload,
   IconUser,
   IconX,
 } from '../icons'
@@ -29,6 +31,8 @@ const NAV = [
   { to: '/admin/brands', label: 'Бренды', icon: IconTag },
   { to: '/admin/attributes', label: 'Атрибуты', icon: IconSliders },
   { to: '/admin/dictionaries', label: 'Справочники', icon: IconFolder },
+  { to: '/admin/import', label: 'Импорт/экспорт', icon: IconUpload },
+  { to: '/admin/analytics', label: 'Аналитика', icon: IconBarChart },
   { to: '/admin/orders', label: 'Заказы', icon: IconInbox },
   { to: '/admin/payments', label: 'Платежи', icon: IconCard },
   { to: '/admin/carts', label: 'Корзины', icon: IconBag },
@@ -101,6 +105,11 @@ export default function AdminShell() {
             <IconMenu />
           </button>
           <span className="admin-topbar-title">{current?.label ?? 'Админка'}</span>
+          {/* на сайдбар нельзя полагаться: на узких экранах он скрыт за гамбургером — здесь выход виден всегда */}
+          <NavLink to="/" className="btn btn-ghost btn-sm admin-topbar-site-link">
+            <IconExternal />
+            <span>На сайт</span>
+          </NavLink>
         </header>
         <main className="admin-main">
           <Outlet />

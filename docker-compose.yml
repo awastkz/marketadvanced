@@ -8,7 +8,6 @@ x-app-env: &app-env
   RabbitMQ__User: ${RABBITMQ_USER}
   RabbitMQ__Password: ${RABBITMQ_PASSWORD}
   RabbitMQ__VirtualHost: ${RABBITMQ_VHOST:-/}
-  Kafka__BootstrapServers: kafka:9092
   Minio__InternalEndpoint: "http://minio:9000"
   Minio__PublicEndpoint: "http://localhost:${MINIO_PORT}"
   Minio__AccessKey: ${MINIO_AVATARS_ACCESS_KEY}
@@ -16,7 +15,9 @@ x-app-env: &app-env
   Minio__Bucket: "marketadvanced"
   # Hangfire хранит задачи в том же Postgres, в схеме hangfire
   Hangfire__Schema: hangfire
-  Catalog__BaseUrl: "http://api:8080"
+  Catalog__BaseUrl: "http://catalog:8080"
+  # телеметрия в otel-collector (override для dev), дальше Prometheus + Loki + Grafana
+  OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector:4317"
 
 x-app-depends: &app-depends
   postgres:
@@ -25,8 +26,6 @@ x-app-depends: &app-depends
     condition: service_healthy
   rabbitmq:
     condition: service_healthy
-  kafka:
-    condition: service_healthy
   minio:
     condition: service_healthy
 
@@ -34,6 +33,8 @@ services:
   postgres:
     image: postgres:17-alpine
     restart: unless-stopped
+    # pg_stat_statements: статистика по запросам для поиска узких мест (select * from pg_stat_statements)
+    command: ["postgres", "-c", "shared_preload_libraries=pg_stat_statements"]
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -82,43 +83,7 @@ services:
       timeout: 5s
       retries: 10
 
-  kafka:
-    image: apache/kafka:3.9.0
-    restart: unless-stopped
-    environment:
-      KAFKA_NODE_ID: 1
-      KAFKA_PROCESS_ROLES: broker,controller
-      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093,PLAINTEXT_HOST://:9094
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:${KAFKA_PORT}
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
-      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
-      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-    ports:
-      - "${KAFKA_PORT}:9094"
-    volumes:
-      - kafka_data:/var/lib/kafka/data
-    healthcheck:
-      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092"]
-      interval: 10s
-      timeout: 10s
-      retries: 10
-      start_period: 20s
 
-  kafka-ui:
-    image: provectuslabs/kafka-ui:latest
-    restart: unless-stopped
-    depends_on:
-      kafka:
-        condition: service_healthy
-    environment:
-      KAFKA_CLUSTERS_0_NAME: marketadvanced
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
-    ports:
-      - "${KAFKA_UI_PORT}:8080"
 
   minio:
     image: minio/minio:latest
@@ -147,12 +112,35 @@ services:
     environment:
       <<: *app-env
       ASPNETCORE_URLS: http://+:8080
+      Service__Name: api
+      # все модули, кроме Catalog: он живёт в отдельном сервисе catalog
+      Modules__0: Identity
+      Modules__1: Cart
+      Modules__2: Order
+      Modules__3: Payment
       # api только ставит задачи и показывает дашборд /hangfire, сервер Hangfire не запускает
       Hangfire__Server: "false"
       # api только публикует сообщения в RabbitMQ, консьюмеры MassTransit не поднимает
       MassTransit__Consumers: "false"
     ports:
       - "${API_PORT}:8080"
+
+  # тот же образ, но поднимает только модуль Catalog; api и worker ходят в него по http://catalog:8080
+  catalog:
+    build:
+      context: ./src
+      dockerfile: Api/Dockerfile
+    restart: unless-stopped
+    depends_on: *app-depends
+    environment:
+      <<: *app-env
+      ASPNETCORE_URLS: http://+:8080
+      Service__Name: catalog
+      Modules__0: Catalog
+      Hangfire__Server: "false"
+      MassTransit__Consumers: "false"
+    ports:
+      - "${CATALOG_PORT:-5081}:8080"
 
   # тот же образ, что и api, но выполняет только фоновые задачи Hangfire
   # и консьюмеры MassTransit (без HTTP наружу)
@@ -165,6 +153,11 @@ services:
     environment:
       <<: *app-env
       ASPNETCORE_URLS: http://+:8080
+      Service__Name: worker
+      # модули, у которых есть фоновые задачи или консьюмеры
+      Modules__0: Cart
+      Modules__1: Order
+      Modules__2: Payment
       Hangfire__Server: "true"
       Hangfire__WorkerCount: ${HANGFIRE_WORKER_COUNT:-4}
       MassTransit__Consumers: "true"
@@ -174,5 +167,4 @@ volumes:
   postgres_data:
   redis_data:
   rabbitmq_data:
-  kafka_data:
   minio_data:

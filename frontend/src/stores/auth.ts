@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import * as authApi from '../api/auth'
 import type { User } from '../api/auth'
+import { useCartStore } from './cart'
 
 interface AuthState {
   accessToken: string | null
@@ -86,6 +87,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   logout() {
     set({ accessToken: null, user: null })
+    // корзина принадлежит пользователю по токену — на чужом сеансе её быть не должно
+    useCartStore.getState().reset()
   },
 }))
 

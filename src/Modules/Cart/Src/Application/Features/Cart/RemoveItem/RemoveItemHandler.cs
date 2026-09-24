@@ -13,8 +13,8 @@ public sealed class RemoveItemHandler : IRequestHandler<RemoveItemCommand>
         _repo = repo;
     }
 
-    public Task Handle(RemoveItemCommand request, CancellationToken cancellationToken)
+    public async Task Handle(RemoveItemCommand request, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        await _repo.RemoveItemAsync(request.owner, request.VariantId, cancellationToken);
     }
 }

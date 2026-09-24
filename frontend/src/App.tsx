@@ -6,6 +6,8 @@ import { GuestOnly } from './router/GuestOnly'
 import { RequireAdmin } from './router/RequireAdmin'
 import AdminShell from './components/admin/AdminShell'
 import DashboardView from './views/admin/DashboardView'
+import ImportView from './views/admin/import/ImportView'
+import AnalyticsView from './views/admin/analytics/AnalyticsView'
 import ProductsView from './views/admin/ProductsView'
 import ProductEditView from './views/admin/ProductEditView'
 import CategoriesView from './views/admin/CategoriesView'
@@ -22,6 +24,8 @@ import PaymentDetailView from './views/admin/payments/PaymentDetailView'
 import DictionariesView from './views/admin/dictionaries/DictionariesView'
 import HomeView from './views/HomeView'
 import ProfileView from './views/ProfileView'
+import CartView from './views/CartView'
+import CatalogView from './views/CatalogView'
 import LoginView from './views/LoginView'
 import RegisterView from './views/RegisterView'
 
@@ -54,6 +58,22 @@ function App() {
         }
       />
       <Route
+        path="/catalog"
+        element={
+          <RequireAuth>
+            <CatalogView />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/cart"
+        element={
+          <RequireAuth>
+            <CartView />
+          </RequireAuth>
+        }
+      />
+      <Route
         path="/admin"
         element={
           <RequireAuth>
@@ -79,6 +99,8 @@ function App() {
         <Route path="payments" element={<PaymentsView />} />
         <Route path="payments/:id" element={<PaymentDetailView />} />
         <Route path="dictionaries" element={<DictionariesView />} />
+        <Route path="import" element={<ImportView />} />
+        <Route path="analytics" element={<AnalyticsView />} />
       </Route>
       <Route
         path="/login"

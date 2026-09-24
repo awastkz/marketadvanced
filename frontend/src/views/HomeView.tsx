@@ -1,7 +1,16 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import AppShell from '../components/AppShell'
+import ProductCard from '../components/ProductCard'
+import ProductQuickView from '../components/ProductQuickView'
 import { useAuthStore } from '../stores/auth'
-import { IconArrowRight, IconBag, IconGrid, IconUser } from '../components/icons'
+import { cartItemCount, useCartStore } from '../stores/cart'
+import { catalogAdmin } from '../api/admin/catalog'
+import { useLoad } from '../utils/useLoad'
+import { flattenTree } from '../utils/categories'
+import { IconArrowRight, IconBag, IconCart, IconGrid, IconUser } from '../components/icons'
+
+const POPULAR_COUNT = 8
 
 function greeting() {
   const h = new Date().getHours()
@@ -13,6 +22,16 @@ function greeting() {
 
 export default function HomeView() {
   const user = useAuthStore((s) => s.user)
+  const cartCount = useCartStore((s) => cartItemCount(s.cart))
+  const [openProductId, setOpenProductId] = useState<number | null>(null)
+
+  const categories = useLoad(() => catalogAdmin.categories.list(), [])
+  const topCategories = categories.data ? flattenTree(categories.data).filter((c) => c.depth === 0).slice(0, 8) : []
+
+  const products = useLoad(
+    () => catalogAdmin.products.list({ isActive: true, page: 1, pageSize: POPULAR_COUNT }),
+    [],
+  )
 
   const memberSince = user?.createdAt
     ? new Date(user.createdAt).toLocaleDateString('ru-RU', { year: 'numeric', month: 'long', day: 'numeric' })
@@ -47,14 +66,24 @@ export default function HomeView() {
           <span className="tile-meta">Редактировать →</span>
         </Link>
 
-        <div className="card tile is-soon">
-          <span className="badge">Скоро</span>
+        <Link to="/cart" className="card tile">
+          {cartCount > 0 && <span className="badge badge-accent">{cartCount}</span>}
+          <span className="tile-icon">
+            <IconCart />
+          </span>
+          <h3>Корзина</h3>
+          <p>{cartCount > 0 ? `Товаров в корзине: ${cartCount}` : 'Пока пусто — добавьте что-нибудь.'}</p>
+          <span className="tile-meta">Перейти в корзину →</span>
+        </Link>
+
+        <Link to="/catalog" className="card tile">
           <span className="tile-icon">
             <IconGrid />
           </span>
           <h3>Каталог</h3>
-          <p>Товары, категории и поиск по площадке появятся в следующем релизе.</p>
-        </div>
+          <p>Все товары площадки: категории, поиск и покупка в пару кликов.</p>
+          <span className="tile-meta">Смотреть каталог →</span>
+        </Link>
 
         <div className="card tile is-soon">
           <span className="badge">Скоро</span>
@@ -83,6 +112,47 @@ export default function HomeView() {
           </dl>
         </div>
       </div>
+
+      {topCategories.length > 0 && (
+        <section className="home-section">
+          <div className="home-section-head">
+            <h2>Категории</h2>
+            <Link to="/catalog" className="tile-meta">
+              Весь каталог →
+            </Link>
+          </div>
+          <nav className="home-categories" aria-label="Категории товаров">
+            {topCategories.map((c) => (
+              <Link key={c.id} to={`/catalog?category=${c.id}`} className="home-category-chip">
+                {c.name}
+              </Link>
+            ))}
+          </nav>
+        </section>
+      )}
+
+      {(products.loading || (products.data && products.data.items.length > 0)) && (
+        <section className="home-section">
+          <div className="home-section-head">
+            <h2>Товары</h2>
+            <Link to="/catalog" className="tile-meta">
+              Весь каталог →
+            </Link>
+          </div>
+          <div className="product-grid">
+            {products.loading &&
+              Array.from({ length: 4 }).map((_, i) => (
+                <div className="card product-card-skeleton" key={i}>
+                  <span className="skeleton" style={{ display: 'block', height: 160 }} />
+                </div>
+              ))}
+            {!products.loading &&
+              products.data?.items.map((p) => <ProductCard key={p.id} product={p} onOpen={setOpenProductId} />)}
+          </div>
+        </section>
+      )}
+
+      <ProductQuickView productId={openProductId} onClose={() => setOpenProductId(null)} />
     </AppShell>
   )
 }

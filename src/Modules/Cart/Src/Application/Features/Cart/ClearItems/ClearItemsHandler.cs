@@ -1,5 +1,6 @@
 using MarketAdvanced.Cart.Application.Abstractions;
 using MarketAdvanced.Cart.Domain;
+using MarketAdvanced.Shared.Exceptions;
 using MediatR;
 
 namespace MarketAdvanced.Cart.Application.Features.Cart.ClearItems;
@@ -13,8 +14,8 @@ public sealed class ClearItemsHandler : IRequestHandler<ClearItemsCommand>
         _repo = repo;
     }
 
-    public Task Handle(ClearItemsCommand request, CancellationToken cancellationToken)
+    public async Task Handle(ClearItemsCommand request, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        await _repo.RemoveItemsAsync(request.Owner, cancellationToken);
     }
 }

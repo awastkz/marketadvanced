@@ -7,6 +7,8 @@ using MarketAdvanced.Shared.Options;
 using MarketAdvanced.Catalog.Infrastructure;
 using MarketAdvanced.Catalog.Application.Abstractions;
 using MarketAdvanced.Catalog.Infrastructure.Repositories;
+using MarketAdvanced.Catalog.Domain;
+using MarketAdvanced.Shared.Exporter;
 
 namespace MarketAdvanced.Catalog;
 
@@ -29,11 +31,16 @@ public static class CatalogServiceAPI
         services.AddScoped<IBrandRepository, BrandRepository>();
         services.AddScoped<IProductAttributeRepository, ProductAttributeRepository>();
 
-services.AddValidatorsFromAssembly(typeof(CatalogServiceAPI).Assembly);
+        // простые: одна строка, без класса
+        services.AddExport<Brand, CatalogDbContext>("brands");
+        services.AddExport<Category, CatalogDbContext>("categories");
+        services.AddExport<ProductAttribute, CatalogDbContext>("attributes");
 
-          // чтобы контроллеры модуля точно подхватились
-          services.AddControllers().AddApplicationPart(typeof(CatalogServiceAPI).Assembly);
+        services.AddValidatorsFromAssembly(typeof(CatalogServiceAPI).Assembly);
 
-          return services;
+        // чтобы контроллеры модуля точно подхватились
+        services.AddControllers().AddApplicationPart(typeof(CatalogServiceAPI).Assembly);
+
+        return services;
     }
 }

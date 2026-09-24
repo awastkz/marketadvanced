@@ -14,3 +14,6 @@ frontend/dist/
 # IDE
 .idea/
 .vscode/
+# учётка для нагрузочных тестов
+ops/k6/.env.local
+ops/k6/run-*.json

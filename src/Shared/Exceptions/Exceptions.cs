@@ -17,3 +17,8 @@ public sealed class UnauthorizedException : Exception
 {
     public UnauthorizedException(string message) : base(message) { }
 }
+
+public sealed class ServiceUnavailableException : Exception
+{
+    public ServiceUnavailableException(string message, Exception? inner = null) : base(message, inner) {}
+}

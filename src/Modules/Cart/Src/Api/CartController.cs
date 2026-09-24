@@ -6,6 +6,7 @@ using MarketAdvanced.Cart.Application.Features.Cart.GetCart;
 using MarketAdvanced.Cart.Application.Features.Cart.RemoveItem;
 using MediatR;
 using MarketAdvanced.Shared.Exceptions;
+using MarketAdvanced.Cart.Application.Features.Cart.ClearItems;
 
 namespace MarketAdvanced.Cart.Api;
 
@@ -46,6 +47,13 @@ public class CartController : ControllerBase
     public async Task<IActionResult> RemoveItem(int variantId)
     {
         await _mediator.Send(new RemoveItemCommand(Owner, variantId));
+        return NoContent();
+    }
+
+    [HttpDelete("clear-items")]
+    public async Task<IActionResult> Clear()
+    {
+        await _mediator.Send(new ClearItemsCommand(Owner));
         return NoContent();
     }
 }

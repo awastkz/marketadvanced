@@ -30,7 +30,7 @@
  * Для просмотра без бэкенда: VITE_ADMIN_MOCK=true в .env.local
  */
 
-import { http } from '../http'
+import { catalogHttp } from '../http'
 import type {
   Attribute,
   AttributePayload,
@@ -71,26 +71,26 @@ function brandForm(p: BrandPayload) {
 
 const httpCatalogApi: CatalogAdminApi = {
   categories: {
-    list: () => http.get<Category[]>('/api/admin/categories').then((r) => r.data),
-    create: (p) => http.post<Category>('/api/admin/categories', categoryForm(p)).then((r) => r.data),
-    update: (id, p) => http.put<Category>(`/api/admin/categories/${id}`, categoryForm(p)).then((r) => r.data),
-    remove: (id) => http.delete<void>(`/api/admin/categories/${id}`).then(() => undefined),
+    list: () => catalogHttp.get<Category[]>('/api/admin/categories').then((r) => r.data),
+    create: (p) => catalogHttp.post<Category>('/api/admin/categories', categoryForm(p)).then((r) => r.data),
+    update: (id, p) => catalogHttp.put<Category>(`/api/admin/categories/${id}`, categoryForm(p)).then((r) => r.data),
+    remove: (id) => catalogHttp.delete<void>(`/api/admin/categories/${id}`).then(() => undefined),
   },
   brands: {
-    list: () => http.get<Brand[]>('/api/admin/brands').then((r) => r.data),
-    create: (p) => http.post<Brand>('/api/admin/brands', brandForm(p)).then((r) => r.data),
-    update: (id, p) => http.put<Brand>(`/api/admin/brands/${id}`, brandForm(p)).then((r) => r.data),
-    remove: (id) => http.delete<void>(`/api/admin/brands/${id}`).then(() => undefined),
+    list: () => catalogHttp.get<Brand[]>('/api/admin/brands').then((r) => r.data),
+    create: (p) => catalogHttp.post<Brand>('/api/admin/brands', brandForm(p)).then((r) => r.data),
+    update: (id, p) => catalogHttp.put<Brand>(`/api/admin/brands/${id}`, brandForm(p)).then((r) => r.data),
+    remove: (id) => catalogHttp.delete<void>(`/api/admin/brands/${id}`).then(() => undefined),
   },
   attributes: {
-    list: () => http.get<Attribute[]>('/api/admin/attributes').then((r) => r.data),
-    create: (p: AttributePayload) => http.post<Attribute>('/api/admin/attributes', p).then((r) => r.data),
-    update: (id, p) => http.put<Attribute>(`/api/admin/attributes/${id}`, p).then((r) => r.data),
-    remove: (id) => http.delete<void>(`/api/admin/attributes/${id}`).then(() => undefined),
+    list: () => catalogHttp.get<Attribute[]>('/api/admin/attributes').then((r) => r.data),
+    create: (p: AttributePayload) => catalogHttp.post<Attribute>('/api/admin/attributes', p).then((r) => r.data),
+    update: (id, p) => catalogHttp.put<Attribute>(`/api/admin/attributes/${id}`, p).then((r) => r.data),
+    remove: (id) => catalogHttp.delete<void>(`/api/admin/attributes/${id}`).then(() => undefined),
   },
   products: {
     list: (q: ProductQuery) =>
-      http
+      catalogHttp
         .get<Paged<ProductListItem>>('/api/admin/products', {
           params: {
             search: q.search || undefined,
@@ -102,19 +102,19 @@ const httpCatalogApi: CatalogAdminApi = {
           },
         })
         .then((r) => r.data),
-    get: (id) => http.get<ProductDetails>(`/api/admin/products/${id}`).then((r) => r.data),
-    create: (p: ProductPayload) => http.post<ProductDetails>('/api/admin/products', p).then((r) => r.data),
-    update: (id, p) => http.put<ProductDetails>(`/api/admin/products/${id}`, p).then((r) => r.data),
-    remove: (id) => http.delete<void>(`/api/admin/products/${id}`).then(() => undefined),
+    get: (id) => catalogHttp.get<ProductDetails>(`/api/admin/products/${id}`).then((r) => r.data),
+    create: (p: ProductPayload) => catalogHttp.post<ProductDetails>('/api/admin/products', p).then((r) => r.data),
+    update: (id, p) => catalogHttp.put<ProductDetails>(`/api/admin/products/${id}`, p).then((r) => r.data),
+    remove: (id) => catalogHttp.delete<void>(`/api/admin/products/${id}`).then(() => undefined),
     uploadImage: (productId, file) => {
       const form = new FormData()
       form.append('File', file)
-      return http.post<ProductImage>(`/api/admin/products/${productId}/images`, form).then((r) => r.data)
+      return catalogHttp.post<ProductImage>(`/api/admin/products/${productId}/images`, form).then((r) => r.data)
     },
     deleteImage: (productId, imageId) =>
-      http.delete<void>(`/api/admin/products/${productId}/images/${imageId}`).then(() => undefined),
+      catalogHttp.delete<void>(`/api/admin/products/${productId}/images/${imageId}`).then(() => undefined),
     setMainImage: (productId, imageId) =>
-      http.put<void>(`/api/admin/products/${productId}/images/${imageId}/main`).then(() => undefined),
+      catalogHttp.put<void>(`/api/admin/products/${productId}/images/${imageId}/main`).then(() => undefined),
   },
 }
 

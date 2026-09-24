@@ -1,0 +1,27 @@
+# Prometheus принимает метрики по OTLP от otel-collector (флаг --web.enable-otlp-receiver в compose).
+# promote_resource_attributes переносит service.name в лейбл service_name, иначе сервисы не различить.
+
+global:
+  scrape_interval: 15s
+
+otlp:
+  promote_resource_attributes:
+    - service.name
+    - service.instance.id
+
+storage:
+  tsdb:
+    out_of_order_time_window: 30m
+
+scrape_configs:
+  - job_name: prometheus
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: cadvisor
+    static_configs:
+      - targets: ['cadvisor:8080']
+
+  - job_name: postgres
+    static_configs:
+      - targets: ['postgres-exporter:9187']

@@ -8,6 +8,125 @@ services:
       - api_artifacts:/src/artifacts
     environment:
       DOTNET_USE_POLLING_FILE_WATCHER: "true"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/health/live || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 180s   # dotnet watch собирает проект при старте
+
+  catalog:
+    build:
+      context: ./src
+      dockerfile: Api/Dockerfile.dev
+    volumes:
+      - ./src:/src
+      - catalog_artifacts:/src/artifacts
+    environment:
+      DOTNET_USE_POLLING_FILE_WATCHER: "true"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/health/live || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 180s   # dotnet watch собирает проект при старте
+
+  # Aspire Dashboard отключён в пользу Grafana-стека ниже. Чтобы вернуть: раскомментировать
+  # и переключить OTEL_EXPORTER_OTLP_ENDPOINT в docker-compose.yml на http://aspire-dashboard:18889
+  # aspire-dashboard:
+  #   image: mcr.microsoft.com/dotnet/aspire-dashboard:latest
+  #   environment:
+  #     DOTNET_DASHBOARD_UNSECURED_ALLOW_ANONYMOUS: "true"
+  #   ports:
+  #     - "18888:18888"   # UI
+  #     - "18889:18889"   # OTLP gRPC
+
+  # ---- Наблюдаемость: OTel Collector -> Prometheus (метрики) + Loki (логи), Grafana как UI ----
+  # Grafana: http://localhost:3000 (без логина). Трассы хранит Tempo.
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    command: ["--config=/etc/otelcol/config.yaml"]
+    volumes:
+      - ./ops/otel/collector.yaml:/etc/otelcol/config.yaml:ro
+    ports:
+      - "4317:4317"   # OTLP gRPC, для запуска api с хоста через dotnet run
+      - "4318:4318"   # OTLP HTTP
+    depends_on:
+      - prometheus
+      - loki
+      - tempo
+
+  tempo:
+    image: grafana/tempo:latest
+    command: ["-config.file=/etc/tempo/tempo.yaml"]
+    volumes:
+      - ./ops/tempo/tempo.yaml:/etc/tempo/tempo.yaml:ro
+      - tempo_data:/var/tempo
+    ports:
+      - "3200:3200"
+
+  prometheus:
+    image: prom/prometheus:latest
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --web.enable-otlp-receiver
+      - --web.enable-remote-write-receiver   # сюда k6 пишет свои метрики (ops/k6/run.sh)
+      - --storage.tsdb.retention.time=7d
+    volumes:
+      - ./ops/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+
+  # CPU и память каждого контейнера: container_* в Prometheus
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    privileged: true
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    ports:
+      - "8085:8080"
+
+  # Соединения, транзакции, размер БД: pg_* в Prometheus
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:latest
+    environment:
+      DATA_SOURCE_NAME: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=disable"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "9187:9187"
+
+  loki:
+    image: grafana/loki:3.4.2
+    command: ["-config.file=/etc/loki/loki.yaml"]
+    volumes:
+      - ./ops/loki/loki.yaml:/etc/loki/loki.yaml:ro
+      - loki_data:/loki
+    ports:
+      - "3100:3100"
+
+  grafana:
+    image: grafana/grafana:latest
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
+      GF_AUTH_DISABLE_LOGIN_FORM: "true"
+      GF_SECURITY_ALLOW_EMBEDDING: "true"
+    volumes:
+      - ./ops/grafana/provisioning:/etc/grafana/provisioning:ro
+      - grafana_data:/var/lib/grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+      - loki
+      - tempo
 
   worker:
     build:
@@ -18,7 +137,18 @@ services:
       - worker_artifacts:/src/artifacts
     environment:
       DOTNET_USE_POLLING_FILE_WATCHER: "true"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/health/live || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 180s   # dotnet watch собирает проект при старте
 
 volumes:
   api_artifacts:
+  catalog_artifacts:
   worker_artifacts:
+  prometheus_data:
+  loki_data:
+  tempo_data:
+  grafana_data:
