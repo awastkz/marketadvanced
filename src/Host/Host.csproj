@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <ItemGroup>
+    <PackageReference Include="CsvHelper" />
+    <PackageReference Include="FluentValidation" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Scalar.AspNetCore" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+    <PackageReference Include="SharpGrip.FluentValidation.AutoValidation.Mvc" />
+    <PackageReference Include="StackExchange.Redis" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Services\Identity\Src\Presentation\Identity.WebApi\Identity.WebApi.csproj" />
+    <ProjectReference Include="..\Services\Catalog\Src\Presentation\Catalog.WebApi\Catalog.WebApi.csproj" />
+    <ProjectReference Include="..\Services\Cart\Src\Presentation\Cart.WebApi\Cart.WebApi.csproj" />
+    <ProjectReference Include="..\Services\Order\Src\Presentation\Order.WebApi\Order.WebApi.csproj" />
+    <ProjectReference Include="..\Services\Payment\Src\Presentation\Payment.WebApi\Payment.WebApi.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\Order.Application\Order.Application.csproj" />
+    <ProjectReference Include="..\..\..\..\..\Shared\Infrastructure\Shared.External\Shared.External.csproj" />
+  </ItemGroup>
+
+</Project>

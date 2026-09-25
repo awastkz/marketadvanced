@@ -2,7 +2,7 @@ services:
   api:
     build:
       context: ./src
-      dockerfile: Api/Dockerfile.dev
+      dockerfile: Host/Dockerfile.dev
     volumes:
       - ./src:/src
       - api_artifacts:/src/artifacts
@@ -18,7 +18,7 @@ services:
   catalog:
     build:
       context: ./src
-      dockerfile: Api/Dockerfile.dev
+      dockerfile: Host/Dockerfile.dev
     volumes:
       - ./src:/src
       - catalog_artifacts:/src/artifacts
@@ -131,7 +131,7 @@ services:
   worker:
     build:
       context: ./src
-      dockerfile: Api/Dockerfile.dev
+      dockerfile: Host/Dockerfile.dev
     volumes:
       - ./src:/src
       - worker_artifacts:/src/artifacts

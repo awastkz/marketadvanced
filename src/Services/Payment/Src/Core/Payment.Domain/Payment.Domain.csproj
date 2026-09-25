@@ -1,0 +1,5 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Домен без зависимостей: ни EF, ни ASP.NET, ни MediatR -->
+
+</Project>

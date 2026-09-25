@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Контроллеры + IdentityServiceAPI: регистрация всех слоёв сервиса в DI -->
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\Identity.Application\Identity.Application.csproj" />
+    <ProjectReference Include="..\..\Infrastructure\Identity.Persistence\Identity.Persistence.csproj" />
+    <ProjectReference Include="..\..\Infrastructure\Identity.External\Identity.External.csproj" />
+    <ProjectReference Include="..\..\..\..\..\Shared\Presentation\Shared.WebApi\Shared.WebApi.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Microsoft.AspNetCore.Http" />
+    <Using Include="Microsoft.AspNetCore.Mvc" />
+    <Using Include="Microsoft.Extensions.Configuration" />
+    <Using Include="Microsoft.Extensions.DependencyInjection" />
+    <Using Include="Microsoft.Extensions.Hosting" />
+  </ItemGroup>
+
+</Project>

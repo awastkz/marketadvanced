@@ -106,7 +106,7 @@ services:
   api:
     build:
       context: ./src
-      dockerfile: Api/Dockerfile
+      dockerfile: Host/Dockerfile
     restart: unless-stopped
     depends_on: *app-depends
     environment:
@@ -129,7 +129,7 @@ services:
   catalog:
     build:
       context: ./src
-      dockerfile: Api/Dockerfile
+      dockerfile: Host/Dockerfile
     restart: unless-stopped
     depends_on: *app-depends
     environment:
@@ -147,7 +147,7 @@ services:
   worker:
     build:
       context: ./src
-      dockerfile: Api/Dockerfile
+      dockerfile: Host/Dockerfile
     restart: unless-stopped
     depends_on: *app-depends
     environment:

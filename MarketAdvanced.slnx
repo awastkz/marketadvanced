@@ -1,27 +1,68 @@
 <Solution>
   <Folder Name="/src/">
-    <Project Path="src\Api\api.csproj" />
+    <Project Path="src\Host\Host.csproj" />
   </Folder>
   <Folder Name="/src/shared/">
-    <Project Path="src\Shared\Shared.csproj" />
+    <Project Path="src\Shared\Core\Shared.Application\Shared.Application.csproj" />
+    <Project Path="src\Shared\Infrastructure\Shared.Persistence\Shared.Persistence.csproj" />
+    <Project Path="src\Shared\Infrastructure\Shared.External\Shared.External.csproj" />
+    <Project Path="src\Shared\Presentation\Shared.WebApi\Shared.WebApi.csproj" />
     <Project Path="src\Shared\Testing\Shared.Testing.csproj" />
   </Folder>
-  <Folder Name="/src/modules/" />
-  <Folder Name="/src/modules/identity/">
-    <Project Path="src\Modules\Identity\Src\Identity.csproj" />
-    <Project Path="src\Modules\Identity\Tests\Integration\Identity.IntegrationTests.csproj" />
-    <Project Path="src\Modules\Identity\Tests\Unit\IdentityUnitTests.csproj" />
+  <Folder Name="/src/services/" />
+  <Folder Name="/src/services/identity/">
+    <Project Path="src\Services\Identity\Src\Core\Identity.Domain\Identity.Domain.csproj" />
+    <Project Path="src\Services\Identity\Src\Core\Identity.Application\Identity.Application.csproj" />
+    <Project Path="src\Services\Identity\Src\Infrastructure\Identity.Persistence\Identity.Persistence.csproj" />
+    <Project Path="src\Services\Identity\Src\Infrastructure\Identity.External\Identity.External.csproj" />
+    <Project Path="src\Services\Identity\Src\Presentation\Identity.WebApi\Identity.WebApi.csproj" />
   </Folder>
-  <Folder Name="/src/modules/catalog/">
-    <Project Path="src\Modules\Catalog\Src\Catalog.csproj" />
+  <Folder Name="/src/services/identity/tests/">
+    <Project Path="src\Services\Identity\Tests\Integration\Identity.IntegrationTests.csproj" />
+    <Project Path="src\Services\Identity\Tests\Unit\IdentityUnitTests.csproj" />
   </Folder>
-  <Folder Name="/src/modules/cart/">
-    <Project Path="src\Modules\Cart\Src\Cart.csproj" />
+  <Folder Name="/src/services/catalog/">
+    <Project Path="src\Services\Catalog\Src\Core\Catalog.Domain\Catalog.Domain.csproj" />
+    <Project Path="src\Services\Catalog\Src\Core\Catalog.Application\Catalog.Application.csproj" />
+    <Project Path="src\Services\Catalog\Src\Infrastructure\Catalog.Persistence\Catalog.Persistence.csproj" />
+    <Project Path="src\Services\Catalog\Src\Infrastructure\Catalog.External\Catalog.External.csproj" />
+    <Project Path="src\Services\Catalog\Src\Presentation\Catalog.WebApi\Catalog.WebApi.csproj" />
   </Folder>
-  <Folder Name="/src/modules/order/">
-    <Project Path="src\Modules\Order\Src\Order.csproj" />
+  <Folder Name="/src/services/catalog/tests/">
+    <Project Path="src\Services\Catalog\Tests\Integration\Catalog.IntegrationTests.csproj" />
+    <Project Path="src\Services\Catalog\Tests\Unit\Catalog.UnitTests.csproj" />
   </Folder>
-  <Folder Name="/src/modules/payment/">
-    <Project Path="src\Modules\Payment\Src\Payment.csproj" />
+  <Folder Name="/src/services/cart/">
+    <Project Path="src\Services\Cart\Src\Core\Cart.Domain\Cart.Domain.csproj" />
+    <Project Path="src\Services\Cart\Src\Core\Cart.Application\Cart.Application.csproj" />
+    <Project Path="src\Services\Cart\Src\Infrastructure\Cart.Persistence\Cart.Persistence.csproj" />
+    <Project Path="src\Services\Cart\Src\Infrastructure\Cart.External\Cart.External.csproj" />
+    <Project Path="src\Services\Cart\Src\Presentation\Cart.WebApi\Cart.WebApi.csproj" />
+  </Folder>
+  <Folder Name="/src/services/cart/tests/">
+    <Project Path="src\Services\Cart\Tests\Integration\Cart.IntegrationTests.csproj" />
+    <Project Path="src\Services\Cart\Tests\Unit\Cart.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/src/services/order/">
+    <Project Path="src\Services\Order\Src\Core\Order.Domain\Order.Domain.csproj" />
+    <Project Path="src\Services\Order\Src\Core\Order.Application\Order.Application.csproj" />
+    <Project Path="src\Services\Order\Src\Infrastructure\Order.Persistence\Order.Persistence.csproj" />
+    <Project Path="src\Services\Order\Src\Infrastructure\Order.External\Order.External.csproj" />
+    <Project Path="src\Services\Order\Src\Presentation\Order.WebApi\Order.WebApi.csproj" />
+  </Folder>
+  <Folder Name="/src/services/order/tests/">
+    <Project Path="src\Services\Order\Tests\Integration\Order.IntegrationTests.csproj" />
+    <Project Path="src\Services\Order\Tests\Unit\Order.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/src/services/payment/">
+    <Project Path="src\Services\Payment\Src\Core\Payment.Domain\Payment.Domain.csproj" />
+    <Project Path="src\Services\Payment\Src\Core\Payment.Application\Payment.Application.csproj" />
+    <Project Path="src\Services\Payment\Src\Infrastructure\Payment.Persistence\Payment.Persistence.csproj" />
+    <Project Path="src\Services\Payment\Src\Infrastructure\Payment.External\Payment.External.csproj" />
+    <Project Path="src\Services\Payment\Src\Presentation\Payment.WebApi\Payment.WebApi.csproj" />
+  </Folder>
+  <Folder Name="/src/services/payment/tests/">
+    <Project Path="src\Services\Payment\Tests\Integration\Payment.IntegrationTests.csproj" />
+    <Project Path="src\Services\Payment\Tests\Unit\Payment.UnitTests.csproj" />
   </Folder>
 </Solution>

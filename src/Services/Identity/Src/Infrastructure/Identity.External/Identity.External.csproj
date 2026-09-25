@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <!-- TokenService: выпуск JWT -->
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\Identity.Application\Identity.Application.csproj" />
+    <ProjectReference Include="..\..\..\..\..\Shared\Infrastructure\Shared.External\Shared.External.csproj" />
+  </ItemGroup>
+
+</Project>

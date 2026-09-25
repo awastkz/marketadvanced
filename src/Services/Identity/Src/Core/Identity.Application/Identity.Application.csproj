@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <PackageReference Include="FluentValidation" />
+    <PackageReference Include="MediatR" />
+    <!-- PasswordHasher<User> в Login/RegisterUser. TODO: спрятать за IPasswordHasher и убрать отсюда -->
+    <PackageReference Include="Microsoft.Extensions.Identity.Core" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Identity.Domain\Identity.Domain.csproj" />
+    <ProjectReference Include="..\..\..\..\..\Shared\Core\Shared.Application\Shared.Application.csproj" />
+  </ItemGroup>
+
+</Project>

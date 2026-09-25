@@ -1,5 +1,11 @@
 <Project>
+  <!-- Общие настройки для всех проектов в src/. В csproj указывать только то, что отличается. -->
   <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <!-- Host -> MarketAdvanced.Host, Catalog -> MarketAdvanced.Catalog, Shared.Testing -> MarketAdvanced.Shared.Testing -->
+    <RootNamespace>MarketAdvanced.$(MSBuildProjectName)</RootNamespace>
     <UseArtifactsOutput>true</UseArtifactsOutput>
   </PropertyGroup>
 </Project>

@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Контроллеры + OrderServiceAPI: регистрация всех слоёв сервиса в DI -->
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\Order.Application\Order.Application.csproj" />
+    <ProjectReference Include="..\..\Infrastructure\Order.Persistence\Order.Persistence.csproj" />
+    <ProjectReference Include="..\..\Infrastructure\Order.External\Order.External.csproj" />
+    <ProjectReference Include="..\..\..\..\..\Shared\Presentation\Shared.WebApi\Shared.WebApi.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Microsoft.AspNetCore.Http" />
+    <Using Include="Microsoft.AspNetCore.Mvc" />
+    <Using Include="Microsoft.Extensions.Configuration" />
+    <Using Include="Microsoft.Extensions.DependencyInjection" />
+    <Using Include="Microsoft.Extensions.Hosting" />
+  </ItemGroup>
+
+</Project>
