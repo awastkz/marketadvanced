@@ -1,0 +1,8 @@
+{
+  "openapi": "3.1.1",
+  "info": {
+    "title": "Host | order",
+    "version": "1.0.0"
+  },
+  "paths": { }
+}

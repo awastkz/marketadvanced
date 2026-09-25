@@ -20,7 +20,7 @@ public sealed class AddItemHandler : IRequestHandler<AddItemCommand>
     public async Task Handle(AddItemCommand request, CancellationToken ct)
     {
 
-        var productVariant = await _catalog.getProductAsync(request.VariantId, ct);
+        var productVariant = await _catalog.GetVariantAsync(request.VariantId, ct);
         if(productVariant is null || !productVariant.IsActive)
         throw new NotFoundException("Вариант не найден или снят с продажи");
 

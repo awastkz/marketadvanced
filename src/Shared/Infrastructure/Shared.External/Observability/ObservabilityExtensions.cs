@@ -24,6 +24,7 @@ public static class ObservabilityExtensions
                 .AddAspNetCoreInstrumentation()
                 .AddHttpClientInstrumentation()
                 .AddNpgsql()
+                .AddSource("MassTransit")   // publish/consume: трасса идёт от HTTP-запроса через RabbitMQ до консьюмера
                 .AddOtlpExporter())
             .WithMetrics(m => m
                 .AddAspNetCoreInstrumentation()

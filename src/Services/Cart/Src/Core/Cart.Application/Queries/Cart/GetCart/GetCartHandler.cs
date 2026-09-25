@@ -24,7 +24,7 @@ public sealed class GetCartHandler : IRequestHandler<GetCartQuery, CartResult>
             return cart is null ? CartResult.Empty : new CartResult(cart.Id, [], 0);
 
         var ids = cart.Items.Select(i => i.VariantId).ToList();
-        var variants = await _catalog.getVariantsAsync(ids, ct);
+        var variants = await _catalog.GetVariantsAsync(ids, ct);
         var byId = variants.ToDictionary(v => v.Id);
 
         // позиции, которых Catalog больше не знает, не показываем; чистить их — задача события об удалении варианта

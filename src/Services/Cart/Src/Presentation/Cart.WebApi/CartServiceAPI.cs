@@ -1,5 +1,5 @@
 using MarketAdvanced.Shared.Application.Behaviors;
-using MarketAdvanced.Shared.External.Options;
+using MarketAdvanced.Cart.External.Options;
 using MarketAdvanced.Cart.External.Services.Catalog;
 using MarketAdvanced.Cart.Persistence.Repositories;
 using MarketAdvanced.Cart.Application.Services.Catalog;

@@ -33,7 +33,7 @@ public static class ServicesExtensions
 
         // ASP.NET сам подхватывает контроллеры из всех сборок, на которые ссылается Host.csproj.
         // Выключенный модуль не должен отвечать по своим маршрутам, поэтому его сборку <Service>.WebApi убираем из application parts.
-        services.AddControllers().ConfigureApplicationPartManager(pm =>
+        services.AddControllers(o => o.Conventions.Add(new ModuleGroupNameConvention())).ConfigureApplicationPartManager(pm =>
         {
             foreach (var part in pm.ApplicationParts.OfType<AssemblyPart>().ToList())
             {

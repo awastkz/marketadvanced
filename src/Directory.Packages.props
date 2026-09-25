@@ -24,15 +24,21 @@
   <ItemGroup>
     <PackageVersion Include="AWSSDK.S3" Version="4.0.102.4" />
     <PackageVersion Include="CsvHelper" Version="33.1.0" />
-    <PackageVersion Include="RabbitMQ.Client" Version="7.2.2" />
     <PackageVersion Include="StackExchange.Redis" Version="3.1.31" />
     <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="8.19.2" />
+  </ItemGroup>
+
+  <!-- Messaging: MassTransit v8 (Apache 2.0), v9 уже коммерческий -->
+  <ItemGroup>
+    <PackageVersion Include="MassTransit" Version="8.5.10" />
+    <PackageVersion Include="MassTransit.RabbitMQ" Version="8.5.10" />
   </ItemGroup>
 
   <!-- WebApi -->
   <ItemGroup>
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.11" />
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.11" />
+    <PackageVersion Include="Microsoft.Extensions.ApiDescription.Server" Version="10.0.11" />
     <PackageVersion Include="Scalar.AspNetCore" Version="2.17.6" />
     <PackageVersion Include="SharpGrip.FluentValidation.AutoValidation.Mvc" Version="2.0.0" />
   </ItemGroup>
@@ -40,7 +46,6 @@
   <!-- Health checks -->
   <ItemGroup>
     <PackageVersion Include="AspNetCore.HealthChecks.NpgSql" Version="9.0.0" />
-    <PackageVersion Include="AspNetCore.HealthChecks.Rabbitmq" Version="9.0.0" />
     <PackageVersion Include="AspNetCore.HealthChecks.Redis" Version="9.0.0" />
     <PackageVersion Include="AspNetCore.HealthChecks.UI.Client" Version="9.0.0" />
   </ItemGroup>

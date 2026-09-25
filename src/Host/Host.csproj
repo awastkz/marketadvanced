@@ -1,10 +1,21 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
+  <PropertyGroup>
+    <!-- openapi/*.json генерируются при сборке (Microsoft.Extensions.ApiDescription.Server): спецификации для других команд без запуска сервиса -->
+    <OpenApiDocumentsDirectory>$(MSBuildProjectDirectory)/openapi</OpenApiDocumentsDirectory>
+    <!-- в контейнерах (dotnet watch, docker build) не генерируем: там не нужно, и файлы в смонтированном src создаются от root -->
+    <OpenApiGenerateDocuments Condition="'$(DOTNET_RUNNING_IN_CONTAINER)' == 'true'">false</OpenApiGenerateDocuments>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="CsvHelper" />
     <PackageReference Include="FluentValidation" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Microsoft.Extensions.ApiDescription.Server">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
     <PackageReference Include="Scalar.AspNetCore" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

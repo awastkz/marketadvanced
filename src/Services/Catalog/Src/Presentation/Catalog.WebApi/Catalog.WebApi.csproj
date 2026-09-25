@@ -1,6 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <!-- Контроллеры + CatalogServiceAPI: регистрация всех слоёв сервиса в DI -->
+  <PropertyGroup>
+    <!-- XML-комментарии контроллеров и Response-типов попадают в openapi.json -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <!-- CS1591: не требовать комментарий у каждого публичного члена -->
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>

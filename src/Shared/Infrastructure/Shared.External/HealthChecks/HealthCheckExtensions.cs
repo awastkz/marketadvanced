@@ -10,16 +10,15 @@ namespace MarketAdvanced.Shared.External.HealthChecks;
 /// <summary>
 /// /health/live  — процесс жив, без внешних проверок: для restart-политики контейнера.
 /// /health/ready — Postgres, Redis, RabbitMQ: можно ли принимать трафик. JSON с деталями по каждой.
+/// RabbitMQ проверяет MassTransit сам (masstransit-bus, тег ready), регистрируется в AddMessaging.
 /// </summary>
 public static class HealthCheckExtensions
 {
     public static IServiceCollection AddPlatformHealthChecks(this IServiceCollection services, IConfiguration config)
     {
-        services.AddSingleton<RabbitMqConnectionProvider>();
         services.AddHealthChecks()
             .AddNpgSql(config.GetConnectionString("Postgres")!, name: "postgres", tags: ["ready"], timeout: TimeSpan.FromSeconds(5))
-            .AddRedis(config.GetConnectionString("Redis")!, name: "redis", tags: ["ready"], timeout: TimeSpan.FromSeconds(5))
-            .AddRabbitMQ(sp => sp.GetRequiredService<RabbitMqConnectionProvider>().GetAsync(), name: "rabbitmq", tags: ["ready"], timeout: TimeSpan.FromSeconds(5));
+            .AddRedis(config.GetConnectionString("Redis")!, name: "redis", tags: ["ready"], timeout: TimeSpan.FromSeconds(5));
 
         return services;
     }
