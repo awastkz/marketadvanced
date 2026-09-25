@@ -3,10 +3,10 @@ using Microsoft.AspNetCore.Mvc.ApplicationModels;
 namespace MarketAdvanced.Host.Extensions;
 
 /// <summary>
-/// GroupName контроллера = модуль из имени сборки: Catalog.WebApi -> catalog. По нему OpenAPI делится на документ на сервис.
+/// GroupName контроллера = сервис из имени сборки: Catalog.WebApi -> catalog. По нему OpenAPI делится на документ на сервис.
 /// Явный [ApiExplorerSettings(GroupName = ...)] на контроллере не перетирается.
 /// </summary>
-public sealed class ModuleGroupNameConvention : IControllerModelConvention
+public sealed class ServiceGroupNameConvention : IControllerModelConvention
 {
     public void Apply(ControllerModel controller)
     {

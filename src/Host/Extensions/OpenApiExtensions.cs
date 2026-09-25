@@ -4,28 +4,28 @@ using Microsoft.AspNetCore.Mvc;
 namespace MarketAdvanced.Host.Extensions;
 
 /// <summary>
-/// OpenAPI по модулям: /openapi/catalog.json — всё API модуля (для его команды),
+/// OpenAPI по сервисам: /openapi/catalog.json — всё API сервиса (для его команды),
 /// /openapi/catalog-internal.json — только контроллеры с [ApiExplorerSettings(GroupName = "catalog-internal")], для других сервисов.
-/// Документ -internal создаётся, только если в модуле есть такие контроллеры.
+/// Документ -internal создаётся, только если в сервисе есть такие контроллеры.
 /// </summary>
 public static class OpenApiExtensions
 {
     private const string InternalSuffix = "-internal";
 
-    public static string[] ModuleOpenApiDocuments(IConfiguration config) =>
+    public static string[] ServiceOpenApiDocuments(IConfiguration config) =>
         ServicesExtensions.EnabledServices(config)
-            .SelectMany(module =>
+            .SelectMany(service =>
             {
-                var doc = module.ToLowerInvariant();
-                return HasInternalApi(module, doc + InternalSuffix) ? new[] { doc, doc + InternalSuffix } : new[] { doc };
+                var doc = service.ToLowerInvariant();
+                return HasInternalApi(service, doc + InternalSuffix) ? new[] { doc, doc + InternalSuffix } : new[] { doc };
             })
             .ToArray();
 
-    public static IServiceCollection AddModuleOpenApi(this IServiceCollection services, IConfiguration config)
+    public static IServiceCollection AddServiceOpenApi(this IServiceCollection services, IConfiguration config)
     {
-        foreach (var doc in ModuleOpenApiDocuments(config))
+        foreach (var doc in ServiceOpenApiDocuments(config))
         {
-            // модульный документ включает и внутренние контроллеры модуля
+            // документ сервиса включает и его внутренние контроллеры
             services.AddOpenApi(doc, o => o.ShouldInclude = d =>
                 d.GroupName == doc || (!doc.EndsWith(InternalSuffix) && d.GroupName == doc + InternalSuffix));
         }
@@ -33,7 +33,7 @@ public static class OpenApiExtensions
         return services;
     }
 
-    private static bool HasInternalApi(string module, string internalGroup) =>
-        Assembly.Load($"{module}.WebApi").GetTypes()
+    private static bool HasInternalApi(string service, string internalGroup) =>
+        Assembly.Load($"{service}.WebApi").GetTypes()
             .Any(t => t.GetCustomAttribute<ApiExplorerSettingsAttribute>()?.GroupName == internalGroup);
 }

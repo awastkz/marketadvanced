@@ -113,11 +113,11 @@ services:
       <<: *app-env
       ASPNETCORE_URLS: http://+:8080
       Service__Name: api
-      # все модули, кроме Catalog: он живёт в отдельном сервисе catalog
-      Modules__0: Identity
-      Modules__1: Cart
-      Modules__2: Order
-      Modules__3: Payment
+      # все сервисы, кроме Catalog: он живёт в отдельном контейнере catalog
+      Services__0: Identity
+      Services__1: Cart
+      Services__2: Order
+      Services__3: Payment
       # api только ставит задачи и показывает дашборд /hangfire, сервер Hangfire не запускает
       Hangfire__Server: "false"
       # api только публикует сообщения в RabbitMQ, консьюмеры MassTransit не поднимает
@@ -125,7 +125,7 @@ services:
     ports:
       - "${API_PORT}:8080"
 
-  # тот же образ, но поднимает только модуль Catalog; api и worker ходят в него по http://catalog:8080
+  # тот же образ, но поднимает только сервис Catalog; api и worker ходят в него по http://catalog:8080
   catalog:
     build:
       context: ./src
@@ -136,7 +136,7 @@ services:
       <<: *app-env
       ASPNETCORE_URLS: http://+:8080
       Service__Name: catalog
-      Modules__0: Catalog
+      Services__0: Catalog
       Hangfire__Server: "false"
       MassTransit__Consumers: "false"
     ports:
@@ -154,10 +154,10 @@ services:
       <<: *app-env
       ASPNETCORE_URLS: http://+:8080
       Service__Name: worker
-      # модули, у которых есть фоновые задачи или консьюмеры
-      Modules__0: Cart
-      Modules__1: Order
-      Modules__2: Payment
+      # сервисы, у которых есть фоновые задачи или консьюмеры
+      Services__0: Cart
+      Services__1: Order
+      Services__2: Payment
       Hangfire__Server: "true"
       Hangfire__WorkerCount: ${HANGFIRE_WORKER_COUNT:-4}
       MassTransit__Consumers: "true"

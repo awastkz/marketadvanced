@@ -25,15 +25,15 @@ if (isOpenApiGeneration)
 builder.Services.AddSharedWebApi(builder.Configuration);   // CORS, rate limiter, JWT, ApiExceptionFilter, CurrentUser
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddS3Storage(builder.Configuration);
-builder.Services.AddServices(builder.Configuration);       // Identity, Catalog, Cart... по секции Modules
+builder.Services.AddServices(builder.Configuration);       // Identity, Catalog, Cart... по секции Services
 
 // MassTransit + RabbitMQ. При генерации OpenAPI шину не поднимаем: она подключалась бы к брокеру во время сборки.
 if (!isOpenApiGeneration)
-    builder.Services.AddMessaging(builder.Configuration);
+    builder.Services.AddMessaging(builder.Configuration, ServicesExtensions.ConsumerAssemblies(builder.Configuration));
 
-// OpenAPI: документ на каждый поднятый модуль (/openapi/catalog.json ...) и внутренний для других сервисов (/openapi/catalog-internal.json), если есть.
-// Контроллеры попадают в документ по GroupName из ModuleGroupNameConvention.
-builder.Services.AddModuleOpenApi(builder.Configuration);
+// OpenAPI: документ на каждый поднятый сервис (/openapi/catalog.json ...) и внутренний для других сервисов (/openapi/catalog-internal.json), если есть.
+// Контроллеры попадают в документ по GroupName из ServiceGroupNameConvention.
+builder.Services.AddServiceOpenApi(builder.Configuration);
 
 builder.Services.AddPlatformHealthChecks(builder.Configuration);
 builder.AddObservability();
@@ -52,7 +52,7 @@ if (ServicesExtensions.EnabledServices(builder.Configuration).Contains("Identity
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-    app.MapScalarApiReference(o => o.AddDocuments(OpenApiExtensions.ModuleOpenApiDocuments(builder.Configuration))); // документация на /scalar, переключатель по документам модулей
+    app.MapScalarApiReference(o => o.AddDocuments(OpenApiExtensions.ServiceOpenApiDocuments(builder.Configuration))); // документация на /scalar, переключатель по документам сервисов
 }
 
 app.MapControllers();

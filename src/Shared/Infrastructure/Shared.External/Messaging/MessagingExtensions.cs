@@ -20,8 +20,8 @@ public static class MessagingExtensions
 
         services.AddMassTransit(x =>
         {
-            // очереди в kebab-case: variant-deactivated, а не VariantDeactivated
-            x.SetKebabCaseEndpointNameFormatter();
+            // очереди в kebab-case с префиксом сервиса: order.variant-created
+            x.SetEndpointNameFormatter(new ServiceEndpointNameFormatter());
 
             // api и catalog только публикуют, очереди читает worker.
             // Проверка на пустой список обязательна: AddConsumers() без сборок сканирует все загруженные,

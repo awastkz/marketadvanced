@@ -1,4 +1,7 @@
 services:
+  # Dev: один процесс со всеми сервисами вместо трёх dotnet watch (api, catalog, worker), каждый из которых
+  # держит свой компилятор и MSBuild (~2.5 ГБ на контейнер). catalog и worker ниже выключены профилем.
+  # Проверить раздельную топологию как в проде: docker compose -f docker-compose.yml up --build
   api:
     build:
       context: ./src
@@ -8,6 +11,21 @@ services:
       - api_artifacts:/src/artifacts
     environment:
       DOTNET_USE_POLLING_FILE_WATCHER: "true"
+      Service__Name: app
+      # все сервисы; Services__0..3 из docker-compose.yml перезаписываются, Catalog добавляется
+      Services__0: Identity
+      Services__1: Catalog
+      Services__2: Cart
+      Services__3: Order
+      Services__4: Payment
+      # Cart ходит в Catalog по HTTP в тот же процесс
+      Catalog__BaseUrl: "http://localhost:8080"
+      # роль worker тоже здесь: консьюмеры MassTransit и сервер Hangfire
+      MassTransit__Consumers: "true"
+      Hangfire__Server: "true"
+    ports:
+      # фронт ходит в Catalog на отдельный порт (VITE_CATALOG_API_BASE_URL), отдаём его этим же процессом
+      - "${CATALOG_PORT:-5081}:8080"
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://localhost:8080/health/live || exit 1"]
       interval: 15s
@@ -16,6 +34,7 @@ services:
       start_period: 180s   # dotnet watch собирает проект при старте
 
   catalog:
+    profiles: ["split"]   # в dev Catalog поднят внутри api, см. комментарий вверху
     build:
       context: ./src
       dockerfile: Host/Dockerfile.dev
@@ -131,6 +150,7 @@ services:
   #     - tempo
 
   worker:
+    profiles: ["split"]   # в dev консьюмеры и Hangfire работают внутри api, см. комментарий вверху
     build:
       context: ./src
       dockerfile: Host/Dockerfile.dev

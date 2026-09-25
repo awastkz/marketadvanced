@@ -3,6 +3,8 @@
   <ItemGroup>
     <PackageReference Include="FluentValidation" />
     <PackageReference Include="MediatR" />
+    <!-- только атрибуты событий ([EntityName], [MessageUrn]), без транспорта -->
+    <PackageReference Include="MassTransit.Abstractions" />
   </ItemGroup>
 
   <ItemGroup>
