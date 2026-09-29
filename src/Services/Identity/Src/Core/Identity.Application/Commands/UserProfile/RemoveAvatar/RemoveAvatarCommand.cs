@@ -1,3 +1,3 @@
 using MediatR;
 
-public sealed record RemoveAvatarCommand(int UserId) : IRequest<ProfileResult>;
+public sealed record RemoveAvatarCommand(Guid UserId) : IRequest<ProfileResult>;

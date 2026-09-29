@@ -13,7 +13,7 @@ using MarketAdvanced.Catalog.Application.Commands.Products.UpdateProduct;
 namespace MarketAdvanced.Catalog.WebApi.Admin.Products;
 
 [ApiController]
-[Authorize]
+[Authorize(Roles = "admin")]
 [Route("api/admin/[controller]")]
 public class ProductsController: ControllerBase
 {

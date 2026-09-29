@@ -23,7 +23,7 @@ function fromUser(u: UserDetails | null): FormState {
 
 export default function UserDetailView() {
   const { id } = useParams()
-  const userId = Number(id)
+  const userId = id ?? ''
   const navigate = useNavigate()
 
   const user = useLoad(() => identityAdmin.users.get(userId), [userId])

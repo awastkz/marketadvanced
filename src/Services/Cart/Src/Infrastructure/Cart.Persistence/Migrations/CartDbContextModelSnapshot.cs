@@ -23,7 +23,7 @@ namespace MarketAdvanced.Cart.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("CartItem", b =>
+            modelBuilder.Entity("MarketAdvanced.Cart.Domain.CartItem", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -48,7 +48,7 @@ namespace MarketAdvanced.Cart.Persistence.Migrations
                     b.ToTable("CartItem", "cart");
                 });
 
-            modelBuilder.Entity("ShoppingCart", b =>
+            modelBuilder.Entity("MarketAdvanced.Cart.Domain.ShoppingCart", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -65,8 +65,8 @@ namespace MarketAdvanced.Cart.Persistence.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int?>("UserId")
-                        .HasColumnType("integer");
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -81,16 +81,16 @@ namespace MarketAdvanced.Cart.Persistence.Migrations
                     b.ToTable("ShoppingCart", "cart");
                 });
 
-            modelBuilder.Entity("CartItem", b =>
+            modelBuilder.Entity("MarketAdvanced.Cart.Domain.CartItem", b =>
                 {
-                    b.HasOne("ShoppingCart", null)
+                    b.HasOne("MarketAdvanced.Cart.Domain.ShoppingCart", null)
                         .WithMany("Items")
                         .HasForeignKey("CartId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("ShoppingCart", b =>
+            modelBuilder.Entity("MarketAdvanced.Cart.Domain.ShoppingCart", b =>
                 {
                     b.Navigation("Items");
                 });

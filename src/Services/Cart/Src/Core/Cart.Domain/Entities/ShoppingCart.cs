@@ -3,7 +3,7 @@ namespace MarketAdvanced.Cart.Domain;
 public class ShoppingCart
 {
     public int Id {get; set;}
-    public int? UserId {get;set;}
+    public Guid? UserId {get;set;}
     public Guid? GuestId {get;set;}
     public DateTime UpdatedAt {get;set;}
     public DateTime? ExpiresAt {get;set;}

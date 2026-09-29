@@ -6,7 +6,7 @@ export interface Paged<T> {
 }
 
 export interface UserListItem {
-  id: number
+  id: string
   email: string
   fullName: string | null
   phone: string | null
@@ -26,7 +26,7 @@ export interface UserSession {
 }
 
 export interface UserDetails {
-  id: number
+  id: string
   email: string
   firstName: string | null
   lastName: string | null
@@ -53,10 +53,10 @@ export interface UserQuery {
 export interface IdentityAdminApi {
   users: {
     list(query: UserQuery): Promise<Paged<UserListItem>>
-    get(id: number): Promise<UserDetails>
-    update(id: number, payload: UserUpdatePayload): Promise<UserDetails>
-    setBlocked(id: number, blocked: boolean): Promise<UserDetails>
-    revokeSession(id: number, sessionId: number): Promise<void>
-    remove(id: number): Promise<void>
+    get(id: string): Promise<UserDetails>
+    update(id: string, payload: UserUpdatePayload): Promise<UserDetails>
+    setBlocked(id: string, blocked: boolean): Promise<UserDetails>
+    revokeSession(id: string, sessionId: number): Promise<void>
+    remove(id: string): Promise<void>
   }
 }

@@ -1,0 +1,1 @@
+public record GetUserQuery(Guid id);

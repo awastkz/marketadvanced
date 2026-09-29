@@ -67,12 +67,8 @@
                 "type": "object",
                 "properties": {
                   "Id": {
-                    "pattern": "^-?(?:0|[1-9]\\d*)$",
-                    "type": [
-                      "integer",
-                      "string"
-                    ],
-                    "format": "int32"
+                    "type": "string",
+                    "format": "uuid"
                   },
                   "Email": {
                     "type": "string"

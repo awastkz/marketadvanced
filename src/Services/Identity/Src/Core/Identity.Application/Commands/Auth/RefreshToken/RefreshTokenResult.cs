@@ -1,5 +1,5 @@
 public sealed record RefreshTokenResult(
-    int UserId,
+    Guid UserId,
     string Email,
     DateTime CreatedAt,
     string AccessToken,

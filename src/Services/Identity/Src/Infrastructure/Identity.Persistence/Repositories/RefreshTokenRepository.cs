@@ -4,6 +4,7 @@ using MarketAdvanced.Identity.Application.Contracts;
 
 namespace MarketAdvanced.Identity.Persistence.Repositories;
 
+[Obsolete("Вход, регистрация и токены переходят в Keycloak; удалить после миграции")]
 public class RefreshTokenRepository : IRefreshTokenRepository
 {
     private readonly IdentityDbContext _db;

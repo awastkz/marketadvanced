@@ -8,7 +8,7 @@ export interface Paged<T> {
 export interface CartListItem {
   id: number
   ownerLabel: string
-  userId: number | null
+  userId: string | null
   guestId: string | null
   itemsCount: number
   totalQuantity: number
@@ -30,7 +30,7 @@ export interface CartItemDetails {
 export interface CartDetails {
   id: number
   ownerLabel: string
-  userId: number | null
+  userId: string | null
   guestId: string | null
   items: CartItemDetails[]
   updatedAt: string

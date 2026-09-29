@@ -24,7 +24,7 @@ public sealed record ProductResult(
     bool IsActive,
     DateTime CreatedAt,
     DateTime? UpdatedAt,
-    int UserId,
+    Guid UserId,
     IReadOnlyList<VariantResult> Variants,
     IReadOnlyList<ProductImageResult> Images,
     IReadOnlyList<AttributeValueResult> Attributes)

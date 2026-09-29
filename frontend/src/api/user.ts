@@ -1,7 +1,7 @@
 import { http } from './http'
 
 export interface UserProfile {
-  id: number
+  id: string
   email: string
   firstName: string | null
   lastName: string | null

@@ -15,7 +15,7 @@ public class Category
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     /// <summary>Id пользователя из Identity, без внешнего ключа: модули не ссылаются друг на друга.</summary>
-    public int UserId { get; set; }
+    public Guid UserId { get; set; }
 
     public DateTime? UpdatedAt { get; set; }
 

@@ -23,11 +23,11 @@ public class UserRepository : IUserRepository
         await _db.SaveChangesAsync();
     }
 
-    public async Task<User> findByEmailAsync(string email)
+    public async Task<User> FindByEmailAsync(string email)
     {
         return await _db.Users.Where(v => v.Email == email).FirstOrDefaultAsync();
     }
-    public async Task<User> findByIdAsync(int id, List<string>? ForeignEntites)
+    public async Task<User> FindByIdAsync(Guid id, List<string>? ForeignEntites)
     {
         IQueryable<User> query = _db.Users.Where(v => v.Id == id);
         if(ForeignEntites is not null && ForeignEntites.Any())
@@ -40,9 +40,15 @@ public class UserRepository : IUserRepository
         return await query.FirstAsync();
     }
 
-    public async Task updateAsync(User user)
+    public async Task UpdateAsync(User user)
     {
         _db.Users.Update(user);
         await _db.SaveChangesAsync();
+    }
+
+    public async Task<List<User>> FindByIdsAsync(List<Guid> ids)
+    {
+        var users = await _db.Users.Where(v => ids.Contains(v.Id)).ToListAsync();
+        return users;
     }
 }

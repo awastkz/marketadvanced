@@ -15,7 +15,7 @@ public sealed class RemoveAvatarHandler : IRequestHandler<RemoveAvatarCommand, P
 
     public async Task<ProfileResult> Handle(RemoveAvatarCommand request, CancellationToken cancellationToken)
     {
-        var user = await _userRepo.findByIdAsync(request.UserId, new List<string> { "Profile" });
+        var user = await _userRepo.FindByIdAsync(request.UserId, new List<string> { "Profile" });
         user.Profile ??= new UserProfile { UserId = user.Id };
 
         var oldPath = user.Profile.AvatarPath;
@@ -23,7 +23,7 @@ public sealed class RemoveAvatarHandler : IRequestHandler<RemoveAvatarCommand, P
         {
             // сначала база, потом файл: сирота в хранилище безопаснее битой ссылки в профиле
             user.Profile.AvatarPath = null;
-            await _userRepo.updateAsync(user);
+            await _userRepo.UpdateAsync(user);
             await _storage.DeleteAsync(oldPath, cancellationToken);
         }
 

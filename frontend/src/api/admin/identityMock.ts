@@ -12,7 +12,7 @@ interface StoredUser extends UserDetails {
 
 let users: StoredUser[] = [
   {
-    id: 1,
+    id: '00000000-0000-4000-8000-000000000001',
     email: 'admin@marketadvanced.kz',
     firstName: 'Азамат',
     lastName: 'Каримов',
@@ -26,7 +26,7 @@ let users: StoredUser[] = [
     ],
   },
   {
-    id: 2,
+    id: '00000000-0000-4000-8000-000000000002',
     email: 'aigerim@example.com',
     firstName: 'Айгерим',
     lastName: 'Нурланова',
@@ -41,7 +41,7 @@ let users: StoredUser[] = [
     ],
   },
   {
-    id: 3,
+    id: '00000000-0000-4000-8000-000000000003',
     email: 'daniyar@example.com',
     firstName: 'Данияр',
     lastName: null,
@@ -53,7 +53,7 @@ let users: StoredUser[] = [
     sessions: [],
   },
   {
-    id: 4,
+    id: '00000000-0000-4000-8000-000000000004',
     email: 'zarina@example.com',
     firstName: 'Зарина',
     lastName: 'Ахметова',

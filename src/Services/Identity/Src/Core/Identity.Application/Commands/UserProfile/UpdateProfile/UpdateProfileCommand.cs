@@ -1,7 +1,7 @@
 using MediatR;
 
 public sealed record UpdateProfileCommand(
-    int UserId,
+    Guid UserId,
     string Email,
     string? FirstName,
     string? LastName,

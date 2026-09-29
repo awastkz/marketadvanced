@@ -16,6 +16,8 @@ x-app-env: &app-env
   # Hangfire хранит задачи в том же Postgres, в схеме hangfire
   Hangfire__Schema: hangfire
   Catalog__BaseUrl: "http://catalog:8080"
+  # внутри docker Keycloak доступен как keycloak:8080; issuer в токене остаётся localhost (Keycloak__Issuer в appsettings)
+  Keycloak__MetadataAddress: "http://keycloak:8080/realms/marketadvanced/.well-known/openid-configuration"
   # телеметрия в otel-collector (override для dev), дальше Prometheus + Loki + Grafana
   OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector:4317"
 
@@ -43,11 +45,47 @@ services:
       - "${POSTGRES_PORT}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      # создаёт базу keycloak; скрипты выполняются только на пустом томе, на существующем — createdb руками
+      - ./ops/postgres/init:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
       retries: 10
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.7.4
+    restart: unless-stopped
+    # start-dev: http без TLS и без кеша тем — только для разработки. В проде: start + TLS
+    command: ["start-dev", "--import-realm"]
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: "jdbc:postgresql://postgres:5432/keycloak"
+      KC_DB_USERNAME: ${POSTGRES_USER}
+      KC_DB_PASSWORD: ${POSTGRES_PASSWORD}
+      # админ создаётся при первом старте, потом логин/пароль меняются в консоли
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      # адрес, который видит браузер; он же попадает в токен как issuer
+      KC_HOSTNAME: "http://localhost:${KEYCLOAK_PORT}"
+      # api внутри docker ходит на http://keycloak:8080, а issuer остаётся localhost
+      KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "true"
+      KC_HEALTH_ENABLED: "true"
+    ports:
+      - "${KEYCLOAK_PORT}:8080"
+    volumes:
+      # realm из репозитория импортируется при старте, если его ещё нет
+      - ./ops/keycloak/import:/opt/keycloak/data/import:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      # в образе нет curl, проверяем /health/ready на management-порту через bash
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/9000 && printf 'GET /health/ready HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n' >&3 && grep -q UP <&3"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
 
   redis:
     image: redis:7-alpine

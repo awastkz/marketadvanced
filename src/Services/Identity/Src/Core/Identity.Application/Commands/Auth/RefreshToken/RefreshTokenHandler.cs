@@ -1,6 +1,7 @@
 using MarketAdvanced.Identity.Application.Contracts;
 using MediatR;
 
+[Obsolete("Вход, регистрация и токены переходят в Keycloak; удалить после миграции")]
 public sealed class RefreshTokenHandler : IRequestHandler<RefreshTokenCommand, RefreshTokenResult>
 {
     private readonly IRefreshTokenRepository _refreshRepo;
@@ -23,7 +24,7 @@ public sealed class RefreshTokenHandler : IRequestHandler<RefreshTokenCommand, R
         if (stored is null || stored.IsRevoked || stored.ExpiresAt < DateTime.UtcNow)
             throw new UnauthorizedAccessException("Invalid refresh token");
 
-        var user = await _userRepo.findByIdAsync(stored.UserId, null);
+        var user = await _userRepo.FindByIdAsync(stored.UserId, null);
 
         // ротация: старый токен гасим, выдаём новый — снижает риск при утечке
         stored.IsRevoked = true;

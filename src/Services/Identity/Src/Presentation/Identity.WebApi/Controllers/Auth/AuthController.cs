@@ -6,6 +6,7 @@ namespace MarketAdvanced.Identity.WebApi.Auth;
 
 [ApiController]
 [Route("api/[controller]")]        // → /api/users
+[Obsolete("Вход, регистрация и токены переходят в Keycloak; удалить после миграции")]
 public class AuthController : ControllerBase
 {
     private readonly IHostEnvironment _env;

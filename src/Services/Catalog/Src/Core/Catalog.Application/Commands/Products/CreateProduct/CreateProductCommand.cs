@@ -4,7 +4,7 @@ using MarketAdvanced.Catalog.Application.Common.Products;
 namespace MarketAdvanced.Catalog.Application.Commands.Products.CreateProduct;
 
 public sealed record CreateProductCommand(
-    int UserId,
+    Guid UserId,
     string Name,
     string Slug,
     string? Description,

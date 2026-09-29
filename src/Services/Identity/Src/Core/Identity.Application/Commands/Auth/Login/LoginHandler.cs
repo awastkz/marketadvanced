@@ -3,6 +3,7 @@ using MarketAdvanced.Identity.Domain;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 
+[Obsolete("Вход, регистрация и токены переходят в Keycloak; удалить после миграции")]
 public sealed class LoginHandler : IRequestHandler<LoginCommand, LoginResult>
 {
     private readonly IUserRepository _userRepo;
@@ -15,7 +16,7 @@ public sealed class LoginHandler : IRequestHandler<LoginCommand, LoginResult>
 
     public async Task<LoginResult> Handle(LoginCommand request, CancellationToken cancellationToken)
     {
-        var user = await _userRepo.findByEmailAsync(request.Email);
+        var user = await _userRepo.FindByEmailAsync(request.Email);
   if (user is null) throw new UnauthorizedAccessException("Invalid credentials");
 
   var verify = new PasswordHasher<User>().VerifyHashedPassword(user, user.PasswordHash, request.Password);

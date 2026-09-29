@@ -6,6 +6,7 @@ using MarketAdvanced.Identity.Domain;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
+[Obsolete("Вход, регистрация и токены переходят в Keycloak; удалить после миграции")]
 public class TokenService : ITokenService
 {
     private readonly JwtOptions _jwtOptions;

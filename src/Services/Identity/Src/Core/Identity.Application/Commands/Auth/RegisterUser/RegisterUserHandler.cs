@@ -3,6 +3,7 @@ using MarketAdvanced.Identity.Domain;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 
+[Obsolete("Вход, регистрация и токены переходят в Keycloak; удалить после миграции")]
 public class RegisterUserHandler : IRequestHandler<RegisterUserCommand, RegisterUserResult>
 {
     private readonly IUserRepository _userRepo;

@@ -1,1 +1,1 @@
-public sealed record LoginResult(int UserId, string Email, DateTime CreatedAt, string AccessToken, string RefreshToken, DateTime RefreshExpiresAt);
+public sealed record LoginResult(Guid UserId, string Email, DateTime CreatedAt, string AccessToken, string RefreshToken, DateTime RefreshExpiresAt);

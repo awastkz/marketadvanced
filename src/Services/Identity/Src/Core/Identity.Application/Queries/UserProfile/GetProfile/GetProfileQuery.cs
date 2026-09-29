@@ -1,3 +1,3 @@
 using MediatR;
 
-public sealed record GetProfileQuery(int UserId) : IRequest<ProfileResult>;
+public sealed record GetProfileQuery(Guid UserId) : IRequest<ProfileResult>;

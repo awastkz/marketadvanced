@@ -12,7 +12,7 @@ public sealed class GetProfileHandler : IRequestHandler<GetProfileQuery, Profile
 
     public async Task<ProfileResult> Handle(GetProfileQuery request, CancellationToken cancellationToken)
     {
-        var user = await _userRepo.findByIdAsync(request.UserId, new List<string> { "Profile" });
+        var user = await _userRepo.FindByIdAsync(request.UserId, new List<string> { "Profile" });
 
         // у пользователей, зарегистрированных до появления профиля, его может не быть — отдаём пустые поля
         var profile = user.Profile;

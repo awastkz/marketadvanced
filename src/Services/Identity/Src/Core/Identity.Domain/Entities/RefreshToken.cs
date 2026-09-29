@@ -1,5 +1,6 @@
 namespace MarketAdvanced.Identity.Domain;
 
+[Obsolete("Вход, регистрация и токены переходят в Keycloak; удалить после миграции")]
 public class RefreshToken
 {
     public int Id { get; set; }
@@ -18,7 +19,7 @@ public class RefreshToken
 
     public DateTime? RevokedAt { get; set; }
 
-    public int UserId { get; set; }
+    public Guid UserId { get; set; }
 
     public User User { get; set; } = null!;
 }

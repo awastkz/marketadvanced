@@ -19,7 +19,7 @@ let carts: StoredCart[] = [
   {
     id: 1,
     ownerLabel: 'Пользователь #2',
-    userId: 2,
+    userId: '00000000-0000-4000-8000-000000000002',
     guestId: null,
     updatedAt: '2026-09-16T10:00:00Z',
     expiresAt: null,
@@ -40,7 +40,7 @@ let carts: StoredCart[] = [
   {
     id: 3,
     ownerLabel: 'Пользователь #4',
-    userId: 4,
+    userId: '00000000-0000-4000-8000-000000000004',
     guestId: null,
     updatedAt: '2026-09-10T08:00:00Z',
     expiresAt: null,

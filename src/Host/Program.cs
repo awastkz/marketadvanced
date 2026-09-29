@@ -44,6 +44,7 @@ app.UseSharedWebApi();
 
 if (ServicesExtensions.EnabledServices(builder.Configuration).Contains("Identity"))
 {
+    app.UseMiddleware<UserSyncMiddleware>(); // после UseAuthentication: ctx.User уже заполнен
     app.MapGet("api/login", () => "ok").RequireRateLimiting("api").WithGroupName("identity");
     app.MapGet("api/refresh", () => "ok").RequireRateLimiting("api").WithGroupName("identity");
 }

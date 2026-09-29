@@ -15,7 +15,7 @@ public sealed class UpdateProfileHandler : IRequestHandler<UpdateProfileCommand,
 
     public async Task<ProfileResult> Handle(UpdateProfileCommand request, CancellationToken cancellationToken)
     {
-        var user = await _userRepo.findByIdAsync(request.UserId, new List<string> { "Profile" });
+        var user = await _userRepo.FindByIdAsync(request.UserId, new List<string> { "Profile" });
 
         // у пользователей, зарегистрированных до появления профиля, строки может не быть
         user.Profile ??= new UserProfile { UserId = user.Id };
@@ -42,7 +42,7 @@ public sealed class UpdateProfileHandler : IRequestHandler<UpdateProfileCommand,
                 await _avatars.DeleteAsync(oldPath, cancellationToken);
         }
 
-        await _userRepo.updateAsync(user);
+        await _userRepo.UpdateAsync(user);
 
         return new ProfileResult(
             user.Id,

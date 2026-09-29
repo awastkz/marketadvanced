@@ -1,5 +1,5 @@
 public sealed record ProfileResult(
-    int Id,
+    Guid Id,
     string Email,
     string? FirstName,
     string? LastName,

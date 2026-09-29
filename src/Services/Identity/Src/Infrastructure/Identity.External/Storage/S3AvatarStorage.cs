@@ -14,7 +14,7 @@ public sealed class S3AvatarStorage : IAvatarStorage
         _settings = settings.Value;
     }
 
-    public async Task<string> UploadAsync(int userId, Stream content, string fileName, string contentType, CancellationToken ct = default)
+    public async Task<string> UploadAsync(Guid userId, Stream content, string fileName, string contentType, CancellationToken ct = default)
     {
         var key = $"avatars/{userId}/{Guid.NewGuid()}{Path.GetExtension(fileName)}";
 

@@ -1,7 +1,7 @@
 namespace MarketAdvanced.Identity.WebApi.Profile;
 
 public record UserProfileResponse(
-    int Id,
+    Guid Id,
     string Email,
     string? FirstName,
     string? LastName,

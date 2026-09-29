@@ -1,6 +1,7 @@
 using MarketAdvanced.Identity.Application.Contracts;
 using MediatR;
 
+[Obsolete("Вход, регистрация и токены переходят в Keycloak; удалить после миграции")]
 public sealed class LogoutHandler : IRequestHandler<LogoutCommand>
 {
     private readonly IRefreshTokenRepository _refreshTokenRepo;

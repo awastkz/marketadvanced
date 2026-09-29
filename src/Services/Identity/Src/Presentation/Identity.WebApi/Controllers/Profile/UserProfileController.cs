@@ -21,7 +21,7 @@ public class UserProfileController: ControllerBase
     [HttpGet("index")]
     public async Task<IActionResult> index()
     {
-        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
         var result = await _mediator.Send(new GetProfileQuery(userId));
 
         return Ok(ToResponse(result));
@@ -31,7 +31,7 @@ public class UserProfileController: ControllerBase
     [RequestSizeLimit(10 * 1024 * 1024)]
     public async Task<IActionResult> update([FromForm] UserProfileRequest r)
     {
-        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
         
         var avatar = r.Avatar is null
             ? null
@@ -47,7 +47,7 @@ public class UserProfileController: ControllerBase
     [HttpDelete("remove-avatar")]
     public async Task<IActionResult> removeAvatar()
     {
-        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
         var result = await _mediator.Send(new RemoveAvatarCommand(userId));
 
         return Ok(ToResponse(result));

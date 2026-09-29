@@ -10,7 +10,7 @@ public sealed record CategoryResult(
     int SortOrder,
     int? ParentId,
     int ProductsCount,
-    int UserId)
+    Guid UserId)
 {
     // ImageUrl появится вместе с S3-хранилищем, пока отдаём путь как есть
     public static CategoryResult From(Category c, int productsCount) =>
