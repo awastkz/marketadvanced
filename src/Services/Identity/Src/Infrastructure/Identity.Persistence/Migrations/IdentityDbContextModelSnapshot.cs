@@ -24,11 +24,9 @@ namespace MarketAdvanced.Identity.Persistence.Migrations
 
             modelBuilder.Entity("MarketAdvanced.Identity.Domain.RefreshToken", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -98,11 +96,9 @@ namespace MarketAdvanced.Identity.Persistence.Migrations
 
             modelBuilder.Entity("MarketAdvanced.Identity.Domain.UserProfile", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("uuid");
 
                     b.Property<string>("AvatarPath")
                         .HasColumnType("text");

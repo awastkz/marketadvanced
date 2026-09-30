@@ -3,4 +3,4 @@ using MediatR;
 
 namespace MarketAdvanced.Cart.Application.Commands.Cart.RemoveItem;
 
-public sealed record RemoveItemCommand(CartOwner owner, int VariantId) : IRequest;
+public sealed record RemoveItemCommand(CartOwner owner, Guid VariantId) : IRequest;

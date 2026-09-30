@@ -33,8 +33,8 @@ public class ProductsController: ControllerBase
   [HttpGet]
   public async Task<IActionResult> list(
       [FromQuery] string? search,
-      [FromQuery] int? categoryId,
-      [FromQuery] int? brandId,
+      [FromQuery] Guid? categoryId,
+      [FromQuery] Guid? brandId,
       [FromQuery] bool? isActive,
       [FromQuery] int page = 1,
       [FromQuery] int pageSize = 20,
@@ -44,8 +44,8 @@ public class ProductsController: ControllerBase
       return Ok(await _mediator.Send(query, ct));
   }
 
-  [HttpGet("{id:int}")]
-  public async Task<IActionResult> read(int id, CancellationToken ct)
+  [HttpGet("{id:guid}")]
+  public async Task<IActionResult> read(Guid id, CancellationToken ct)
   {
       return Ok(await _mediator.Send(new GetProductQuery(id), ct));
   }
@@ -69,8 +69,8 @@ public class ProductsController: ControllerBase
       return Ok(result);
   }
 
-  [HttpPut("{id:int}")]
-  public async Task<IActionResult> update(int id, [FromBody] ProductRequest request, CancellationToken ct)
+  [HttpPut("{id:guid}")]
+  public async Task<IActionResult> update(Guid id, [FromBody] ProductRequest request, CancellationToken ct)
   {
       var command = new UpdateProductCommand(
           id,
@@ -88,8 +88,8 @@ public class ProductsController: ControllerBase
       return Ok(result);
   }
 
-  [HttpDelete("{id:int}")]
-  public async Task<IActionResult> delete(int id, CancellationToken ct)
+  [HttpDelete("{id:guid}")]
+  public async Task<IActionResult> delete(Guid id, CancellationToken ct)
   {
       await _mediator.Send(new DeleteProductCommand(id), ct);
       return NoContent();
@@ -97,23 +97,23 @@ public class ProductsController: ControllerBase
 
   /* ---------- фото: хендлеры пока заглушки, ждут S3 ---------- */
 
-  [HttpPost("{id:int}/images")]
+  [HttpPost("{id:guid}/images")]
   [RequestSizeLimit(MaxImageSize)]
-  public async Task<IActionResult> uploadImage(int id, IFormFile file, CancellationToken ct)
+  public async Task<IActionResult> uploadImage(Guid id, IFormFile file, CancellationToken ct)
   {
       var uploaded = new UploadedFile(file.OpenReadStream(), file.FileName, file.ContentType);
       return Ok(await _mediator.Send(new UploadProductImageCommand(id, uploaded), ct));
   }
 
-  [HttpDelete("{id:int}/images/{imageId:int}")]
-  public async Task<IActionResult> deleteImage(int id, int imageId, CancellationToken ct)
+  [HttpDelete("{id:guid}/images/{imageId:guid}")]
+  public async Task<IActionResult> deleteImage(Guid id, Guid imageId, CancellationToken ct)
   {
       await _mediator.Send(new DeleteProductImageCommand(id, imageId), ct);
       return NoContent();
   }
 
-  [HttpPut("{id:int}/images/{imageId:int}/main")]
-  public async Task<IActionResult> setMainImage(int id, int imageId, CancellationToken ct)
+  [HttpPut("{id:guid}/images/{imageId:guid}/main")]
+  public async Task<IActionResult> setMainImage(Guid id, Guid imageId, CancellationToken ct)
   {
       await _mediator.Send(new SetMainProductImageCommand(id, imageId), ct);
       return NoContent();

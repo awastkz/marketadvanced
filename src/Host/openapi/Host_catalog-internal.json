@@ -18,12 +18,8 @@
             "schema": {
               "type": "array",
               "items": {
-                "pattern": "^-?(?:0|[1-9]\\d*)$",
-                "type": [
-                  "integer",
-                  "string"
-                ],
-                "format": "int32"
+                "type": "string",
+                "format": "uuid"
               }
             }
           }
@@ -73,9 +69,8 @@
             "in": "path",
             "required": true,
             "schema": {
-              "pattern": "^-?(?:0|[1-9]\\d*)$",
-              "type": "integer",
-              "format": "int32"
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -178,20 +173,12 @@
         "type": "object",
         "properties": {
           "id": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "integer",
-              "string"
-            ],
-            "format": "int32"
+            "type": "string",
+            "format": "uuid"
           },
           "productId": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "integer",
-              "string"
-            ],
-            "format": "int32"
+            "type": "string",
+            "format": "uuid"
           },
           "productName": {
             "type": "string"

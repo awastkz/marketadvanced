@@ -3,7 +3,7 @@ namespace MarketAdvanced.Catalog.WebApi.Admin.Products;
 public sealed class ProductVariantRequest
 {
     /// <summary>null — новый вариант, число — обновить существующий.</summary>
-    public int? Id { get; set; }
+    public Guid? Id { get; set; }
     public string Sku { get; set; } = null!;
     public string? Name { get; set; }
     public decimal Price { get; set; }

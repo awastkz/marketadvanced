@@ -3,4 +3,4 @@ using MediatR;
 
 namespace MarketAdvanced.Cart.Application.Commands.Cart.AddItem;
 
-public sealed record AddItemCommand(CartOwner Owner, int VariantId, int Quantity) : IRequest;
+public sealed record AddItemCommand(CartOwner Owner, Guid VariantId, int Quantity) : IRequest;

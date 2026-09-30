@@ -33,6 +33,7 @@ public sealed class CreateCategoryHandler : IRequestHandler<CreateCategoryComman
         };
 
         await _repo.AddAsync(category, cancellationToken);
+        await _repo.SaveChangesAsync(cancellationToken);
         return CategoryResult.From(category, 0);
     }
 }

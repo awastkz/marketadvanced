@@ -7,7 +7,7 @@ export interface CategoryNode extends Category {
 
 /** Строит дерево и возвращает его в порядке обхода (для select и списков). */
 export function flattenTree(categories: Category[]): CategoryNode[] {
-  const byParent = new Map<number | null, Category[]>()
+  const byParent = new Map<string | null, Category[]>()
   for (const c of categories) {
     const list = byParent.get(c.parentId) ?? []
     list.push(c)
@@ -16,7 +16,7 @@ export function flattenTree(categories: Category[]): CategoryNode[] {
   for (const list of byParent.values()) list.sort((a, b) => a.sortOrder - b.sortOrder || a.name.localeCompare(b.name))
 
   const out: CategoryNode[] = []
-  const walk = (parentId: number | null, depth: number): CategoryNode[] =>
+  const walk = (parentId: string | null, depth: number): CategoryNode[] =>
     (byParent.get(parentId) ?? []).map((c) => {
       const node: CategoryNode = { ...c, depth, children: [] }
       out.push(node)
@@ -28,8 +28,8 @@ export function flattenTree(categories: Category[]): CategoryNode[] {
 }
 
 /** Все id потомков категории (включая её саму). */
-export function descendantIds(categories: Category[], id: number): Set<number> {
-  const ids = new Set<number>([id])
+export function descendantIds(categories: Category[], id: string): Set<string> {
+  const ids = new Set<string>([id])
   let grew = true
   while (grew) {
     grew = false

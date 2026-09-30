@@ -17,28 +17,28 @@ function itemsSummary(items: CartItemDetails[]) {
 
 let carts: StoredCart[] = [
   {
-    id: 1,
+    id: '1',
     ownerLabel: 'Пользователь #2',
     userId: '00000000-0000-4000-8000-000000000002',
     guestId: null,
     updatedAt: '2026-09-16T10:00:00Z',
     expiresAt: null,
     items: [
-      { id: 1, variantId: 2, productName: 'iPhone 16 Pro', sku: 'IP16P-256-BLK', price: 619990, quantity: 1, lineTotal: 619990 },
-      { id: 2, variantId: 9, productName: 'Nike Air Max 270', sku: 'AM270-41-BLK', price: 64990, quantity: 2, lineTotal: 129980 },
+      { id: '1', variantId: '2', productName: 'iPhone 16 Pro', sku: 'IP16P-256-BLK', price: 619990, quantity: 1, lineTotal: 619990 },
+      { id: '2', variantId: '9', productName: 'Nike Air Max 270', sku: 'AM270-41-BLK', price: 64990, quantity: 2, lineTotal: 129980 },
     ],
   },
   {
-    id: 2,
+    id: '2',
     ownerLabel: 'Гость',
     userId: null,
     guestId: 'b3e2b6a0-1c2d-4e5f-8a9b-1234567890ab',
     updatedAt: '2026-09-15T21:40:00Z',
     expiresAt: '2026-09-22T21:40:00Z',
-    items: [{ id: 3, variantId: 6, productName: 'MacBook Air 15" M4', sku: 'MBA15-M4-256', price: 699990, quantity: 1, lineTotal: 699990 }],
+    items: [{ id: '3', variantId: '6', productName: 'MacBook Air 15" M4', sku: 'MBA15-M4-256', price: 699990, quantity: 1, lineTotal: 699990 }],
   },
   {
-    id: 3,
+    id: '3',
     ownerLabel: 'Пользователь #4',
     userId: '00000000-0000-4000-8000-000000000004',
     guestId: null,
@@ -47,13 +47,13 @@ let carts: StoredCart[] = [
     items: [],
   },
   {
-    id: 4,
+    id: '4',
     ownerLabel: 'Гость',
     userId: null,
     guestId: 'f1a2b3c4-d5e6-4789-90ab-cdef01234567',
     updatedAt: '2026-09-12T14:00:00Z',
     expiresAt: '2026-09-19T14:00:00Z',
-    items: [{ id: 4, variantId: 13, productName: 'Садовый шланг 25 м', sku: 'HOSE-25', price: 7990, quantity: 3, lineTotal: 23970 }],
+    items: [{ id: '4', variantId: '13', productName: 'Садовый шланг 25 м', sku: 'HOSE-25', price: 7990, quantity: 3, lineTotal: 23970 }],
   },
 ]
 

@@ -3,7 +3,7 @@ using MarketAdvanced.Catalog.Application.Abstractions;
 
 namespace MarketAdvanced.Catalog.Application.Commands.Products.Images;
 
-public sealed record UploadProductImageCommand(int ProductId, UploadedFile File) : IRequest<ProductImageResult>;
+public sealed record UploadProductImageCommand(Guid ProductId, UploadedFile File) : IRequest<ProductImageResult>;
 
 public sealed class UploadProductImageHandler : IRequestHandler<UploadProductImageCommand, ProductImageResult>
 {

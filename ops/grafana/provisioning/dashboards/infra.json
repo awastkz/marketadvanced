@@ -128,7 +128,7 @@
         {
           "refId": "A",
           "legendFormat": "{{svc}}",
-          "expr": "label_replace(sum by (name) (rate(container_cpu_usage_seconds_total{name=~\"marketadvanced-(api|catalog|worker|postgres|redis|rabbitmq)-1\"}[1m])), \"svc\", \"$1\", \"name\", \"marketadvanced-(.*)-1\")"
+          "expr": "label_replace(sum by (name) (rate(container_cpu_usage_seconds_total{name=~\"marketadvanced-(app|identity|catalog|cart|order|payment|gateway|postgres|redis|rabbitmq)-1\"}[1m])), \"svc\", \"$1\", \"name\", \"marketadvanced-(.*)-1\")"
         }
       ]
     },
@@ -156,7 +156,7 @@
         {
           "refId": "A",
           "legendFormat": "{{svc}}",
-          "expr": "label_replace(max by (name) (container_memory_working_set_bytes{name=~\"marketadvanced-(api|catalog|worker|postgres|redis|rabbitmq)-1\"}), \"svc\", \"$1\", \"name\", \"marketadvanced-(.*)-1\")"
+          "expr": "label_replace(max by (name) (container_memory_working_set_bytes{name=~\"marketadvanced-(app|identity|catalog|cart|order|payment|gateway|postgres|redis|rabbitmq)-1\"}), \"svc\", \"$1\", \"name\", \"marketadvanced-(.*)-1\")"
         }
       ]
     },

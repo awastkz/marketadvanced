@@ -6,7 +6,7 @@ public sealed class AddItemCommandValidator : AbstractValidator<AddItemCommand>
 {
     public AddItemCommandValidator()
     {
-        RuleFor(v => v.VariantId).GreaterThan(0);
+        RuleFor(v => v.VariantId).NotEmpty();
         RuleFor(v => v.Quantity).GreaterThan(0);
     }
 }

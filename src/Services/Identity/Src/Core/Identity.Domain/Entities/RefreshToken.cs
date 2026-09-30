@@ -3,7 +3,7 @@ namespace MarketAdvanced.Identity.Domain;
 [Obsolete("Вход, регистрация и токены переходят в Keycloak; удалить после миграции")]
 public class RefreshToken
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; }
 
     public string Token { get; set; } = null!;
 

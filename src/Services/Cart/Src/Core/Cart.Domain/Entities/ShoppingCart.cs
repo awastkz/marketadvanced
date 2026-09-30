@@ -2,7 +2,7 @@ namespace MarketAdvanced.Cart.Domain;
 
 public class ShoppingCart
 {
-    public int Id {get; set;}
+    public Guid Id {get; set;}
     public Guid? UserId {get;set;}
     public Guid? GuestId {get;set;}
     public DateTime UpdatedAt {get;set;}
@@ -16,7 +16,7 @@ public class ShoppingCart
         ExpiresAt = owner.GuestId is not null ? DateTime.UtcNow.AddDays(30) : null,
     };
 
-    public void AddItem(int variantId, int quantity)
+    public void AddItem(Guid variantId, int quantity)
     {
         var item = Items.FirstOrDefault(v => v.VariantId == variantId);
         if(item is null)
@@ -25,7 +25,7 @@ public class ShoppingCart
         item.Quantity += quantity;
         UpdatedAt = DateTime.UtcNow;
     }
-    public void RemoveItem(int variantId)
+    public void RemoveItem(Guid variantId)
     {
         var item = Items.FirstOrDefault(v => v.VariantId == variantId);
         if(item is null) return;

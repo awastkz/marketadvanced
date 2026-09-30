@@ -8,8 +8,8 @@ const nowIso = () => new Date().toISOString()
 
 let payments: PaymentDetails[] = [
   {
-    id: 1,
-    orderId: 1,
+    id: '1',
+    orderId: '1',
     orderNumber: 'MA-100231',
     amount: 621990,
     currency: 'KZT',
@@ -22,8 +22,8 @@ let payments: PaymentDetails[] = [
     updatedAt: '2026-09-14T10:05:30Z',
   },
   {
-    id: 2,
-    orderId: 2,
+    id: '2',
+    orderId: '2',
     orderNumber: 'MA-100232',
     amount: 137970,
     currency: 'KZT',
@@ -36,8 +36,8 @@ let payments: PaymentDetails[] = [
     updatedAt: null,
   },
   {
-    id: 3,
-    orderId: 3,
+    id: '3',
+    orderId: '3',
     orderNumber: 'MA-100220',
     amount: 699990,
     currency: 'KZT',
@@ -50,8 +50,8 @@ let payments: PaymentDetails[] = [
     updatedAt: '2026-09-01T10:05:20Z',
   },
   {
-    id: 4,
-    orderId: 4,
+    id: '4',
+    orderId: '4',
     orderNumber: 'MA-100195',
     amount: 91490,
     currency: 'KZT',
@@ -59,13 +59,13 @@ let payments: PaymentDetails[] = [
     status: 'Refunded',
     transactionId: 'txn_5e6f7g8h',
     provider: 'Kaspi Pay',
-    refunds: [{ id: 1, amount: 91490, reason: 'Отмена заказа по просьбе клиента', createdAt: '2026-08-21T10:10:00Z' }],
+    refunds: [{ id: '1', amount: 91490, reason: 'Отмена заказа по просьбе клиента', createdAt: '2026-08-21T10:10:00Z' }],
     createdAt: '2026-08-20T10:05:00Z',
     updatedAt: '2026-08-21T10:10:00Z',
   },
   {
-    id: 5,
-    orderId: 5,
+    id: '5',
+    orderId: '5',
     orderNumber: 'MA-100180',
     amount: 54990,
     currency: 'KZT',
@@ -120,7 +120,7 @@ export const mockPaymentApi: PaymentAdminApi = {
       if (p.status !== 'Succeeded' && p.status !== 'PartiallyRefunded') throw new Error('Возврат возможен только по успешному платежу')
       const refunded = p.refunds.reduce((s, r) => s + r.amount, 0)
       if (amount <= 0 || amount > p.amount - refunded) throw new Error('Некорректная сумма возврата')
-      p.refunds = [...p.refunds, { id: ++nextRefundId, amount, reason: reason.trim() || null, createdAt: nowIso() }]
+      p.refunds = [...p.refunds, { id: String(++nextRefundId), amount, reason: reason.trim() || null, createdAt: nowIso() }]
       const totalRefunded = p.refunds.reduce((s, r) => s + r.amount, 0)
       p.status = totalRefunded >= p.amount ? 'Refunded' : 'PartiallyRefunded'
       p.updatedAt = nowIso()

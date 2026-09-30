@@ -23,7 +23,7 @@ function greeting() {
 export default function HomeView() {
   const user = useAuthStore((s) => s.user)
   const cartCount = useCartStore((s) => cartItemCount(s.cart))
-  const [openProductId, setOpenProductId] = useState<number | null>(null)
+  const [openProductId, setOpenProductId] = useState<string | null>(null)
 
   const categories = useLoad(() => catalogAdmin.categories.list(), [])
   const topCategories = categories.data ? flattenTree(categories.data).filter((c) => c.depth === 0).slice(0, 8) : []

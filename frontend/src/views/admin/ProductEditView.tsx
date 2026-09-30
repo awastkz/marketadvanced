@@ -17,11 +17,11 @@ interface FormState {
   slug: string
   slugTouched: boolean
   description: string
-  categoryId: number | null
-  brandId: number | null
+  categoryId: string | null
+  brandId: string | null
   isActive: boolean
   /** Признаки, по которым различаются варианты (id атрибутов), в порядке колонок. */
-  axes: number[]
+  axes: string[]
   variants: ProductVariant[]
   attributes: ProductAttributeValue[]
 }
@@ -32,7 +32,7 @@ interface PendingImage {
   url: string
 }
 
-const emptyVariant = (axes: number[]): ProductVariant => ({
+const emptyVariant = (axes: string[]): ProductVariant => ({
   id: null,
   sku: '',
   name: '',
@@ -43,8 +43,8 @@ const emptyVariant = (axes: number[]): ProductVariant => ({
 })
 
 /** Признаки вариантов выводим из самих вариантов: объединение attributeId в порядке появления. */
-function axesOf(variants: ProductVariant[]): number[] {
-  const out: number[] = []
+function axesOf(variants: ProductVariant[]): string[] {
+  const out: string[] = []
   for (const v of variants) for (const a of v.attributes) if (!out.includes(a.attributeId)) out.push(a.attributeId)
   return out
 }
@@ -69,11 +69,11 @@ function fromProduct(p: ProductDetails | null): FormState {
   }
 }
 
-function axisValue(v: ProductVariant, attributeId: number) {
+function axisValue(v: ProductVariant, attributeId: string) {
   return v.attributes.find((a) => a.attributeId === attributeId)?.value ?? ''
 }
 
-function variantName(v: ProductVariant, axes: number[], attrById: Map<number, Attribute>) {
+function variantName(v: ProductVariant, axes: string[], attrById: Map<string, Attribute>) {
   return axes
     .map((id) => {
       const value = axisValue(v, id).trim()
@@ -84,7 +84,7 @@ function variantName(v: ProductVariant, axes: number[], attrById: Map<number, At
     .join(', ')
 }
 
-function comboKey(v: ProductVariant, axes: number[]) {
+function comboKey(v: ProductVariant, axes: string[]) {
   return axes.map((id) => axisValue(v, id).trim().toLowerCase()).join('|')
 }
 
@@ -92,7 +92,7 @@ let pendingSeq = 0
 
 export default function ProductEditView() {
   const { id } = useParams()
-  const productId = id && id !== 'new' ? Number(id) : null
+  const productId = id && id !== 'new' ? id : null
   const isNew = productId == null
   const navigate = useNavigate()
 
@@ -140,7 +140,7 @@ export default function ProductEditView() {
   const usedByAxes = new Set(form.axes)
   const freeAttributes = (dicts.data?.attributes ?? []).filter((a) => !usedByAxes.has(a.id) && !usedByProduct.has(a.id))
 
-  function addAxis(attributeId: number) {
+  function addAxis(attributeId: string) {
     setForm((f) => ({
       ...f,
       axes: [...f.axes, attributeId],
@@ -148,7 +148,7 @@ export default function ProductEditView() {
     }))
   }
 
-  function removeAxis(attributeId: number) {
+  function removeAxis(attributeId: string) {
     setForm((f) => ({
       ...f,
       axes: f.axes.filter((id) => id !== attributeId),
@@ -157,7 +157,7 @@ export default function ProductEditView() {
   }
 
   /** Значения, уже введённые по этому признаку в других строках: для подсказок и генерации. */
-  function axisValues(attributeId: number): string[] {
+  function axisValues(attributeId: string): string[] {
     const out: string[] = []
     for (const v of form.variants) {
       const val = axisValue(v, attributeId).trim()
@@ -195,7 +195,7 @@ export default function ProductEditView() {
     setForm((f) => ({ ...f, variants: f.variants.map((v, idx) => (idx === i ? { ...v, ...patch } : v)) }))
   }
 
-  function updateVariantAxis(i: number, attributeId: number, value: string) {
+  function updateVariantAxis(i: number, attributeId: string, value: string) {
     setForm((f) => ({
       ...f,
       variants: f.variants.map((v, idx) =>
@@ -230,7 +230,7 @@ export default function ProductEditView() {
     setPending((p) => [...p, ...next])
   }
 
-  async function uploadPending(pid: number) {
+  async function uploadPending(pid: string) {
     if (!pending.length) return
     setUploading(true)
     try {
@@ -452,7 +452,7 @@ export default function ProductEditView() {
                     const attr = attrById.get(a.attributeId)
                     return (
                       <div key={a.attributeId} className="attr-row">
-                        <select className="select input-sm" value={a.attributeId} onChange={(e) => updateAttribute(i, { attributeId: Number(e.target.value) })}>
+                        <select className="select input-sm" value={a.attributeId} onChange={(e) => updateAttribute(i, { attributeId: e.target.value })}>
                           {attr && <option value={attr.id}>{attr.name}</option>}
                           {freeAttributes.map((f) => (
                             <option key={f.id} value={f.id}>
@@ -508,7 +508,7 @@ export default function ProductEditView() {
                   </span>
                 ))}
                 {freeAttributes.length > 0 ? (
-                  <select className="select axes-add" value="" onChange={(e) => e.target.value && addAxis(Number(e.target.value))}>
+                  <select className="select axes-add" value="" onChange={(e) => e.target.value && addAxis(e.target.value)}>
                     <option value="">{form.axes.length ? '+ ещё признак' : '+ добавить признак'}</option>
                     {freeAttributes.map((a) => (
                       <option key={a.id} value={a.id}>
@@ -697,7 +697,7 @@ export default function ProductEditView() {
               <p>Где товар живёт в каталоге</p>
               <div className="field">
                 <label htmlFor="category">Категория</label>
-                <select id="category" className={`select${errors.categoryId ? ' is-invalid' : ''}`} value={form.categoryId ?? ''} onChange={(e) => set('categoryId', e.target.value ? Number(e.target.value) : null)} disabled={loading}>
+                <select id="category" className={`select${errors.categoryId ? ' is-invalid' : ''}`} value={form.categoryId ?? ''} onChange={(e) => set('categoryId', e.target.value || null)} disabled={loading}>
                   <option value="">Выберите категорию</option>
                   {categories.map((c) => (
                     <option key={c.id} value={c.id}>
@@ -710,7 +710,7 @@ export default function ProductEditView() {
               </div>
               <div className="field">
                 <label htmlFor="brand">Бренд</label>
-                <select id="brand" className="select" value={form.brandId ?? ''} onChange={(e) => set('brandId', e.target.value ? Number(e.target.value) : null)} disabled={loading}>
+                <select id="brand" className="select" value={form.brandId ?? ''} onChange={(e) => set('brandId', e.target.value || null)} disabled={loading}>
                   <option value="">Без бренда</option>
                   {dicts.data?.brands.map((b) => (
                     <option key={b.id} value={b.id}>

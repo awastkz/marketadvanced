@@ -29,6 +29,7 @@ public sealed class CreateBrandHandler : IRequestHandler<CreateBrandCommand, Bra
         };
 
         await _repo.AddAsync(brand, cancellationToken);
+        await _repo.SaveChangesAsync(cancellationToken);
         return BrandResult.From(brand, 0);
     }
 }

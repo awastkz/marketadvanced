@@ -9,7 +9,7 @@ import { errorMessage, formatMoney } from '../utils/format'
 import { IconCart, IconImage } from './icons'
 
 interface ProductQuickViewProps {
-  productId: number | null
+  productId: string | null
   onClose: () => void
 }
 
@@ -22,7 +22,7 @@ export default function ProductQuickView({ productId, onClose }: ProductQuickVie
   const [product, setProduct] = useState<ProductDetails | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [busyVariantId, setBusyVariantId] = useState<number | null>(null)
+  const [busyVariantId, setBusyVariantId] = useState<string | null>(null)
   const addItem = useCartStore((s) => s.addItem)
 
   useEffect(() => {
@@ -45,7 +45,7 @@ export default function ProductQuickView({ productId, onClose }: ProductQuickVie
     }
   }, [productId])
 
-  async function onAdd(variantId: number) {
+  async function onAdd(variantId: string) {
     setBusyVariantId(variantId)
     try {
       await addItem(variantId, 1)

@@ -27,20 +27,20 @@ public sealed class BrandsController : ControllerBase
     public async Task<IActionResult> List(CancellationToken ct) =>
         Ok(await _mediator.Send(new ListBrandsQuery(), ct));
 
-    [HttpGet("{id:int}")]
-    public async Task<IActionResult> Get(int id, CancellationToken ct) =>
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> Get(Guid id, CancellationToken ct) =>
         Ok(await _mediator.Send(new GetBrandQuery(id), ct));
 
     [HttpPost]
     public async Task<IActionResult> Create([FromForm] BrandRequest r, CancellationToken ct) =>
         Ok(await _mediator.Send(new CreateBrandCommand(_currentUser.Id, r.Name.Trim(), r.Slug.Trim(), r.Description?.Trim()), ct));
 
-    [HttpPut("{id:int}")]
-    public async Task<IActionResult> Update(int id, [FromForm] BrandRequest r, CancellationToken ct) =>
+    [HttpPut("{id:guid}")]
+    public async Task<IActionResult> Update(Guid id, [FromForm] BrandRequest r, CancellationToken ct) =>
         Ok(await _mediator.Send(new UpdateBrandCommand(id, r.Name.Trim(), r.Slug.Trim(), r.Description?.Trim()), ct));
 
-    [HttpDelete("{id:int}")]
-    public async Task<IActionResult> Delete(int id, CancellationToken ct)
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
     {
         await _mediator.Send(new DeleteBrandCommand(id), ct);
         return NoContent();

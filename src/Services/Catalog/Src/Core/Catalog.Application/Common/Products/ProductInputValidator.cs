@@ -11,8 +11,8 @@ public abstract class ProductInputValidator<T> : AbstractValidator<T> where T : 
         RuleFor(v => v.Slug).NotEmpty().MaximumLength(100)
             .Matches("^[a-z0-9-]+$").WithMessage("Только латиница, цифры и дефис");
         RuleFor(v => v.Description).MaximumLength(4000);
-        RuleFor(v => v.CategoryId).GreaterThan(0);
-        RuleFor(v => v.BrandId).GreaterThan(0).When(v => v.BrandId.HasValue);
+        RuleFor(v => v.CategoryId).NotEmpty();
+        RuleFor(v => v.BrandId).NotEmpty().When(v => v.BrandId.HasValue);
 
         RuleFor(v => v.Variants).NotEmpty().WithMessage("Нужен хотя бы один вариант");
         RuleForEach(v => v.Variants).SetValidator(new VariantInputValidator());
@@ -72,7 +72,7 @@ public sealed class AttributeValueInputValidator : AbstractValidator<AttributeVa
 {
     public AttributeValueInputValidator()
     {
-        RuleFor(v => v.AttributeId).GreaterThan(0);
+        RuleFor(v => v.AttributeId).NotEmpty();
         RuleFor(v => v.Value).NotEmpty().MaximumLength(500);
     }
 }

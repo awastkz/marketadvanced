@@ -19,8 +19,8 @@ export default function ProductsView() {
   const [params, setParams] = useSearchParams()
 
   const search = params.get('q') ?? ''
-  const categoryId = params.get('category') ? Number(params.get('category')) : null
-  const brandId = params.get('brand') ? Number(params.get('brand')) : null
+  const categoryId = params.get('category')
+  const brandId = params.get('brand')
   const status = params.get('status') ?? 'all'
   const page = Number(params.get('page') ?? '1') || 1
 

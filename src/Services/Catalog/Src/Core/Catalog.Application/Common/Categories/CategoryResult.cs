@@ -3,12 +3,12 @@ using MarketAdvanced.Catalog.Domain;
 namespace MarketAdvanced.Catalog.Application.Common.Categories;
 
 public sealed record CategoryResult(
-    int Id,
+    Guid Id,
     string Name,
     string Slug,
     string? ImageUrl,
     int SortOrder,
-    int? ParentId,
+    Guid? ParentId,
     int ProductsCount,
     Guid UserId)
 {

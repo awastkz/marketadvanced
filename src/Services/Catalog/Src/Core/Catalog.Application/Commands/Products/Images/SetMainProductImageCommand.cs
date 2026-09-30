@@ -3,7 +3,7 @@ using MarketAdvanced.Catalog.Application.Abstractions;
 
 namespace MarketAdvanced.Catalog.Application.Commands.Products.Images;
 
-public sealed record SetMainProductImageCommand(int ProductId, int ImageId) : IRequest;
+public sealed record SetMainProductImageCommand(Guid ProductId, Guid ImageId) : IRequest;
 
 public sealed class SetMainProductImageHandler : IRequestHandler<SetMainProductImageCommand>
 {

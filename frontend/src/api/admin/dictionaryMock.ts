@@ -7,7 +7,7 @@ const delay = (ms = 300) => new Promise<void>((r) => setTimeout(r, ms))
 
 function makeStore(seed: DictionaryEntry[]): DictionaryEntryApi {
   let rows = seed
-  let nextId = Math.max(0, ...seed.map((r) => r.id)) + 1
+  let nextId = Math.max(0, ...seed.map((r) => Number(r.id))) + 1
 
   return {
     async list() {
@@ -16,7 +16,7 @@ function makeStore(seed: DictionaryEntry[]): DictionaryEntryApi {
     },
     async create(payload) {
       await delay()
-      const entry: DictionaryEntry = { id: nextId++, ...payload }
+      const entry: DictionaryEntry = { id: String(nextId++), ...payload }
       rows = [...rows, entry]
       return { ...entry }
     },
@@ -36,20 +36,20 @@ function makeStore(seed: DictionaryEntry[]): DictionaryEntryApi {
 
 export const mockDictionaryApi: DictionaryAdminApi = {
   units: makeStore([
-    { id: 1, name: 'Штука', code: 'pcs', sortOrder: 1 },
-    { id: 2, name: 'Килограмм', code: 'kg', sortOrder: 2 },
-    { id: 3, name: 'Метр', code: 'm', sortOrder: 3 },
-    { id: 4, name: 'Литр', code: 'l', sortOrder: 4 },
+    { id: '1', name: 'Штука', code: 'pcs', sortOrder: 1 },
+    { id: '2', name: 'Килограмм', code: 'kg', sortOrder: 2 },
+    { id: '3', name: 'Метр', code: 'm', sortOrder: 3 },
+    { id: '4', name: 'Литр', code: 'l', sortOrder: 4 },
   ]),
   countries: makeStore([
-    { id: 1, name: 'Казахстан', code: 'KZ', sortOrder: 1 },
-    { id: 2, name: 'Китай', code: 'CN', sortOrder: 2 },
-    { id: 3, name: 'Турция', code: 'TR', sortOrder: 3 },
-    { id: 4, name: 'США', code: 'US', sortOrder: 4 },
+    { id: '1', name: 'Казахстан', code: 'KZ', sortOrder: 1 },
+    { id: '2', name: 'Китай', code: 'CN', sortOrder: 2 },
+    { id: '3', name: 'Турция', code: 'TR', sortOrder: 3 },
+    { id: '4', name: 'США', code: 'US', sortOrder: 4 },
   ]),
   tags: makeStore([
-    { id: 1, name: 'Новинка', code: 'new', sortOrder: 1 },
-    { id: 2, name: 'Хит продаж', code: 'bestseller', sortOrder: 2 },
-    { id: 3, name: 'Распродажа', code: 'sale', sortOrder: 3 },
+    { id: '1', name: 'Новинка', code: 'new', sortOrder: 1 },
+    { id: '2', name: 'Хит продаж', code: 'bestseller', sortOrder: 2 },
+    { id: '3', name: 'Распродажа', code: 'sale', sortOrder: 3 },
   ]),
 }

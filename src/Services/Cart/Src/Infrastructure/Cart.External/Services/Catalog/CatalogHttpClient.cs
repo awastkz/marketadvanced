@@ -9,7 +9,7 @@ namespace MarketAdvanced.Cart.External.Services.Catalog;
 
 public class CatalogHttpClient(HttpClient client, ILogger<CatalogHttpClient> logger) : ICatalogClient
 {
-    public async Task<ProductVariantDTO?> GetVariantAsync(int id, CancellationToken ct)
+    public async Task<ProductVariantDTO?> GetVariantAsync(Guid id, CancellationToken ct)
     {
         var response = await SendAsync($"api/internal/variants/{id}", ct);
         if(response.StatusCode == HttpStatusCode.NotFound) return null;
@@ -17,7 +17,7 @@ public class CatalogHttpClient(HttpClient client, ILogger<CatalogHttpClient> log
         return await response.Content.ReadFromJsonAsync<ProductVariantDTO>(ct);
     }
 
-    public async Task<IReadOnlyList<ProductVariantDTO>> GetVariantsAsync(IReadOnlyCollection<int> ids, CancellationToken ct)
+    public async Task<IReadOnlyList<ProductVariantDTO>> GetVariantsAsync(IReadOnlyCollection<Guid> ids, CancellationToken ct)
     {
         if (ids.Count == 0) return [];
 

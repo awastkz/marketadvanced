@@ -84,7 +84,7 @@ function toRow(p: Awaited<ReturnType<typeof catalogAdmin.products.list>>['items'
 }
 
 export interface ProductExportFilter {
-  categoryId: number | null
+  categoryId: string | null
   isActive: boolean | null
 }
 

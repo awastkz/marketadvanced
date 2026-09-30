@@ -6,8 +6,8 @@ namespace MarketAdvanced.Catalog.Application.Queries.Products.SearchProducts;
 
 public sealed record SearchProductsQuery(
     string? Search,
-    int? CategoryId,
-    int? BrandId,
+    Guid? CategoryId,
+    Guid? BrandId,
     bool? IsActive,
     int Page,
     int PageSize) : IRequest<Paged<ProductListItemResult>>;

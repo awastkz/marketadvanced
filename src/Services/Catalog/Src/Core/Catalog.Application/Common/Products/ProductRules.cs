@@ -7,10 +7,10 @@ namespace MarketAdvanced.Catalog.Application.Common.Products;
 internal static class ProductRules
 {
     public static async Task EnsureValidAsync(
-        int? productId,
+        Guid? productId,
         string slug,
-        int categoryId,
-        int? brandId,
+        Guid categoryId,
+        Guid? brandId,
         IReadOnlyList<VariantInput> variants,
         IReadOnlyList<AttributeValueInput> attributes,
         IProductRepository products,

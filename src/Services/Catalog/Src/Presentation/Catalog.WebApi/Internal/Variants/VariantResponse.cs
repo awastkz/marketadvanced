@@ -4,8 +4,8 @@ namespace MarketAdvanced.Catalog.WebApi.Internal.Variants;
 
 /// <summary>Контракт GET api/internal/variants/{id} для других сервисов. Поля менять только с оглядкой на потребителей (Cart).</summary>
 public sealed record VariantResponse(
-    int Id,
-    int ProductId,
+    Guid Id,
+    Guid ProductId,
     string ProductName,
     string Sku,
     string? Name,

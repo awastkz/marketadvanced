@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MarketAdvanced.Cart.Persistence.Migrations
 {
     [DbContext(typeof(CartDbContext))]
-    [Migration("20260928134451_UserIdToGuid")]
-    partial class UserIdToGuid
+    [Migration("20260929211306_InitialCart")]
+    partial class InitialCart
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -28,20 +28,18 @@ namespace MarketAdvanced.Cart.Persistence.Migrations
 
             modelBuilder.Entity("MarketAdvanced.Cart.Domain.CartItem", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("uuid");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CartId")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("CartId")
+                        .HasColumnType("uuid");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("integer");
 
-                    b.Property<int>("VariantId")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("VariantId")
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -53,11 +51,9 @@ namespace MarketAdvanced.Cart.Persistence.Migrations
 
             modelBuilder.Entity("MarketAdvanced.Cart.Domain.ShoppingCart", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime?>("ExpiresAt")
                         .HasColumnType("timestamp with time zone");

@@ -28,20 +28,20 @@ public sealed class CategoriesController : ControllerBase
     public async Task<IActionResult> List(CancellationToken ct) =>
         Ok(await _mediator.Send(new ListCategoriesQuery(), ct));
 
-    [HttpGet("{id:int}")]
-    public async Task<IActionResult> Get(int id, CancellationToken ct) =>
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> Get(Guid id, CancellationToken ct) =>
         Ok(await _mediator.Send(new GetCategoryQuery(id), ct));
 
     [HttpPost]
     public async Task<IActionResult> Create([FromForm] CategoryRequest r, CancellationToken ct) =>
         Ok(await _mediator.Send(new CreateCategoryCommand(_currentUser.Id, r.Name.Trim(), r.Slug.Trim(), r.SortOrder, r.ParentId), ct));
 
-    [HttpPut("{id:int}")]
-    public async Task<IActionResult> Update(int id, [FromForm] CategoryRequest r, CancellationToken ct) =>
+    [HttpPut("{id:guid}")]
+    public async Task<IActionResult> Update(Guid id, [FromForm] CategoryRequest r, CancellationToken ct) =>
         Ok(await _mediator.Send(new UpdateCategoryCommand(id, r.Name.Trim(), r.Slug.Trim(), r.SortOrder, r.ParentId), ct));
 
-    [HttpDelete("{id:int}")]
-    public async Task<IActionResult> Delete(int id, CancellationToken ct)
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
     {
         await _mediator.Send(new DeleteCategoryCommand(id), ct);
         return NoContent();

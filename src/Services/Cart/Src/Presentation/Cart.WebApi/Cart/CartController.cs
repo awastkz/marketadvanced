@@ -43,7 +43,7 @@ public class CartController : ControllerBase
     }
 
     [HttpDelete("items")]
-    public async Task<IActionResult> RemoveItem(int variantId)
+    public async Task<IActionResult> RemoveItem(Guid variantId)
     {
         await _mediator.Send(new RemoveItemCommand(Owner, variantId));
         return NoContent();

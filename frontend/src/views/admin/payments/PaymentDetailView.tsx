@@ -10,7 +10,7 @@ import { IconChevronLeft, IconRotateCcw } from '../../../components/icons'
 
 export default function PaymentDetailView() {
   const { id } = useParams()
-  const paymentId = Number(id)
+  const paymentId = id ?? ''
 
   const payment = useLoad(() => paymentAdmin.payments.get(paymentId), [paymentId])
   const [amount, setAmount] = useState('')

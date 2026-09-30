@@ -8,8 +8,8 @@ public sealed record CreateProductCommand(
     string Name,
     string Slug,
     string? Description,
-    int CategoryId,
-    int? BrandId,
+    Guid CategoryId,
+    Guid? BrandId,
     bool IsActive,
     IReadOnlyList<VariantInput> Variants,
     IReadOnlyList<AttributeValueInput> Attributes) : IRequest<ProductResult>, IProductInput;

@@ -4,12 +4,12 @@ namespace MarketAdvanced.Catalog.Application.Common.Products;
 
 /// <summary>Строка списка товаров в админке: без вариантов и характеристик, только сводка.</summary>
 public sealed record ProductListItemResult(
-    int Id,
+    Guid Id,
     string Name,
     string Slug,
     string? ImageUrl,
     bool IsActive,
-    int CategoryId,
+    Guid CategoryId,
     string CategoryName,
     string? BrandName,
     int VariantsCount,

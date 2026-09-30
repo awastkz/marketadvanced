@@ -4,7 +4,7 @@ import { IconImage } from './icons'
 
 interface ProductCardProps {
   product: ProductListItem
-  onOpen: (id: number) => void
+  onOpen: (id: string) => void
 }
 
 /** Карточка товара для публичного каталога и подборки на главной. Клик открывает ProductQuickView. */

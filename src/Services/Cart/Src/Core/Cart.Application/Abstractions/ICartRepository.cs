@@ -8,5 +8,5 @@ public interface ICartRepository
     Task Add(ShoppingCart cart, CancellationToken ct);
     Task Save(CancellationToken ct);
     Task RemoveItemsAsync(CartOwner owner, CancellationToken ct = default);
-    Task RemoveItemAsync(CartOwner owner, int varaintId, CancellationToken ct = default);
+    Task RemoveItemAsync(CartOwner owner, Guid varaintId, CancellationToken ct = default);
 }

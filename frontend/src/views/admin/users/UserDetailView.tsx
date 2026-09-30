@@ -33,7 +33,7 @@ export default function UserDetailView() {
   const [saveError, setSaveError] = useState<string | null>(null)
   const [blocking, setBlocking] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
-  const [revoking, setRevoking] = useState<number | null>(null)
+  const [revoking, setRevoking] = useState<string | null>(null)
 
   useEffect(() => {
     if (user.data) setForm(fromUser(user.data))
@@ -68,7 +68,7 @@ export default function UserDetailView() {
     }
   }
 
-  async function revokeSession(sessionId: number) {
+  async function revokeSession(sessionId: string) {
     setRevoking(sessionId)
     try {
       await identityAdmin.users.revokeSession(userId, sessionId)

@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "common/event-meta.json",
+  "title": "EventMeta",
+  "description": "Общие поля каждого интеграционного события",
+  "type": "object",
+  "required": ["eventId", "occurredAt"],
+  "properties": {
+    "eventId":    { "type": "string", "format": "uuid", "description": "Уникальный id события, по нему подписчики обеспечивают идемпотентность" },
+    "occurredAt": { "type": "string", "format": "date-time", "description": "Когда событие произошло у владельца, UTC" }
+  }
+}

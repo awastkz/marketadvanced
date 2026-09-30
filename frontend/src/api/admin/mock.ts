@@ -16,150 +16,150 @@ const pic = (seed: string, size = 480) => `https://picsum.photos/seed/${seed}/${
 const nowIso = () => new Date().toISOString()
 
 let categories: Category[] = [
-  { id: 1, name: 'Электроника', slug: 'elektronika', imageUrl: pic('cat-1'), sortOrder: 1, parentId: null, productsCount: 0 },
-  { id: 2, name: 'Смартфоны', slug: 'smartfony', imageUrl: pic('cat-2'), sortOrder: 1, parentId: 1, productsCount: 0 },
-  { id: 3, name: 'Ноутбуки', slug: 'noutbuki', imageUrl: pic('cat-3'), sortOrder: 2, parentId: 1, productsCount: 0 },
-  { id: 4, name: 'Одежда', slug: 'odezhda', imageUrl: null, sortOrder: 2, parentId: null, productsCount: 0 },
-  { id: 5, name: 'Кроссовки', slug: 'krossovki', imageUrl: pic('cat-5'), sortOrder: 1, parentId: 4, productsCount: 0 },
-  { id: 6, name: 'Дом и сад', slug: 'dom-i-sad', imageUrl: null, sortOrder: 3, parentId: null, productsCount: 0 },
+  { id: '1', name: 'Электроника', slug: 'elektronika', imageUrl: pic('cat-1'), sortOrder: 1, parentId: null, productsCount: 0 },
+  { id: '2', name: 'Смартфоны', slug: 'smartfony', imageUrl: pic('cat-2'), sortOrder: 1, parentId: '1', productsCount: 0 },
+  { id: '3', name: 'Ноутбуки', slug: 'noutbuki', imageUrl: pic('cat-3'), sortOrder: 2, parentId: '1', productsCount: 0 },
+  { id: '4', name: 'Одежда', slug: 'odezhda', imageUrl: null, sortOrder: 2, parentId: null, productsCount: 0 },
+  { id: '5', name: 'Кроссовки', slug: 'krossovki', imageUrl: pic('cat-5'), sortOrder: 1, parentId: '4', productsCount: 0 },
+  { id: '6', name: 'Дом и сад', slug: 'dom-i-sad', imageUrl: null, sortOrder: 3, parentId: null, productsCount: 0 },
 ]
 
 let brands: Brand[] = [
-  { id: 1, name: 'Apple', slug: 'apple', description: 'Техника из Купертино', logoUrl: pic('brand-apple', 200), productsCount: 0 },
-  { id: 2, name: 'Samsung', slug: 'samsung', description: null, logoUrl: pic('brand-samsung', 200), productsCount: 0 },
-  { id: 3, name: 'Nike', slug: 'nike', description: 'Just do it', logoUrl: null, productsCount: 0 },
-  { id: 4, name: 'Xiaomi', slug: 'xiaomi', description: null, logoUrl: pic('brand-xiaomi', 200), productsCount: 0 },
+  { id: '1', name: 'Apple', slug: 'apple', description: 'Техника из Купертино', logoUrl: pic('brand-apple', 200), productsCount: 0 },
+  { id: '2', name: 'Samsung', slug: 'samsung', description: null, logoUrl: pic('brand-samsung', 200), productsCount: 0 },
+  { id: '3', name: 'Nike', slug: 'nike', description: 'Just do it', logoUrl: null, productsCount: 0 },
+  { id: '4', name: 'Xiaomi', slug: 'xiaomi', description: null, logoUrl: pic('brand-xiaomi', 200), productsCount: 0 },
 ]
 
 let attributes: Attribute[] = [
-  { id: 1, name: 'Цвет', slug: 'color', unit: null, sortOrder: 1 },
-  { id: 2, name: 'Диагональ экрана', slug: 'screen-size', unit: '″', sortOrder: 2 },
-  { id: 3, name: 'Объём памяти', slug: 'storage', unit: 'ГБ', sortOrder: 3 },
-  { id: 4, name: 'Вес', slug: 'weight', unit: 'г', sortOrder: 4 },
-  { id: 5, name: 'Материал', slug: 'material', unit: null, sortOrder: 5 },
-  { id: 6, name: 'Размер', slug: 'size', unit: null, sortOrder: 6 },
+  { id: '1', name: 'Цвет', slug: 'color', unit: null, sortOrder: 1 },
+  { id: '2', name: 'Диагональ экрана', slug: 'screen-size', unit: '″', sortOrder: 2 },
+  { id: '3', name: 'Объём памяти', slug: 'storage', unit: 'ГБ', sortOrder: 3 },
+  { id: '4', name: 'Вес', slug: 'weight', unit: 'г', sortOrder: 4 },
+  { id: '5', name: 'Материал', slug: 'material', unit: null, sortOrder: 5 },
+  { id: '6', name: 'Размер', slug: 'size', unit: null, sortOrder: 6 },
 ]
 
 let products: ProductDetails[] = [
   {
-    id: 1,
+    id: '1',
     name: 'iPhone 16 Pro',
     slug: 'iphone-16-pro',
     description: 'Титановый корпус, чип A18 Pro, камера 48 Мп.',
-    categoryId: 2,
-    brandId: 1,
+    categoryId: '2',
+    brandId: '1',
     isActive: true,
     createdAt: '2026-08-02T10:00:00Z',
     updatedAt: '2026-09-10T14:20:00Z',
     variants: [
-      { id: 1, sku: 'IP16P-128-BLK', name: '128 ГБ, Чёрный титан', price: 549990, stock: 12, isActive: true, attributes: [{ attributeId: 3, value: '128' }, { attributeId: 1, value: 'Чёрный титан' }] },
-      { id: 2, sku: 'IP16P-256-BLK', name: '256 ГБ, Чёрный титан', price: 619990, stock: 4, isActive: true, attributes: [{ attributeId: 3, value: '256' }, { attributeId: 1, value: 'Чёрный титан' }] },
-      { id: 3, sku: 'IP16P-256-WHT', name: '256 ГБ, Белый титан', price: 619990, stock: 0, isActive: false, attributes: [{ attributeId: 3, value: '256' }, { attributeId: 1, value: 'Белый титан' }] },
+      { id: '1', sku: 'IP16P-128-BLK', name: '128 ГБ, Чёрный титан', price: 549990, stock: 12, isActive: true, attributes: [{ attributeId: '3', value: '128' }, { attributeId: '1', value: 'Чёрный титан' }] },
+      { id: '2', sku: 'IP16P-256-BLK', name: '256 ГБ, Чёрный титан', price: 619990, stock: 4, isActive: true, attributes: [{ attributeId: '3', value: '256' }, { attributeId: '1', value: 'Чёрный титан' }] },
+      { id: '3', sku: 'IP16P-256-WHT', name: '256 ГБ, Белый титан', price: 619990, stock: 0, isActive: false, attributes: [{ attributeId: '3', value: '256' }, { attributeId: '1', value: 'Белый титан' }] },
     ],
     images: [
-      { id: 1, url: pic('p1-a'), alt: null, sortOrder: 0, isMain: true },
-      { id: 2, url: pic('p1-b'), alt: null, sortOrder: 1, isMain: false },
-      { id: 3, url: pic('p1-c'), alt: null, sortOrder: 2, isMain: false },
+      { id: '1', url: pic('p1-a'), alt: null, sortOrder: 0, isMain: true },
+      { id: '2', url: pic('p1-b'), alt: null, sortOrder: 1, isMain: false },
+      { id: '3', url: pic('p1-c'), alt: null, sortOrder: 2, isMain: false },
     ],
     attributes: [
-      { attributeId: 2, value: '6.3' },
-      { attributeId: 4, value: '199' },
+      { attributeId: '2', value: '6.3' },
+      { attributeId: '4', value: '199' },
     ],
   },
   {
-    id: 2,
+    id: '2',
     name: 'Samsung Galaxy S25 Ultra',
     slug: 'samsung-galaxy-s25-ultra',
     description: 'Флагман с S Pen и камерой 200 Мп.',
-    categoryId: 2,
-    brandId: 2,
+    categoryId: '2',
+    brandId: '2',
     isActive: true,
     createdAt: '2026-08-05T09:00:00Z',
     updatedAt: null,
     variants: [
-      { id: 4, sku: 'S25U-256-GRY', name: '256 ГБ, Серый', price: 489990, stock: 7, isActive: true, attributes: [{ attributeId: 3, value: '256' }, { attributeId: 1, value: 'Серый' }] },
-      { id: 5, sku: 'S25U-512-GRY', name: '512 ГБ, Серый', price: 549990, stock: 2, isActive: true, attributes: [{ attributeId: 3, value: '512' }, { attributeId: 1, value: 'Серый' }] },
+      { id: '4', sku: 'S25U-256-GRY', name: '256 ГБ, Серый', price: 489990, stock: 7, isActive: true, attributes: [{ attributeId: '3', value: '256' }, { attributeId: '1', value: 'Серый' }] },
+      { id: '5', sku: 'S25U-512-GRY', name: '512 ГБ, Серый', price: 549990, stock: 2, isActive: true, attributes: [{ attributeId: '3', value: '512' }, { attributeId: '1', value: 'Серый' }] },
     ],
-    images: [{ id: 4, url: pic('p2-a'), alt: null, sortOrder: 0, isMain: true }],
-    attributes: [{ attributeId: 2, value: '6.9' }],
+    images: [{ id: '4', url: pic('p2-a'), alt: null, sortOrder: 0, isMain: true }],
+    attributes: [{ attributeId: '2', value: '6.9' }],
   },
   {
-    id: 3,
+    id: '3',
     name: 'MacBook Air 15" M4',
     slug: 'macbook-air-15-m4',
     description: 'Тонкий и лёгкий ноутбук на чипе M4.',
-    categoryId: 3,
-    brandId: 1,
+    categoryId: '3',
+    brandId: '1',
     isActive: true,
     createdAt: '2026-08-11T12:00:00Z',
     updatedAt: '2026-09-01T08:00:00Z',
     variants: [
-      { id: 6, sku: 'MBA15-M4-256', name: '256 ГБ', price: 699990, stock: 5, isActive: true, attributes: [{ attributeId: 3, value: '256' }] },
-      { id: 7, sku: 'MBA15-M4-512', name: '512 ГБ', price: 799990, stock: 3, isActive: true, attributes: [{ attributeId: 3, value: '512' }] },
+      { id: '6', sku: 'MBA15-M4-256', name: '256 ГБ', price: 699990, stock: 5, isActive: true, attributes: [{ attributeId: '3', value: '256' }] },
+      { id: '7', sku: 'MBA15-M4-512', name: '512 ГБ', price: 799990, stock: 3, isActive: true, attributes: [{ attributeId: '3', value: '512' }] },
     ],
     images: [
-      { id: 5, url: pic('p3-a'), alt: null, sortOrder: 0, isMain: true },
-      { id: 6, url: pic('p3-b'), alt: null, sortOrder: 1, isMain: false },
+      { id: '5', url: pic('p3-a'), alt: null, sortOrder: 0, isMain: true },
+      { id: '6', url: pic('p3-b'), alt: null, sortOrder: 1, isMain: false },
     ],
     attributes: [
-      { attributeId: 2, value: '15.3' },
-      { attributeId: 4, value: '1510' },
+      { attributeId: '2', value: '15.3' },
+      { attributeId: '4', value: '1510' },
     ],
   },
   {
-    id: 4,
+    id: '4',
     name: 'Xiaomi Redmi Note 14',
     slug: 'xiaomi-redmi-note-14',
     description: '',
-    categoryId: 2,
-    brandId: 4,
+    categoryId: '2',
+    brandId: '4',
     isActive: false,
     createdAt: '2026-08-20T12:00:00Z',
     updatedAt: null,
-    variants: [{ id: 8, sku: 'RN14-128-BLU', name: '128 ГБ, Синий', price: 89990, stock: 40, isActive: true, attributes: [{ attributeId: 3, value: '128' }, { attributeId: 1, value: 'Синий' }] }],
+    variants: [{ id: '8', sku: 'RN14-128-BLU', name: '128 ГБ, Синий', price: 89990, stock: 40, isActive: true, attributes: [{ attributeId: '3', value: '128' }, { attributeId: '1', value: 'Синий' }] }],
     images: [],
-    attributes: [{ attributeId: 2, value: '6.67' }],
+    attributes: [{ attributeId: '2', value: '6.67' }],
   },
   {
-    id: 5,
+    id: '5',
     name: 'Nike Air Max 270',
     slug: 'nike-air-max-270',
     description: 'Легендарная модель с большой воздушной подушкой.',
-    categoryId: 5,
-    brandId: 3,
+    categoryId: '5',
+    brandId: '3',
     isActive: true,
     createdAt: '2026-08-25T12:00:00Z',
     updatedAt: '2026-09-12T10:00:00Z',
     variants: [
-      { id: 9, sku: 'AM270-41-BLK', name: '41, Чёрный', price: 64990, stock: 6, isActive: true, attributes: [{ attributeId: 6, value: '41' }, { attributeId: 1, value: 'Чёрный' }] },
-      { id: 10, sku: 'AM270-42-BLK', name: '42, Чёрный', price: 64990, stock: 9, isActive: true, attributes: [{ attributeId: 6, value: '42' }, { attributeId: 1, value: 'Чёрный' }] },
-      { id: 11, sku: 'AM270-43-BLK', name: '43, Чёрный', price: 64990, stock: 0, isActive: true, attributes: [{ attributeId: 6, value: '43' }, { attributeId: 1, value: 'Чёрный' }] },
-      { id: 12, sku: 'AM270-42-WHT', name: '42, Белый', price: 64990, stock: 3, isActive: true, attributes: [{ attributeId: 6, value: '42' }, { attributeId: 1, value: 'Белый' }] },
+      { id: '9', sku: 'AM270-41-BLK', name: '41, Чёрный', price: 64990, stock: 6, isActive: true, attributes: [{ attributeId: '6', value: '41' }, { attributeId: '1', value: 'Чёрный' }] },
+      { id: '10', sku: 'AM270-42-BLK', name: '42, Чёрный', price: 64990, stock: 9, isActive: true, attributes: [{ attributeId: '6', value: '42' }, { attributeId: '1', value: 'Чёрный' }] },
+      { id: '11', sku: 'AM270-43-BLK', name: '43, Чёрный', price: 64990, stock: 0, isActive: true, attributes: [{ attributeId: '6', value: '43' }, { attributeId: '1', value: 'Чёрный' }] },
+      { id: '12', sku: 'AM270-42-WHT', name: '42, Белый', price: 64990, stock: 3, isActive: true, attributes: [{ attributeId: '6', value: '42' }, { attributeId: '1', value: 'Белый' }] },
     ],
     images: [
-      { id: 7, url: pic('p5-a'), alt: null, sortOrder: 0, isMain: true },
-      { id: 8, url: pic('p5-b'), alt: null, sortOrder: 1, isMain: false },
+      { id: '7', url: pic('p5-a'), alt: null, sortOrder: 0, isMain: true },
+      { id: '8', url: pic('p5-b'), alt: null, sortOrder: 1, isMain: false },
     ],
-    attributes: [{ attributeId: 5, value: 'Текстиль, синтетика' }],
+    attributes: [{ attributeId: '5', value: 'Текстиль, синтетика' }],
   },
   {
-    id: 6,
+    id: '6',
     name: 'Садовый шланг 25 м',
     slug: 'sadovyj-shlang-25-m',
     description: '',
-    categoryId: 6,
+    categoryId: '6',
     brandId: null,
     isActive: true,
     createdAt: '2026-09-03T12:00:00Z',
     updatedAt: null,
-    variants: [{ id: 13, sku: 'HOSE-25', name: '', price: 7990, stock: 120, isActive: true, attributes: [] }],
-    images: [{ id: 9, url: pic('p6-a'), alt: null, sortOrder: 0, isMain: true }],
-    attributes: [{ attributeId: 5, value: 'ПВХ' }],
+    variants: [{ id: '13', sku: 'HOSE-25', name: '', price: 7990, stock: 120, isActive: true, attributes: [] }],
+    images: [{ id: '9', url: pic('p6-a'), alt: null, sortOrder: 0, isMain: true }],
+    attributes: [{ attributeId: '5', value: 'ПВХ' }],
   },
 ]
 
 let nextId = 100
-const id = () => nextId++
+const id = () => String(nextId++)
 
 function fileUrl(file: File) {
   return URL.createObjectURL(file)
@@ -297,7 +297,7 @@ export const mockCatalogApi: CatalogAdminApi = {
       const s = q.search?.trim().toLowerCase()
       if (s) rows = rows.filter((r) => r.name.toLowerCase().includes(s) || r.slug.includes(s))
       if (q.categoryId != null) {
-        const ids = new Set<number>([q.categoryId])
+        const ids = new Set<string>([q.categoryId])
         let grew = true
         while (grew) {
           grew = false

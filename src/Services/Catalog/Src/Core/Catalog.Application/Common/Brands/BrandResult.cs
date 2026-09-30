@@ -3,7 +3,7 @@ using MarketAdvanced.Catalog.Domain;
 namespace MarketAdvanced.Catalog.Application.Common.Brands;
 
 public sealed record BrandResult(
-    int Id,
+    Guid Id,
     string Name,
     string Slug,
     string? Description,

@@ -12,7 +12,7 @@ import { IconChevronLeft, IconX } from '../../../components/icons'
 
 export default function OrderDetailView() {
   const { id } = useParams()
-  const orderId = Number(id)
+  const orderId = id ?? ''
 
   const order = useLoad(() => orderAdmin.orders.get(orderId), [orderId])
   const [nextStatus, setNextStatus] = useState<OrderStatus | ''>('')

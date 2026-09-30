@@ -22,7 +22,7 @@ let users: StoredUser[] = [
     createdAt: '2026-06-01T09:00:00Z',
     lastLoginAt: '2026-09-16T08:30:00Z',
     sessions: [
-      { id: 1, deviceId: 'device-a1', userAgent: 'Chrome / Windows', createdAt: '2026-09-16T08:30:00Z', expiresAt: '2026-10-16T08:30:00Z', isRevoked: false },
+      { id: '1', deviceId: 'device-a1', userAgent: 'Chrome / Windows', createdAt: '2026-09-16T08:30:00Z', expiresAt: '2026-10-16T08:30:00Z', isRevoked: false },
     ],
   },
   {
@@ -36,8 +36,8 @@ let users: StoredUser[] = [
     createdAt: '2026-06-20T12:00:00Z',
     lastLoginAt: '2026-09-14T18:12:00Z',
     sessions: [
-      { id: 2, deviceId: 'device-b1', userAgent: 'Safari / iPhone', createdAt: '2026-09-14T18:12:00Z', expiresAt: '2026-10-14T18:12:00Z', isRevoked: false },
-      { id: 3, deviceId: 'device-b2', userAgent: 'Chrome / Android', createdAt: '2026-08-01T10:00:00Z', expiresAt: '2026-09-01T10:00:00Z', isRevoked: true },
+      { id: '2', deviceId: 'device-b1', userAgent: 'Safari / iPhone', createdAt: '2026-09-14T18:12:00Z', expiresAt: '2026-10-14T18:12:00Z', isRevoked: false },
+      { id: '3', deviceId: 'device-b2', userAgent: 'Chrome / Android', createdAt: '2026-08-01T10:00:00Z', expiresAt: '2026-09-01T10:00:00Z', isRevoked: true },
     ],
   },
   {

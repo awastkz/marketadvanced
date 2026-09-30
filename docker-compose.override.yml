@@ -1,18 +1,31 @@
 services:
-  # Dev: один процесс со всеми сервисами вместо трёх dotnet watch (api, catalog, worker), каждый из которых
-  # держит свой компилятор и MSBuild (~2.5 ГБ на контейнер). catalog и worker ниже выключены профилем.
+  # Dev: один процесс со всеми сервисами (app) вместо пяти dotnet watch, каждый из которых
+  # держит свой компилятор и MSBuild (~2.5 ГБ на контейнер). Контейнеры сервисов и gateway ниже выключены профилем.
   # Проверить раздельную топологию как в проде: docker compose -f docker-compose.yml up --build
-  api:
+  app:
+    # окружение, образ-заготовка и порт Catalog берутся из catalog в docker-compose.yml
+    extends:
+      file: docker-compose.yml
+      service: catalog
     build:
       context: ./src
       dockerfile: Host/Dockerfile.dev
     volumes:
       - ./src:/src
-      - api_artifacts:/src/artifacts
+      - app_artifacts:/src/artifacts
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
     environment:
       DOTNET_USE_POLLING_FILE_WATCHER: "true"
       Service__Name: app
-      # все сервисы; Services__0..3 из docker-compose.yml перезаписываются, Catalog добавляется
+      # все сервисы; Services__0 из catalog перезаписывается
       Services__0: Identity
       Services__1: Catalog
       Services__2: Cart
@@ -20,21 +33,30 @@ services:
       Services__4: Payment
       # Cart ходит в Catalog по HTTP в тот же процесс
       Catalog__BaseUrl: "http://localhost:8080"
-      # роль worker тоже здесь: консьюмеры MassTransit и сервер Hangfire
-      MassTransit__Consumers: "true"
-      Hangfire__Server: "true"
     ports:
-      # фронт ходит в Catalog на отдельный порт (VITE_CATALOG_API_BASE_URL), отдаём его этим же процессом
-      - "${CATALOG_PORT:-5081}:8080"
-    healthcheck:
+      # вместо gateway: фронт ходит и на API_PORT, и на CATALOG_PORT (он унаследован от catalog) в этот же процесс
+      - "${API_PORT}:8080"
+    healthcheck: &dev-healthcheck
       test: ["CMD-SHELL", "curl -fsS http://localhost:8080/health/live || exit 1"]
       interval: 15s
       timeout: 5s
       retries: 3
       start_period: 180s   # dotnet watch собирает проект при старте
 
+  identity:
+    profiles: ["split"]   # в dev сервис поднят внутри app, см. комментарий вверху
+    build:
+      context: ./src
+      dockerfile: Host/Dockerfile.dev
+    volumes:
+      - ./src:/src
+      - identity_artifacts:/src/artifacts
+    environment:
+      DOTNET_USE_POLLING_FILE_WATCHER: "true"
+    healthcheck: *dev-healthcheck
+
   catalog:
-    profiles: ["split"]   # в dev Catalog поднят внутри api, см. комментарий вверху
+    profiles: ["split"]   # в dev сервис поднят внутри app, см. комментарий вверху
     build:
       context: ./src
       dockerfile: Host/Dockerfile.dev
@@ -43,12 +65,46 @@ services:
       - catalog_artifacts:/src/artifacts
     environment:
       DOTNET_USE_POLLING_FILE_WATCHER: "true"
-    healthcheck:
-      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/health/live || exit 1"]
-      interval: 15s
-      timeout: 5s
-      retries: 3
-      start_period: 180s   # dotnet watch собирает проект при старте
+    healthcheck: *dev-healthcheck
+
+  cart:
+    profiles: ["split"]   # в dev сервис поднят внутри app, см. комментарий вверху
+    build:
+      context: ./src
+      dockerfile: Host/Dockerfile.dev
+    volumes:
+      - ./src:/src
+      - cart_artifacts:/src/artifacts
+    environment:
+      DOTNET_USE_POLLING_FILE_WATCHER: "true"
+    healthcheck: *dev-healthcheck
+
+  order:
+    profiles: ["split"]   # в dev сервис поднят внутри app, см. комментарий вверху
+    build:
+      context: ./src
+      dockerfile: Host/Dockerfile.dev
+    volumes:
+      - ./src:/src
+      - order_artifacts:/src/artifacts
+    environment:
+      DOTNET_USE_POLLING_FILE_WATCHER: "true"
+    healthcheck: *dev-healthcheck
+
+  payment:
+    profiles: ["split"]   # в dev сервис поднят внутри app, см. комментарий вверху
+    build:
+      context: ./src
+      dockerfile: Host/Dockerfile.dev
+    volumes:
+      - ./src:/src
+      - payment_artifacts:/src/artifacts
+    environment:
+      DOTNET_USE_POLLING_FILE_WATCHER: "true"
+    healthcheck: *dev-healthcheck
+
+  gateway:
+    profiles: ["split"]   # в dev app сам отвечает на API_PORT
 
   # Aspire Dashboard отключён в пользу Grafana-стека ниже. Чтобы вернуть: раскомментировать
   # и переключить OTEL_EXPORTER_OTLP_ENDPOINT в docker-compose.yml на http://aspire-dashboard:18889
@@ -149,27 +205,13 @@ services:
   #     - loki
   #     - tempo
 
-  worker:
-    profiles: ["split"]   # в dev консьюмеры и Hangfire работают внутри api, см. комментарий вверху
-    build:
-      context: ./src
-      dockerfile: Host/Dockerfile.dev
-    volumes:
-      - ./src:/src
-      - worker_artifacts:/src/artifacts
-    environment:
-      DOTNET_USE_POLLING_FILE_WATCHER: "true"
-    healthcheck:
-      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/health/live || exit 1"]
-      interval: 15s
-      timeout: 5s
-      retries: 3
-      start_period: 180s   # dotnet watch собирает проект при старте
-
 volumes:
-  api_artifacts:
+  app_artifacts:
+  identity_artifacts:
   catalog_artifacts:
-  worker_artifacts:
+  cart_artifacts:
+  order_artifacts:
+  payment_artifacts:
   # prometheus_data:
   loki_data:
   tempo_data:

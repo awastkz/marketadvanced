@@ -22,22 +22,18 @@ public sealed class CategoryRepository : ICategoryRepository
         return rows.Select(r => (r.Category, r.ProductsCount)).ToList();
     }
 
-    public Task<bool> ExistsAsync(int id, CancellationToken ct) => _db.Category.AnyAsync(c => c.Id == id, ct);
+    public Task<bool> ExistsAsync(Guid id, CancellationToken ct) => _db.Category.AnyAsync(c => c.Id == id, ct);
 
-    public Task<bool> SlugExistsAsync(string slug, int? exceptId, CancellationToken ct) =>
+    public Task<bool> SlugExistsAsync(string slug, Guid? exceptId, CancellationToken ct) =>
         _db.Category.AnyAsync(c => c.Slug == slug && (exceptId == null || c.Id != exceptId), ct);
 
-    public Task<Category?> GetByIdAsync(int id, CancellationToken ct) => _db.Category.FirstOrDefaultAsync(c => c.Id == id, ct);
+    public Task<Category?> GetByIdAsync(Guid id, CancellationToken ct) => _db.Category.FirstOrDefaultAsync(c => c.Id == id, ct);
 
-    public Task<int> ProductsCountAsync(int id, CancellationToken ct) => _db.Product.CountAsync(p => p.CategoryId == id, ct);
+    public Task<int> ProductsCountAsync(Guid id, CancellationToken ct) => _db.Product.CountAsync(p => p.CategoryId == id, ct);
 
-    public Task<bool> HasChildrenAsync(int id, CancellationToken ct) => _db.Category.AnyAsync(c => c.ParentId == id, ct);
+    public Task<bool> HasChildrenAsync(Guid id, CancellationToken ct) => _db.Category.AnyAsync(c => c.ParentId == id, ct);
 
-    public async Task AddAsync(Category category, CancellationToken ct)
-    {
-        _db.Category.Add(category);
-        await _db.SaveChangesAsync(ct);
-    }
+    public async Task AddAsync(Category category, CancellationToken ct) => await _db.Category.AddAsync(category, ct);
 
     public void Remove(Category category) => _db.Category.Remove(category);
 

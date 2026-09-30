@@ -8,12 +8,12 @@ export interface Paged<T> {
 /* ---------- Категории ---------- */
 
 export interface Category {
-  id: number
+  id: string
   name: string
   slug: string
   imageUrl: string | null
   sortOrder: number
-  parentId: number | null
+  parentId: string | null
   productsCount: number
 }
 
@@ -21,7 +21,7 @@ export interface CategoryPayload {
   name: string
   slug: string
   sortOrder: number
-  parentId: number | null
+  parentId: string | null
   image?: File | null
   removeImage?: boolean
 }
@@ -29,7 +29,7 @@ export interface CategoryPayload {
 /* ---------- Бренды ---------- */
 
 export interface Brand {
-  id: number
+  id: string
   name: string
   slug: string
   description: string | null
@@ -48,7 +48,7 @@ export interface BrandPayload {
 /* ---------- Атрибуты ---------- */
 
 export interface Attribute {
-  id: number
+  id: string
   name: string
   slug: string
   unit: string | null
@@ -65,12 +65,12 @@ export interface AttributePayload {
 /* ---------- Товары ---------- */
 
 export interface ProductListItem {
-  id: number
+  id: string
   name: string
   slug: string
   imageUrl: string | null
   isActive: boolean
-  categoryId: number
+  categoryId: string
   categoryName: string
   brandName: string | null
   variantsCount: number
@@ -81,7 +81,7 @@ export interface ProductListItem {
 }
 
 export interface ProductVariant {
-  id: number | null
+  id: string | null
   sku: string
   /** Собирается фронтом из значений признаков: «256 ГБ, Чёрный». Если признаков нет — вводится вручную. */
   name: string
@@ -93,7 +93,7 @@ export interface ProductVariant {
 }
 
 export interface ProductImage {
-  id: number
+  id: string
   url: string
   alt: string | null
   sortOrder: number
@@ -101,17 +101,17 @@ export interface ProductImage {
 }
 
 export interface ProductAttributeValue {
-  attributeId: number
+  attributeId: string
   value: string
 }
 
 export interface ProductDetails {
-  id: number
+  id: string
   name: string
   slug: string
   description: string
-  categoryId: number
-  brandId: number | null
+  categoryId: string
+  brandId: string | null
   isActive: boolean
   createdAt: string
   updatedAt: string | null
@@ -124,8 +124,8 @@ export interface ProductPayload {
   name: string
   slug: string
   description: string
-  categoryId: number
-  brandId: number | null
+  categoryId: string
+  brandId: string | null
   isActive: boolean
   variants: ProductVariant[]
   attributes: ProductAttributeValue[]
@@ -133,8 +133,8 @@ export interface ProductPayload {
 
 export interface ProductQuery {
   search?: string
-  categoryId?: number | null
-  brandId?: number | null
+  categoryId?: string | null
+  brandId?: string | null
   isActive?: boolean | null
   page: number
   pageSize: number
@@ -146,29 +146,29 @@ export interface CatalogAdminApi {
   categories: {
     list(): Promise<Category[]>
     create(payload: CategoryPayload): Promise<Category>
-    update(id: number, payload: CategoryPayload): Promise<Category>
-    remove(id: number): Promise<void>
+    update(id: string, payload: CategoryPayload): Promise<Category>
+    remove(id: string): Promise<void>
   }
   brands: {
     list(): Promise<Brand[]>
     create(payload: BrandPayload): Promise<Brand>
-    update(id: number, payload: BrandPayload): Promise<Brand>
-    remove(id: number): Promise<void>
+    update(id: string, payload: BrandPayload): Promise<Brand>
+    remove(id: string): Promise<void>
   }
   attributes: {
     list(): Promise<Attribute[]>
     create(payload: AttributePayload): Promise<Attribute>
-    update(id: number, payload: AttributePayload): Promise<Attribute>
-    remove(id: number): Promise<void>
+    update(id: string, payload: AttributePayload): Promise<Attribute>
+    remove(id: string): Promise<void>
   }
   products: {
     list(query: ProductQuery): Promise<Paged<ProductListItem>>
-    get(id: number): Promise<ProductDetails>
+    get(id: string): Promise<ProductDetails>
     create(payload: ProductPayload): Promise<ProductDetails>
-    update(id: number, payload: ProductPayload): Promise<ProductDetails>
-    remove(id: number): Promise<void>
-    uploadImage(productId: number, file: File): Promise<ProductImage>
-    deleteImage(productId: number, imageId: number): Promise<void>
-    setMainImage(productId: number, imageId: number): Promise<void>
+    update(id: string, payload: ProductPayload): Promise<ProductDetails>
+    remove(id: string): Promise<void>
+    uploadImage(productId: string, file: File): Promise<ProductImage>
+    deleteImage(productId: string, imageId: string): Promise<void>
+    setMainImage(productId: string, imageId: string): Promise<void>
   }
 }

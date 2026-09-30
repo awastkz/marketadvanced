@@ -23,7 +23,7 @@ export default function ImportView() {
   const [mode, setMode] = useState<Mode>('import')
   const [entity, setEntity] = useState<EntityKey>('categories')
 
-  const [exportCategoryId, setExportCategoryId] = useState<number | null>(null)
+  const [exportCategoryId, setExportCategoryId] = useState<string | null>(null)
   const [exportStatus, setExportStatus] = useState<'all' | 'active' | 'hidden'>('all')
 
   const dicts = useLoad(async () => {
@@ -105,7 +105,7 @@ export default function ImportView() {
                   <select
                     className="select"
                     value={exportCategoryId ?? ''}
-                    onChange={(e) => setExportCategoryId(e.target.value ? Number(e.target.value) : null)}
+                    onChange={(e) => setExportCategoryId(e.target.value || null)}
                   >
                     <option value="">Все категории</option>
                     {categoryTree.map((c) => (

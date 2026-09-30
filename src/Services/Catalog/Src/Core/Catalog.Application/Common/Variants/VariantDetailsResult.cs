@@ -4,8 +4,8 @@ namespace MarketAdvanced.Catalog.Application.Common.Variants;
 
 /// <summary>Вариант для внешних потребителей (Cart, Order). Не зависит от админского VariantResult.</summary>
 public sealed record VariantDetailsResult(
-    int Id,
-    int ProductId,
+    Guid Id,
+    Guid ProductId,
     string ProductName,
     string Sku,
     string? Name,

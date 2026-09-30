@@ -20,13 +20,13 @@ namespace MarketAdvanced.Catalog.Persistence.Migrations
                 schema: "catalog",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     Slug = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     Description = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: true),
                     LogoPath = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
@@ -39,15 +39,15 @@ namespace MarketAdvanced.Catalog.Persistence.Migrations
                 schema: "catalog",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     Slug = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     ImagePath = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
                     SortOrder = table.Column<int>(type: "integer", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    ParentId = table.Column<int>(type: "integer", nullable: true)
+                    ParentId = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -62,17 +62,58 @@ namespace MarketAdvanced.Catalog.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "InboxState",
+                schema: "catalog",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    MessageId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ConsumerId = table.Column<Guid>(type: "uuid", nullable: false),
+                    LockId = table.Column<Guid>(type: "uuid", nullable: false),
+                    RowVersion = table.Column<byte[]>(type: "bytea", rowVersion: true, nullable: true),
+                    Received = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ReceiveCount = table.Column<int>(type: "integer", nullable: false),
+                    ExpirationTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    Consumed = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    Delivered = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    LastSequenceNumber = table.Column<long>(type: "bigint", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_InboxState", x => x.Id);
+                    table.UniqueConstraint("AK_InboxState_MessageId_ConsumerId", x => new { x.MessageId, x.ConsumerId });
+                });
+
+            migrationBuilder.CreateTable(
+                name: "OutboxState",
+                schema: "catalog",
+                columns: table => new
+                {
+                    OutboxId = table.Column<Guid>(type: "uuid", nullable: false),
+                    LockId = table.Column<Guid>(type: "uuid", nullable: false),
+                    RowVersion = table.Column<byte[]>(type: "bytea", rowVersion: true, nullable: true),
+                    Created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Delivered = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    LastSequenceNumber = table.Column<long>(type: "bigint", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_OutboxState", x => x.OutboxId);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "ProductAttribute",
                 schema: "catalog",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     Slug = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     Unit = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: true),
                     SortOrder = table.Column<int>(type: "integer", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
@@ -85,17 +126,17 @@ namespace MarketAdvanced.Catalog.Persistence.Migrations
                 schema: "catalog",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     Slug = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     Description = table.Column<string>(type: "character varying(4000)", maxLength: 4000, nullable: true),
                     ImagePath = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
                     IsActive = table.Column<bool>(type: "boolean", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    CategoryId = table.Column<int>(type: "integer", nullable: false),
-                    BrandId = table.Column<int>(type: "integer", nullable: true)
+                    CategoryId = table.Column<Guid>(type: "uuid", nullable: false),
+                    BrandId = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -117,15 +158,59 @@ namespace MarketAdvanced.Catalog.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "OutboxMessage",
+                schema: "catalog",
+                columns: table => new
+                {
+                    SequenceNumber = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    EnqueueTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    SentTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Headers = table.Column<string>(type: "text", nullable: true),
+                    Properties = table.Column<string>(type: "text", nullable: true),
+                    InboxMessageId = table.Column<Guid>(type: "uuid", nullable: true),
+                    InboxConsumerId = table.Column<Guid>(type: "uuid", nullable: true),
+                    OutboxId = table.Column<Guid>(type: "uuid", nullable: true),
+                    MessageId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ContentType = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
+                    MessageType = table.Column<string>(type: "text", nullable: false),
+                    Body = table.Column<string>(type: "text", nullable: false),
+                    ConversationId = table.Column<Guid>(type: "uuid", nullable: true),
+                    CorrelationId = table.Column<Guid>(type: "uuid", nullable: true),
+                    InitiatorId = table.Column<Guid>(type: "uuid", nullable: true),
+                    RequestId = table.Column<Guid>(type: "uuid", nullable: true),
+                    SourceAddress = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    DestinationAddress = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    ResponseAddress = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    FaultAddress = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    ExpirationTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_OutboxMessage", x => x.SequenceNumber);
+                    table.ForeignKey(
+                        name: "FK_OutboxMessage_InboxState_InboxMessageId_InboxConsumerId",
+                        columns: x => new { x.InboxMessageId, x.InboxConsumerId },
+                        principalSchema: "catalog",
+                        principalTable: "InboxState",
+                        principalColumns: new[] { "MessageId", "ConsumerId" });
+                    table.ForeignKey(
+                        name: "FK_OutboxMessage_OutboxState_OutboxId",
+                        column: x => x.OutboxId,
+                        principalSchema: "catalog",
+                        principalTable: "OutboxState",
+                        principalColumn: "OutboxId");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "ProductAttributeValue",
                 schema: "catalog",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Value = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
-                    ProductId = table.Column<int>(type: "integer", nullable: false),
-                    AttributeId = table.Column<int>(type: "integer", nullable: false)
+                    ProductId = table.Column<Guid>(type: "uuid", nullable: false),
+                    AttributeId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -151,8 +236,7 @@ namespace MarketAdvanced.Catalog.Persistence.Migrations
                 schema: "catalog",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Sku = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
                     Name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
                     Price = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false),
@@ -160,7 +244,7 @@ namespace MarketAdvanced.Catalog.Persistence.Migrations
                     IsActive = table.Column<bool>(type: "boolean", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    ProductId = table.Column<int>(type: "integer", nullable: false)
+                    ProductId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -179,15 +263,14 @@ namespace MarketAdvanced.Catalog.Persistence.Migrations
                 schema: "catalog",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
                     ImagePath = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
                     Alt = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
                     SortOrder = table.Column<int>(type: "integer", nullable: false),
                     IsMain = table.Column<bool>(type: "boolean", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    ProductId = table.Column<int>(type: "integer", nullable: false),
-                    ProductVariantId = table.Column<int>(type: "integer", nullable: true)
+                    ProductId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ProductVariantId = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -213,11 +296,10 @@ namespace MarketAdvanced.Catalog.Persistence.Migrations
                 schema: "catalog",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Value = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
-                    ProductVariantId = table.Column<int>(type: "integer", nullable: false),
-                    AttributeId = table.Column<int>(type: "integer", nullable: false)
+                    ProductVariantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    AttributeId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -246,6 +328,12 @@ namespace MarketAdvanced.Catalog.Persistence.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_Brand_UserId",
+                schema: "catalog",
+                table: "Brand",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Category_ParentId",
                 schema: "catalog",
                 table: "Category",
@@ -257,6 +345,50 @@ namespace MarketAdvanced.Catalog.Persistence.Migrations
                 table: "Category",
                 column: "Slug",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Category_UserId",
+                schema: "catalog",
+                table: "Category",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_InboxState_Delivered",
+                schema: "catalog",
+                table: "InboxState",
+                column: "Delivered");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OutboxMessage_EnqueueTime",
+                schema: "catalog",
+                table: "OutboxMessage",
+                column: "EnqueueTime");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OutboxMessage_ExpirationTime",
+                schema: "catalog",
+                table: "OutboxMessage",
+                column: "ExpirationTime");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OutboxMessage_InboxMessageId_InboxConsumerId_SequenceNumber",
+                schema: "catalog",
+                table: "OutboxMessage",
+                columns: new[] { "InboxMessageId", "InboxConsumerId", "SequenceNumber" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OutboxMessage_OutboxId_SequenceNumber",
+                schema: "catalog",
+                table: "OutboxMessage",
+                columns: new[] { "OutboxId", "SequenceNumber" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OutboxState_Created",
+                schema: "catalog",
+                table: "OutboxState",
+                column: "Created");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Product_BrandId",
@@ -278,11 +410,23 @@ namespace MarketAdvanced.Catalog.Persistence.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_Product_UserId",
+                schema: "catalog",
+                table: "Product",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ProductAttribute_Slug",
                 schema: "catalog",
                 table: "ProductAttribute",
                 column: "Slug",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ProductAttribute_UserId",
+                schema: "catalog",
+                table: "ProductAttribute",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ProductAttributeValue_AttributeId",
@@ -340,6 +484,10 @@ namespace MarketAdvanced.Catalog.Persistence.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "OutboxMessage",
+                schema: "catalog");
+
+            migrationBuilder.DropTable(
                 name: "ProductAttributeValue",
                 schema: "catalog");
 
@@ -349,6 +497,14 @@ namespace MarketAdvanced.Catalog.Persistence.Migrations
 
             migrationBuilder.DropTable(
                 name: "VariantAttributeValue",
+                schema: "catalog");
+
+            migrationBuilder.DropTable(
+                name: "InboxState",
+                schema: "catalog");
+
+            migrationBuilder.DropTable(
+                name: "OutboxState",
                 schema: "catalog");
 
             migrationBuilder.DropTable(

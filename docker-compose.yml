@@ -1,5 +1,6 @@
-# общее окружение и зависимости для api и worker
+# общее окружение для контейнеров сервисов
 x-app-env: &app-env
+  ASPNETCORE_URLS: http://+:8080
   ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
   ConnectionStrings__Postgres: "Host=postgres;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}"
   ConnectionStrings__Redis: "redis:6379,password=${REDIS_PASSWORD}"
@@ -20,6 +21,9 @@ x-app-env: &app-env
   Keycloak__MetadataAddress: "http://keycloak:8080/realms/marketadvanced/.well-known/openid-configuration"
   # телеметрия в otel-collector (override для dev), дальше Prometheus + Loki + Grafana
   OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector:4317"
+  # каждый сервис поднимает свои консьюмеры MassTransit
+  MassTransit__Consumers: "true"
+  MassTransit__PrefetchCount: ${MASSTRANSIT_PREFETCH_COUNT:-16}
 
 x-app-depends: &app-depends
   postgres:
@@ -30,6 +34,14 @@ x-app-depends: &app-depends
     condition: service_healthy
   minio:
     condition: service_healthy
+
+# общая часть контейнера сервиса: один образ Host, сервис выбирается через Services__0
+x-app: &app
+  build:
+    context: ./src
+    dockerfile: Host/Dockerfile
+  restart: unless-stopped
+  depends_on: *app-depends
 
 services:
   postgres:
@@ -141,65 +153,60 @@ services:
       timeout: 5s
       retries: 10
 
-  api:
-    build:
-      context: ./src
-      dockerfile: Host/Dockerfile
-    restart: unless-stopped
-    depends_on: *app-depends
+  # Каждый сервис в своём контейнере из одного образа: Services__0 выбирает сервис.
+  # Один сервис = один DbContext в процессе, поэтому у каждого может быть свой outbox MassTransit.
+  # Консьюмеры тоже живут в контейнере своего сервиса и читают только свои очереди.
+  identity:
+    <<: *app
     environment:
       <<: *app-env
-      ASPNETCORE_URLS: http://+:8080
-      Service__Name: api
-      # все сервисы, кроме Catalog: он живёт в отдельном контейнере catalog
+      Service__Name: identity
       Services__0: Identity
-      Services__1: Cart
-      Services__2: Order
-      Services__3: Payment
-      # api только ставит задачи и показывает дашборд /hangfire, сервер Hangfire не запускает
-      Hangfire__Server: "false"
-      # api только публикует сообщения в RabbitMQ, консьюмеры MassTransit не поднимает
-      MassTransit__Consumers: "false"
-    ports:
-      - "${API_PORT}:8080"
 
-  # тот же образ, но поднимает только сервис Catalog; api и worker ходят в него по http://catalog:8080
   catalog:
-    build:
-      context: ./src
-      dockerfile: Host/Dockerfile
-    restart: unless-stopped
-    depends_on: *app-depends
+    <<: *app
     environment:
       <<: *app-env
-      ASPNETCORE_URLS: http://+:8080
       Service__Name: catalog
       Services__0: Catalog
-      Hangfire__Server: "false"
-      MassTransit__Consumers: "false"
     ports:
+      # фронт ходит в Catalog напрямую (VITE_CATALOG_API_BASE_URL), остальные сервисы через gateway
       - "${CATALOG_PORT:-5081}:8080"
 
-  # тот же образ, что и api, но выполняет только фоновые задачи Hangfire
-  # и консьюмеры MassTransit (без HTTP наружу)
-  worker:
-    build:
-      context: ./src
-      dockerfile: Host/Dockerfile
-    restart: unless-stopped
-    depends_on: *app-depends
+  cart:
+    <<: *app
     environment:
       <<: *app-env
-      ASPNETCORE_URLS: http://+:8080
-      Service__Name: worker
-      # сервисы, у которых есть фоновые задачи или консьюмеры
+      Service__Name: cart
       Services__0: Cart
-      Services__1: Order
-      Services__2: Payment
-      Hangfire__Server: "true"
-      Hangfire__WorkerCount: ${HANGFIRE_WORKER_COUNT:-4}
-      MassTransit__Consumers: "true"
-      MassTransit__PrefetchCount: ${MASSTRANSIT_PREFETCH_COUNT:-16}
+
+  order:
+    <<: *app
+    environment:
+      <<: *app-env
+      Service__Name: order
+      Services__0: Order
+
+  payment:
+    <<: *app
+    environment:
+      <<: *app-env
+      Service__Name: payment
+      Services__0: Payment
+
+  # единая точка входа для фронта на API_PORT: раскидывает /api/... по сервисам, см. ops/gateway/nginx.conf
+  gateway:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    volumes:
+      - ./ops/gateway/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - identity
+      - cart
+      - order
+      - payment
+    ports:
+      - "${API_PORT}:80"
 
 volumes:
   postgres_data:

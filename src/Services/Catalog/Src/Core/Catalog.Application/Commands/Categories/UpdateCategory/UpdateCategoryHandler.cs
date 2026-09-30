@@ -43,7 +43,7 @@ public sealed class UpdateCategoryHandler : IRequestHandler<UpdateCategoryComman
     }
 
     // candidateId лежит в поддереве rootId?
-    private async Task<bool> IsDescendantAsync(int rootId, int candidateId, CancellationToken ct)
+    private async Task<bool> IsDescendantAsync(Guid rootId, Guid candidateId, CancellationToken ct)
     {
         var all = await _repo.ListAsync(ct);
         var parentOf = all.ToDictionary(r => r.Category.Id, r => r.Category.ParentId);

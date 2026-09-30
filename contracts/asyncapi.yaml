@@ -1,0 +1,45 @@
+asyncapi: 3.0.0
+info:
+  title: MarketAdvanced events
+  version: 0.1.0
+  description: |
+    Реестр интеграционных событий. Источник правды: схемы в schemas/, отсюда генерируются классы для всех языков.
+    Формат: чистый JSON (application/json), camelCase. Exchange: <сервис>.<событие>.v<N>, fanout, durable.
+    Очередь подписчика: <сервис-подписчик>.<событие>. Доставка at-least-once, подписчики идемпотентны по eventId.
+
+servers:
+  rabbit:
+    host: rabbitmq:5672
+    protocol: amqp
+
+channels:
+  catalogProductCreatedV1:
+    address: catalog.product-created.v1
+    messages:
+      ProductCreatedV1:
+        $ref: '#/components/messages/ProductCreatedV1'
+    bindings:
+      amqp:
+        is: routingKey
+        exchange:
+          name: catalog.product-created.v1
+          type: fanout
+          durable: true
+          autoDelete: false
+
+operations:
+  publishProductCreatedV1:
+    action: send
+    channel:
+      $ref: '#/channels/catalogProductCreatedV1'
+    x-owner: catalog
+    x-consumers: []
+
+components:
+  messages:
+    ProductCreatedV1:
+      name: catalog.product-created.v1
+      title: Product created
+      contentType: application/json
+      payload:
+        $ref: './schemas/catalog/product-created.v1.json'

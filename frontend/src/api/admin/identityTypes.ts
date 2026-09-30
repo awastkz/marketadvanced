@@ -17,7 +17,7 @@ export interface UserListItem {
 }
 
 export interface UserSession {
-  id: number
+  id: string
   deviceId: string
   userAgent: string | null
   createdAt: string
@@ -56,7 +56,7 @@ export interface IdentityAdminApi {
     get(id: string): Promise<UserDetails>
     update(id: string, payload: UserUpdatePayload): Promise<UserDetails>
     setBlocked(id: string, blocked: boolean): Promise<UserDetails>
-    revokeSession(id: string, sessionId: number): Promise<void>
+    revokeSession(id: string, sessionId: string): Promise<void>
     remove(id: string): Promise<void>
   }
 }

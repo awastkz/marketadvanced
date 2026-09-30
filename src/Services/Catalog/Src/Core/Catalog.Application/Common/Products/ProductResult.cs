@@ -3,10 +3,10 @@ using MarketAdvanced.Catalog.Domain;
 
 namespace MarketAdvanced.Catalog.Application.Common.Products;
 
-public sealed record AttributeValueResult(int AttributeId, string Value);
+public sealed record AttributeValueResult(Guid AttributeId, string Value);
 
 public sealed record VariantResult(
-    int Id,
+    Guid Id,
     string Sku,
     string? Name,
     decimal Price,
@@ -15,12 +15,12 @@ public sealed record VariantResult(
     IReadOnlyList<AttributeValueResult> Attributes);
 
 public sealed record ProductResult(
-    int Id,
+    Guid Id,
     string Name,
     string Slug,
     string? Description,
-    int CategoryId,
-    int? BrandId,
+    Guid CategoryId,
+    Guid? BrandId,
     bool IsActive,
     DateTime CreatedAt,
     DateTime? UpdatedAt,

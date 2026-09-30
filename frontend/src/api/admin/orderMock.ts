@@ -13,7 +13,7 @@ function totals(items: OrderItemDetails[], shippingCost: number) {
 
 let orders: OrderDetails[] = [
   {
-    id: 1,
+    id: '1',
     number: 'MA-100231',
     status: 'Processing',
     customerName: 'Айгерим Нурланова',
@@ -22,10 +22,10 @@ let orders: OrderDetails[] = [
     shippingAddress: 'г. Алматы, ул. Абая 10, кв. 5',
     comment: 'Позвонить перед доставкой',
     items: [
-      { id: 1, variantId: 2, productName: 'iPhone 16 Pro', sku: 'IP16P-256-BLK', price: 619990, quantity: 1, lineTotal: 619990 },
+      { id: '1', variantId: '2', productName: 'iPhone 16 Pro', sku: 'IP16P-256-BLK', price: 619990, quantity: 1, lineTotal: 619990 },
     ],
     shippingCost: 2000,
-    ...totals([{ id: 1, variantId: 2, productName: 'iPhone 16 Pro', sku: 'IP16P-256-BLK', price: 619990, quantity: 1, lineTotal: 619990 }], 2000),
+    ...totals([{ id: '1', variantId: '2', productName: 'iPhone 16 Pro', sku: 'IP16P-256-BLK', price: 619990, quantity: 1, lineTotal: 619990 }], 2000),
     history: [
       { status: 'New', changedAt: '2026-09-14T10:00:00Z', comment: null },
       { status: 'Confirmed', changedAt: '2026-09-14T12:30:00Z', comment: null },
@@ -35,7 +35,7 @@ let orders: OrderDetails[] = [
     updatedAt: '2026-09-15T09:00:00Z',
   },
   {
-    id: 2,
+    id: '2',
     number: 'MA-100232',
     status: 'New',
     customerName: 'Данияр Ахметов',
@@ -44,14 +44,14 @@ let orders: OrderDetails[] = [
     shippingAddress: 'г. Астана, пр. Мангилик Ел 22',
     comment: null,
     items: [
-      { id: 2, variantId: 9, productName: 'Nike Air Max 270', sku: 'AM270-41-BLK', price: 64990, quantity: 2, lineTotal: 129980 },
-      { id: 3, variantId: 13, productName: 'Садовый шланг 25 м', sku: 'HOSE-25', price: 7990, quantity: 1, lineTotal: 7990 },
+      { id: '2', variantId: '9', productName: 'Nike Air Max 270', sku: 'AM270-41-BLK', price: 64990, quantity: 2, lineTotal: 129980 },
+      { id: '3', variantId: '13', productName: 'Садовый шланг 25 м', sku: 'HOSE-25', price: 7990, quantity: 1, lineTotal: 7990 },
     ],
     shippingCost: 1500,
     ...totals(
       [
-        { id: 2, variantId: 9, productName: 'Nike Air Max 270', sku: 'AM270-41-BLK', price: 64990, quantity: 2, lineTotal: 129980 },
-        { id: 3, variantId: 13, productName: 'Садовый шланг 25 м', sku: 'HOSE-25', price: 7990, quantity: 1, lineTotal: 7990 },
+        { id: '2', variantId: '9', productName: 'Nike Air Max 270', sku: 'AM270-41-BLK', price: 64990, quantity: 2, lineTotal: 129980 },
+        { id: '3', variantId: '13', productName: 'Садовый шланг 25 м', sku: 'HOSE-25', price: 7990, quantity: 1, lineTotal: 7990 },
       ],
       1500,
     ),
@@ -60,7 +60,7 @@ let orders: OrderDetails[] = [
     updatedAt: null,
   },
   {
-    id: 3,
+    id: '3',
     number: 'MA-100220',
     status: 'Delivered',
     customerName: 'Зарина Ахметова',
@@ -68,9 +68,9 @@ let orders: OrderDetails[] = [
     customerPhone: '+7 701 000 00 04',
     shippingAddress: 'г. Шымкент, ул. Тауке хана 3',
     comment: null,
-    items: [{ id: 4, variantId: 6, productName: 'MacBook Air 15" M4', sku: 'MBA15-M4-256', price: 699990, quantity: 1, lineTotal: 699990 }],
+    items: [{ id: '4', variantId: '6', productName: 'MacBook Air 15" M4', sku: 'MBA15-M4-256', price: 699990, quantity: 1, lineTotal: 699990 }],
     shippingCost: 0,
-    ...totals([{ id: 4, variantId: 6, productName: 'MacBook Air 15" M4', sku: 'MBA15-M4-256', price: 699990, quantity: 1, lineTotal: 699990 }], 0),
+    ...totals([{ id: '4', variantId: '6', productName: 'MacBook Air 15" M4', sku: 'MBA15-M4-256', price: 699990, quantity: 1, lineTotal: 699990 }], 0),
     history: [
       { status: 'New', changedAt: '2026-09-01T10:00:00Z', comment: null },
       { status: 'Confirmed', changedAt: '2026-09-01T11:00:00Z', comment: null },
@@ -81,7 +81,7 @@ let orders: OrderDetails[] = [
     updatedAt: '2026-09-05T15:00:00Z',
   },
   {
-    id: 4,
+    id: '4',
     number: 'MA-100195',
     status: 'Cancelled',
     customerName: 'Айгерим Нурланова',
@@ -89,9 +89,9 @@ let orders: OrderDetails[] = [
     customerPhone: '+7 701 000 00 02',
     shippingAddress: 'г. Алматы, ул. Абая 10, кв. 5',
     comment: 'Отменён по просьбе клиента',
-    items: [{ id: 5, variantId: 8, productName: 'Xiaomi Redmi Note 14', sku: 'RN14-128-BLU', price: 89990, quantity: 1, lineTotal: 89990 }],
+    items: [{ id: '5', variantId: '8', productName: 'Xiaomi Redmi Note 14', sku: 'RN14-128-BLU', price: 89990, quantity: 1, lineTotal: 89990 }],
     shippingCost: 1500,
-    ...totals([{ id: 5, variantId: 8, productName: 'Xiaomi Redmi Note 14', sku: 'RN14-128-BLU', price: 89990, quantity: 1, lineTotal: 89990 }], 1500),
+    ...totals([{ id: '5', variantId: '8', productName: 'Xiaomi Redmi Note 14', sku: 'RN14-128-BLU', price: 89990, quantity: 1, lineTotal: 89990 }], 1500),
     history: [
       { status: 'New', changedAt: '2026-08-20T10:00:00Z', comment: null },
       { status: 'Cancelled', changedAt: '2026-08-21T10:00:00Z', comment: 'Отменён по просьбе клиента' },

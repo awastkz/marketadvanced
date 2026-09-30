@@ -1,8 +1,8 @@
 import { http } from './http'
 
 export interface CartItem {
-  id: number
-  variantId: number
+  id: string
+  variantId: string
   productName: string
   sku: string
   price: number
@@ -11,7 +11,7 @@ export interface CartItem {
 }
 
 export interface Cart {
-  id: number
+  id: string
   items: CartItem[]
   total: number
 }
@@ -20,13 +20,13 @@ export function getCart() {
   return http.get<Cart>('/api/cart')
 }
 
-export function addItem(variantId: number, quantity: number) {
+export function addItem(variantId: string, quantity: number) {
   return http.post<void>('/api/cart/items', { variantId, quantity })
 }
 
 // Бэкенд удаляет позицию целиком по variantId (query-параметр), отдельного
 // эндпоинта «изменить количество» нет — см. cart.ts::setQuantity.
-export function removeItem(variantId: number) {
+export function removeItem(variantId: string) {
   return http.delete<void>('/api/cart/items', { params: { variantId } })
 }
 

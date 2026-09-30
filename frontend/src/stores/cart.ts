@@ -8,9 +8,9 @@ interface CartState {
   loading: boolean
   error: string | null
   load: () => Promise<void>
-  addItem: (variantId: number, quantity: number) => Promise<void>
-  setQuantity: (variantId: number, quantity: number) => Promise<void>
-  removeItem: (variantId: number) => Promise<void>
+  addItem: (variantId: string, quantity: number) => Promise<void>
+  setQuantity: (variantId: string, quantity: number) => Promise<void>
+  removeItem: (variantId: string) => Promise<void>
   clear: () => Promise<void>
   reset: () => void
 }

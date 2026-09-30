@@ -9,7 +9,7 @@ export const ORDER_STATUSES = ['New', 'Confirmed', 'Processing', 'Shipped', 'Del
 export type OrderStatus = (typeof ORDER_STATUSES)[number]
 
 export interface OrderListItem {
-  id: number
+  id: string
   number: string
   customerName: string
   customerEmail: string
@@ -21,8 +21,8 @@ export interface OrderListItem {
 }
 
 export interface OrderItemDetails {
-  id: number
-  variantId: number
+  id: string
+  variantId: string
   productName: string
   sku: string
   price: number
@@ -37,7 +37,7 @@ export interface OrderStatusEvent {
 }
 
 export interface OrderDetails {
-  id: number
+  id: string
   number: string
   status: OrderStatus
   customerName: string
@@ -64,8 +64,8 @@ export interface OrderQuery {
 export interface OrderAdminApi {
   orders: {
     list(query: OrderQuery): Promise<Paged<OrderListItem>>
-    get(id: number): Promise<OrderDetails>
-    updateStatus(id: number, status: OrderStatus, comment?: string): Promise<OrderDetails>
-    cancel(id: number, comment?: string): Promise<OrderDetails>
+    get(id: string): Promise<OrderDetails>
+    updateStatus(id: string, status: OrderStatus, comment?: string): Promise<OrderDetails>
+    cancel(id: string, comment?: string): Promise<OrderDetails>
   }
 }

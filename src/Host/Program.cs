@@ -29,7 +29,9 @@ builder.Services.AddServices(builder.Configuration);       // Identity, Catalog,
 
 // MassTransit + RabbitMQ. При генерации OpenAPI шину не поднимаем: она подключалась бы к брокеру во время сборки.
 if (!isOpenApiGeneration)
-    builder.Services.AddMessaging(builder.Configuration, ServicesExtensions.ConsumerAssemblies(builder.Configuration));
+    builder.Services.AddMessaging(builder.Configuration,
+        ServicesExtensions.ConfigureOutbox(builder.Configuration),
+        ServicesExtensions.ConsumerAssemblies(builder.Configuration));
 
 // OpenAPI: документ на каждый поднятый сервис (/openapi/catalog.json ...) и внутренний для других сервисов (/openapi/catalog-internal.json), если есть.
 // Контроллеры попадают в документ по GroupName из ServiceGroupNameConvention.

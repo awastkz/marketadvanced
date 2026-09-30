@@ -22,20 +22,16 @@ public sealed class BrandRepository : IBrandRepository
         return rows.Select(r => (r.Brand, r.ProductsCount)).ToList();
     }
 
-    public Task<bool> ExistsAsync(int id, CancellationToken ct) => _db.Brand.AnyAsync(b => b.Id == id, ct);
+    public Task<bool> ExistsAsync(Guid id, CancellationToken ct) => _db.Brand.AnyAsync(b => b.Id == id, ct);
 
-    public Task<bool> SlugExistsAsync(string slug, int? exceptId, CancellationToken ct) =>
+    public Task<bool> SlugExistsAsync(string slug, Guid? exceptId, CancellationToken ct) =>
         _db.Brand.AnyAsync(b => b.Slug == slug && (exceptId == null || b.Id != exceptId), ct);
 
-    public Task<Brand?> GetByIdAsync(int id, CancellationToken ct) => _db.Brand.FirstOrDefaultAsync(b => b.Id == id, ct);
+    public Task<Brand?> GetByIdAsync(Guid id, CancellationToken ct) => _db.Brand.FirstOrDefaultAsync(b => b.Id == id, ct);
 
-    public Task<int> ProductsCountAsync(int id, CancellationToken ct) => _db.Product.CountAsync(p => p.BrandId == id, ct);
+    public Task<int> ProductsCountAsync(Guid id, CancellationToken ct) => _db.Product.CountAsync(p => p.BrandId == id, ct);
 
-    public async Task AddAsync(Brand brand, CancellationToken ct)
-    {
-        _db.Brand.Add(brand);
-        await _db.SaveChangesAsync(ct);
-    }
+    public async Task AddAsync(Brand brand, CancellationToken ct) => await _db.Brand.AddAsync(brand, ct);
 
     public void Remove(Brand brand) => _db.Brand.Remove(brand);
 

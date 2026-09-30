@@ -74,12 +74,8 @@
             "name": "variantId",
             "in": "query",
             "schema": {
-              "pattern": "^-?(?:0|[1-9]\\d*)$",
-              "type": [
-                "integer",
-                "string"
-              ],
-              "format": "int32"
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -113,12 +109,8 @@
         "type": "object",
         "properties": {
           "variantId": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "integer",
-              "string"
-            ],
-            "format": "int32"
+            "type": "string",
+            "format": "uuid"
           },
           "quantity": {
             "pattern": "^-?(?:0|[1-9]\\d*)$",
@@ -143,20 +135,12 @@
         "type": "object",
         "properties": {
           "id": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "integer",
-              "string"
-            ],
-            "format": "int32"
+            "type": "string",
+            "format": "uuid"
           },
           "variantId": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "integer",
-              "string"
-            ],
-            "format": "int32"
+            "type": "string",
+            "format": "uuid"
           },
           "productName": {
             "type": "string"
@@ -199,12 +183,8 @@
         "type": "object",
         "properties": {
           "id": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "integer",
-              "string"
-            ],
-            "format": "int32"
+            "type": "string",
+            "format": "uuid"
           },
           "items": {
             "type": "array",

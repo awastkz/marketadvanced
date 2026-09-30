@@ -12,8 +12,8 @@ export const PAYMENT_METHODS = ['Card', 'CashOnDelivery', 'BankTransfer'] as con
 export type PaymentMethod = (typeof PAYMENT_METHODS)[number]
 
 export interface PaymentListItem {
-  id: number
-  orderId: number
+  id: string
+  orderId: string
   orderNumber: string
   amount: number
   method: PaymentMethod
@@ -23,15 +23,15 @@ export interface PaymentListItem {
 }
 
 export interface RefundRecord {
-  id: number
+  id: string
   amount: number
   reason: string | null
   createdAt: string
 }
 
 export interface PaymentDetails {
-  id: number
-  orderId: number
+  id: string
+  orderId: string
   orderNumber: string
   amount: number
   currency: string
@@ -55,8 +55,8 @@ export interface PaymentQuery {
 export interface PaymentAdminApi {
   payments: {
     list(query: PaymentQuery): Promise<Paged<PaymentListItem>>
-    get(id: number): Promise<PaymentDetails>
-    refund(id: number, amount: number, reason: string): Promise<PaymentDetails>
-    markFailed(id: number, reason: string): Promise<PaymentDetails>
+    get(id: string): Promise<PaymentDetails>
+    refund(id: string, amount: number, reason: string): Promise<PaymentDetails>
+    markFailed(id: string, reason: string): Promise<PaymentDetails>
   }
 }

@@ -1,9 +1,9 @@
 namespace MarketAdvanced.Catalog.Application.Common.Products;
 
-public sealed record AttributeValueInput(int AttributeId, string Value);
+public sealed record AttributeValueInput(Guid AttributeId, string Value);
 
 public sealed record VariantInput(
-    int? Id,
+    Guid? Id,
     string Sku,
     string? Name,
     decimal Price,
@@ -17,8 +17,8 @@ public interface IProductInput
     string Name { get; }
     string Slug { get; }
     string? Description { get; }
-    int CategoryId { get; }
-    int? BrandId { get; }
+    Guid CategoryId { get; }
+    Guid? BrandId { get; }
     IReadOnlyList<VariantInput> Variants { get; }
     IReadOnlyList<AttributeValueInput> Attributes { get; }
 }

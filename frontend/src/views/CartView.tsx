@@ -18,13 +18,13 @@ export default function CartView() {
   const removeItem = useCartStore((s) => s.removeItem)
   const clear = useCartStore((s) => s.clear)
 
-  const [busyVariantId, setBusyVariantId] = useState<number | null>(null)
+  const [busyVariantId, setBusyVariantId] = useState<string | null>(null)
   const [confirmClear, setConfirmClear] = useState(false)
 
   const items = cart?.items ?? []
   const count = cartItemCount(cart)
 
-  async function changeQuantity(variantId: number, next: number) {
+  async function changeQuantity(variantId: string, next: number) {
     setBusyVariantId(variantId)
     try {
       await setQuantity(variantId, next)
@@ -35,7 +35,7 @@ export default function CartView() {
     }
   }
 
-  async function onRemove(variantId: number) {
+  async function onRemove(variantId: string) {
     setBusyVariantId(variantId)
     try {
       await removeItem(variantId)

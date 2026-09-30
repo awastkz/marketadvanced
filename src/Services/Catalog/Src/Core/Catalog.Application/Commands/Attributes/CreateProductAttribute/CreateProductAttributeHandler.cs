@@ -30,6 +30,7 @@ public sealed class CreateProductAttributeHandler : IRequestHandler<CreateProduc
         };
 
         await _repo.AddAsync(attribute, cancellationToken);
+        await _repo.SaveChangesAsync(cancellationToken);
         return ProductAttributeResult.From(attribute);
     }
 }

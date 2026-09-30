@@ -40,7 +40,7 @@ public class CartRepository : ICartRepository
     {
         await _db.SaveChangesAsync();
     }
-    public async Task RemoveItemAsync(CartOwner owner, int variantId, CancellationToken ct)
+    public async Task RemoveItemAsync(CartOwner owner, Guid variantId, CancellationToken ct)
     {
         var cart = await this.FindByOwner(owner, ct);
         if(cart is null) return;

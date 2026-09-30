@@ -3,8 +3,8 @@ using MarketAdvanced.Cart.Domain;
 namespace MarketAdvanced.Cart.Application.Common.Cart;
 
 public sealed record CartItemResult(
-    int Id,
-    int VariantId,
+    Guid Id,
+    Guid VariantId,
     string ProductName,
     string Sku,
     decimal Price,

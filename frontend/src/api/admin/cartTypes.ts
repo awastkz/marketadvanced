@@ -6,7 +6,7 @@ export interface Paged<T> {
 }
 
 export interface CartListItem {
-  id: number
+  id: string
   ownerLabel: string
   userId: string | null
   guestId: string | null
@@ -18,8 +18,8 @@ export interface CartListItem {
 }
 
 export interface CartItemDetails {
-  id: number
-  variantId: number
+  id: string
+  variantId: string
   productName: string
   sku: string
   price: number
@@ -28,7 +28,7 @@ export interface CartItemDetails {
 }
 
 export interface CartDetails {
-  id: number
+  id: string
   ownerLabel: string
   userId: string | null
   guestId: string | null
@@ -47,9 +47,9 @@ export interface CartQuery {
 export interface CartAdminApi {
   carts: {
     list(query: CartQuery): Promise<Paged<CartListItem>>
-    get(id: number): Promise<CartDetails>
-    updateItemQuantity(cartId: number, itemId: number, quantity: number): Promise<CartDetails>
-    removeItem(cartId: number, itemId: number): Promise<CartDetails>
-    clear(cartId: number): Promise<void>
+    get(id: string): Promise<CartDetails>
+    updateItemQuantity(cartId: string, itemId: string, quantity: number): Promise<CartDetails>
+    removeItem(cartId: string, itemId: string): Promise<CartDetails>
+    clear(cartId: string): Promise<void>
   }
 }

@@ -1,0 +1,14 @@
+{
+  "eventId": "0f8e2a4c-1b3d-4e5f-9a7b-2c6d8e0f1a3b",
+  "occurredAt": "2026-09-30T10:15:00Z",
+  "productId": "0199a1b2-7c3d-7e4f-8a5b-6c7d8e9f0a1b",
+  "name": "Футболка базовая",
+  "slug": "futbolka-bazovaya",
+  "categoryId": "0199a1a0-1d2e-7f30-9a4b-5c6d7e8f9a0b",
+  "brandId": "0199a1a0-2e3f-7a41-8b5c-6d7e8f9a0b1c",
+  "isActive": true,
+  "variants": [
+    { "variantId": "0199a1b2-7c3d-7e4f-8a5b-6c7d8e9f0a2c", "sku": "TSHIRT-BLK-M", "name": "Чёрная, M", "price": 1250000, "isActive": true },
+    { "variantId": "0199a1b2-7c3d-7e4f-8a5b-6c7d8e9f0a3d", "sku": "TSHIRT-BLK-L", "name": "Чёрная, L", "price": 1250000, "isActive": true }
+  ]
+}

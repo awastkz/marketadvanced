@@ -13,7 +13,7 @@ public sealed class ProductRepository : IProductRepository
         _db = db;
     }
 
-    public Task<Product?> GetWithDetailsAsync(int id, CancellationToken ct) =>
+    public Task<Product?> GetWithDetailsAsync(Guid id, CancellationToken ct) =>
         _db.Product
             .Include(p => p.Variants).ThenInclude(v => v.Attributes)
             .Include(p => p.Images)
@@ -21,23 +21,23 @@ public sealed class ProductRepository : IProductRepository
             .AsSplitQuery()
             .FirstOrDefaultAsync(p => p.Id == id, ct);
 
-    public Task<ProductVariant?> GetVariantAsync(int variantId, CancellationToken ct) =>
+    public Task<ProductVariant?> GetVariantAsync(Guid variantId, CancellationToken ct) =>
         _db.ProductVariant
             .AsNoTracking()
             .Include(v => v.Product)
             .FirstOrDefaultAsync(v => v.Id == variantId, ct);
 
-    public async Task<IReadOnlyList<ProductVariant>> GetVariantsAsync(IReadOnlyCollection<int> variantIds, CancellationToken ct) =>
+    public async Task<IReadOnlyList<ProductVariant>> GetVariantsAsync(IReadOnlyCollection<Guid> variantIds, CancellationToken ct) =>
         await _db.ProductVariant
             .AsNoTracking()
             .Include(v => v.Product)
             .Where(v => variantIds.Contains(v.Id))
             .ToListAsync(ct);
 
-    public Task<bool> SlugExistsAsync(string slug, int? exceptProductId, CancellationToken ct) =>
+    public Task<bool> SlugExistsAsync(string slug, Guid? exceptProductId, CancellationToken ct) =>
         _db.Product.AnyAsync(p => p.Slug == slug && (exceptProductId == null || p.Id != exceptProductId), ct);
 
-    public async Task<IReadOnlyList<string>> TakenSkusAsync(IEnumerable<string> skus, int? exceptProductId, CancellationToken ct)
+    public async Task<IReadOnlyList<string>> TakenSkusAsync(IEnumerable<string> skus, Guid? exceptProductId, CancellationToken ct)
     {
         var list = skus.ToList();
         return await _db.ProductVariant
@@ -74,11 +74,7 @@ public sealed class ProductRepository : IProductRepository
         return (items, total);
     }
 
-    public async Task AddAsync(Product product, CancellationToken ct)
-    {
-        _db.Product.Add(product);
-        await _db.SaveChangesAsync(ct);
-    }
+    public async Task AddAsync(Product product, CancellationToken ct) => await _db.Product.AddAsync(product, ct);
 
     public void Remove(Product product) => _db.Product.Remove(product);
 

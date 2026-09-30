@@ -19,7 +19,7 @@ public sealed class SearchProductsHandler : IRequestHandler<SearchProductsQuery,
     public async Task<Paged<ProductListItemResult>> Handle(SearchProductsQuery request, CancellationToken cancellationToken)
     {
         // фильтр по категории включает все её подкатегории
-        IReadOnlyCollection<int>? categoryIds = null;
+        IReadOnlyCollection<Guid>? categoryIds = null;
         if (request.CategoryId is not null)
             categoryIds = await DescendantIdsAsync(request.CategoryId.Value, cancellationToken);
 
@@ -30,10 +30,10 @@ public sealed class SearchProductsHandler : IRequestHandler<SearchProductsQuery,
         return new Paged<ProductListItemResult>(items.Select(p => ProductListItemResult.From(p, path => path)).ToList(), total);
     }
 
-    private async Task<IReadOnlyCollection<int>> DescendantIdsAsync(int rootId, CancellationToken ct)
+    private async Task<IReadOnlyCollection<Guid>> DescendantIdsAsync(Guid rootId, CancellationToken ct)
     {
         var all = await _categories.ListAsync(ct);
-        var ids = new HashSet<int> { rootId };
+        var ids = new HashSet<Guid> { rootId };
         var grew = true;
         while (grew)
         {

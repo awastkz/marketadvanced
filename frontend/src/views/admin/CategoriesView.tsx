@@ -15,7 +15,7 @@ import { IconCornerDownRight, IconEdit, IconFolder, IconLayers, IconPlus, IconTr
 
 interface Editing {
   category: Category | null
-  parentId: number | null
+  parentId: string | null
 }
 
 interface FormState {
@@ -23,7 +23,7 @@ interface FormState {
   slug: string
   slugTouched: boolean
   sortOrder: number
-  parentId: number | null
+  parentId: string | null
   image: File | null
   removeImage: boolean
 }
@@ -168,7 +168,7 @@ function CategoryModal({ editing, all, onClose, onSaved }: { editing: Editing; a
   const isNew = !editing.category
 
   // нельзя сделать категорию потомком самой себя
-  const blocked = editing.category ? descendantIds(all, editing.category.id) : new Set<number>()
+  const blocked = editing.category ? descendantIds(all, editing.category.id) : new Set<string>()
   const parents = flattenTree(all).filter((c) => !blocked.has(c.id))
 
   async function submit(e: FormEvent) {
@@ -229,7 +229,7 @@ function CategoryModal({ editing, all, onClose, onSaved }: { editing: Editing; a
         <div className="field-row">
           <div className="field">
             <label htmlFor="c-parent">Родитель</label>
-            <select id="c-parent" className="select" value={form.parentId ?? ''} onChange={(e) => setForm((f) => ({ ...f, parentId: e.target.value ? Number(e.target.value) : null }))}>
+            <select id="c-parent" className="select" value={form.parentId ?? ''} onChange={(e) => setForm((f) => ({ ...f, parentId: e.target.value || null }))}>
               <option value="">Корень каталога</option>
               {parents.map((c) => (
                 <option key={c.id} value={c.id}>

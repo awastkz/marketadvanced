@@ -16,11 +16,11 @@ const PAGE_SIZE = 12
 export default function CatalogView() {
   const [params, setParams] = useSearchParams()
   const search = params.get('q') ?? ''
-  const categoryId = params.get('category') ? Number(params.get('category')) : null
+  const categoryId = params.get('category')
   const page = Number(params.get('page') ?? '1') || 1
 
   const [searchInput, setSearchInput] = useState(search)
-  const [openProductId, setOpenProductId] = useState<number | null>(null)
+  const [openProductId, setOpenProductId] = useState<string | null>(null)
 
   function patch(next: Record<string, string | null>) {
     const p = new URLSearchParams(params)

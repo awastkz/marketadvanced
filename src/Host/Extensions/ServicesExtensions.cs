@@ -1,9 +1,11 @@
 using System.Reflection;
 using MarketAdvanced.Cart.WebApi;
+using MarketAdvanced.Catalog.Persistence.Messaging;
 using MarketAdvanced.Catalog.WebApi;
 using MarketAdvanced.Identity.WebApi;
 using MarketAdvanced.Order.WebApi;
 using MarketAdvanced.Payment.WebApi;
+using MassTransit;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 
 namespace MarketAdvanced.Host.Extensions;
@@ -30,6 +32,23 @@ public static class ServicesExtensions
             .Where(enabled.Contains)
             .Select(s => Assembly.Load($"{s}.External"))
             .ToArray();
+    }
+
+    /// <summary>
+    /// Outbox поднятого сервиса. Bus outbox MassTransit поддерживает один DbContext на шину,
+    /// поэтому включается только когда в процессе один сервис (прод). В dev все сервисы в одном app, outbox выключен.
+    /// </summary>
+    public static Action<IBusRegistrationConfigurator>? ConfigureOutbox(IConfiguration config)
+    {
+        var enabled = EnabledServices(config);
+        if (enabled.Count != 1)
+            return null;
+
+        return enabled.Single() switch
+        {
+            "Catalog" => x => x.AddCatalogOutbox(),
+            _ => null,
+        };
     }
 
     public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration config)

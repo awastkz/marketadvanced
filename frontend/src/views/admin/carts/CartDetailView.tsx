@@ -10,14 +10,14 @@ import { IconChevronLeft, IconTrash } from '../../../components/icons'
 
 export default function CartDetailView() {
   const { id } = useParams()
-  const cartId = Number(id)
+  const cartId = id ?? ''
   const navigate = useNavigate()
 
   const cart = useLoad(() => cartAdmin.carts.get(cartId), [cartId])
   const [confirmClear, setConfirmClear] = useState(false)
-  const [busyItem, setBusyItem] = useState<number | null>(null)
+  const [busyItem, setBusyItem] = useState<string | null>(null)
 
-  async function setQuantity(itemId: number, quantity: number) {
+  async function setQuantity(itemId: string, quantity: number) {
     if (quantity < 1) return
     setBusyItem(itemId)
     try {
@@ -30,7 +30,7 @@ export default function CartDetailView() {
     }
   }
 
-  async function removeItem(itemId: number) {
+  async function removeItem(itemId: string) {
     setBusyItem(itemId)
     try {
       const updated = await cartAdmin.carts.removeItem(cartId, itemId)
