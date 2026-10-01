@@ -92,7 +92,7 @@ export default function CategoriesView() {
                     </td>
                   </tr>
                 ))}
-              {tree.map((c: CategoryNode) => (
+              {tree.map((c: CategoryNode<Category>) => (
                 <tr key={c.id} className="is-link" onClick={() => setEditing({ category: c, parentId: c.parentId })}>
                   <td>
                     <span className="product-cell" style={{ paddingLeft: c.depth * 28 }}>

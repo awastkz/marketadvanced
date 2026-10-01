@@ -5,22 +5,67 @@
     "version": "1.0.0"
   },
   "paths": {
-    "/api/internal/variants": {
+    "/api/catalog/products": {
       "get": {
         "tags": [
-          "Variants"
+          "PublicProducts"
         ],
-        "summary": "Пакетное чтение вариантов по списку id (параметр ids повторяется: ?ids=1, ids=2). Неизвестные id не попадают в ответ.",
         "parameters": [
           {
-            "name": "ids",
+            "name": "search",
             "in": "query",
             "schema": {
-              "type": "array",
-              "items": {
-                "type": "string",
-                "format": "uuid"
-              }
+              "type": "string"
+            }
+          },
+          {
+            "name": "categoryId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "brandId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "default": 0,
+              "$ref": "#/components/schemas/PublicProductSort"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32",
+              "default": 24
             }
           }
         ],
@@ -30,26 +75,17 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/VariantResponse"
-                  }
+                  "$ref": "#/components/schemas/PagedOfPublicProductCard"
                 }
               },
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/VariantResponse"
-                  }
+                  "$ref": "#/components/schemas/PagedOfPublicProductCard"
                 }
               },
               "text/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/VariantResponse"
-                  }
+                  "$ref": "#/components/schemas/PagedOfPublicProductCard"
                 }
               }
             }
@@ -57,20 +93,18 @@
         }
       }
     },
-    "/api/internal/variants/{id}": {
+    "/api/catalog/products/{slug}": {
       "get": {
         "tags": [
-          "Variants"
+          "PublicProducts"
         ],
-        "summary": "Вариант по id. 404, если варианта нет.",
         "parameters": [
           {
-            "name": "id",
+            "name": "slug",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "string"
             }
           }
         ],
@@ -80,37 +114,55 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/VariantResponse"
+                  "$ref": "#/components/schemas/PublicProductDetails"
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/VariantResponse"
+                  "$ref": "#/components/schemas/PublicProductDetails"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/VariantResponse"
+                  "$ref": "#/components/schemas/PublicProductDetails"
                 }
               }
             }
-          },
-          "404": {
-            "description": "Not Found",
+          }
+        }
+      }
+    },
+    "/api/catalog/categories": {
+      "get": {
+        "tags": [
+          "PublicCategories"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PublicCategory"
+                  }
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PublicCategory"
+                  }
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PublicCategory"
+                  }
                 }
               }
             }
@@ -879,6 +931,119 @@
           }
         }
       }
+    },
+    "/api/internal/variants": {
+      "get": {
+        "tags": [
+          "Variants"
+        ],
+        "summary": "Пакетное чтение вариантов по списку id (параметр ids повторяется: ?ids=1, ids=2). Неизвестные id не попадают в ответ.",
+        "parameters": [
+          {
+            "name": "ids",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/VariantResponse"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/VariantResponse"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/VariantResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/internal/variants/{id}": {
+      "get": {
+        "tags": [
+          "Variants"
+        ],
+        "summary": "Вариант по id. 404, если варианта нет.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/VariantResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VariantResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VariantResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -900,6 +1065,29 @@
         "format": "binary"
       },
       "JsonElement": { },
+      "PagedOfPublicProductCard": {
+        "required": [
+          "items",
+          "total"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicProductCard"
+            }
+          },
+          "total": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          }
+        }
+      },
       "ProblemDetails": {
         "type": "object",
         "properties": {
@@ -1053,6 +1241,269 @@
           }
         }
       },
+      "PublicAttributeValue": {
+        "required": [
+          "attributeId",
+          "name",
+          "value",
+          "unit"
+        ],
+        "type": "object",
+        "properties": {
+          "attributeId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          },
+          "unit": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "PublicCategory": {
+        "required": [
+          "id",
+          "name",
+          "slug",
+          "imageUrl",
+          "sortOrder",
+          "parentId"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "imageUrl": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "sortOrder": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "parentId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          }
+        }
+      },
+      "PublicProductCard": {
+        "required": [
+          "id",
+          "name",
+          "slug",
+          "imageUrl",
+          "categoryName",
+          "brandName",
+          "variantsCount",
+          "minPrice",
+          "inStock"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "imageUrl": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "categoryName": {
+            "type": "string"
+          },
+          "brandName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "variantsCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "minPrice": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "inStock": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PublicProductDetails": {
+        "required": [
+          "id",
+          "name",
+          "slug",
+          "description",
+          "categoryId",
+          "categoryName",
+          "brandName",
+          "images",
+          "attributes",
+          "variants"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "description": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "categoryId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "categoryName": {
+            "type": "string"
+          },
+          "brandName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "images": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicProductImage"
+            }
+          },
+          "attributes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicAttributeValue"
+            }
+          },
+          "variants": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicProductVariant"
+            }
+          }
+        }
+      },
+      "PublicProductImage": {
+        "required": [
+          "url",
+          "alt",
+          "isMain"
+        ],
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string"
+          },
+          "alt": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "isMain": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PublicProductSort": {
+        "type": "integer"
+      },
+      "PublicProductVariant": {
+        "required": [
+          "id",
+          "sku",
+          "name",
+          "price",
+          "inStock",
+          "attributes"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "sku": {
+            "type": "string"
+          },
+          "name": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "price": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "inStock": {
+            "type": "boolean"
+          },
+          "attributes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicAttributeValue"
+            }
+          }
+        }
+      },
       "VariantResponse": {
         "required": [
           "id",
@@ -1112,7 +1563,10 @@
   },
   "tags": [
     {
-      "name": "Variants"
+      "name": "PublicProducts"
+    },
+    {
+      "name": "PublicCategories"
     },
     {
       "name": "Products"
@@ -1128,6 +1582,9 @@
     },
     {
       "name": "Attributes"
+    },
+    {
+      "name": "Variants"
     }
   ]
 }

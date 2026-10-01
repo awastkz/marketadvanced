@@ -1,18 +1,18 @@
-import type { ProductListItem } from '../api/admin/types'
+import type { PublicProductCard } from '../api/catalog'
 import { formatMoney } from '../utils/format'
 import { IconImage } from './icons'
 
 interface ProductCardProps {
-  product: ProductListItem
-  onOpen: (id: string) => void
+  product: PublicProductCard
+  onOpen: (slug: string) => void
 }
 
 /** Карточка товара для публичного каталога и подборки на главной. Клик открывает ProductQuickView. */
 export default function ProductCard({ product, onOpen }: ProductCardProps) {
-  const outOfStock = product.totalStock === 0
+  const outOfStock = !product.inStock
 
   return (
-    <button type="button" className="product-card" onClick={() => onOpen(product.id)}>
+    <button type="button" className="product-card" onClick={() => onOpen(product.slug)}>
       <span className="product-card-image">
         {product.imageUrl ? <img src={product.imageUrl} alt="" /> : <IconImage />}
         {outOfStock && <span className="badge product-card-badge">Нет в наличии</span>}

@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes } from 'react-router-dom'
 import { useAuthStore } from './stores/auth'
 import { RequireAuth } from './router/RequireAuth'
 import { GuestOnly } from './router/GuestOnly'
@@ -22,7 +22,6 @@ import OrderDetailView from './views/admin/orders/OrderDetailView'
 import PaymentsView from './views/admin/payments/PaymentsView'
 import PaymentDetailView from './views/admin/payments/PaymentDetailView'
 import DictionariesView from './views/admin/dictionaries/DictionariesView'
-import HomeView from './views/HomeView'
 import ProfileView from './views/ProfileView'
 import CartView from './views/CartView'
 import CatalogView from './views/CatalogView'
@@ -41,14 +40,8 @@ function App() {
 
   return (
     <Routes>
-      <Route
-        path="/"
-        element={
-          <RequireAuth>
-            <HomeView />
-          </RequireAuth>
-        }
-      />
+      {/* главная страница магазина — каталог; сюда же попадают после входа и регистрации */}
+      <Route path="/" element={<Navigate to="/catalog" replace />} />
       <Route
         path="/profile"
         element={
@@ -57,22 +50,8 @@ function App() {
           </RequireAuth>
         }
       />
-      <Route
-        path="/catalog"
-        element={
-          <RequireAuth>
-            <CatalogView />
-          </RequireAuth>
-        }
-      />
-      <Route
-        path="/cart"
-        element={
-          <RequireAuth>
-            <CartView />
-          </RequireAuth>
-        }
-      />
+      <Route path="/catalog" element={<CatalogView />} />
+      <Route path="/cart" element={<CartView />} />
       <Route
         path="/admin"
         element={

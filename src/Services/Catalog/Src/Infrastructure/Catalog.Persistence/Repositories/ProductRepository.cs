@@ -1,4 +1,5 @@
 using MarketAdvanced.Catalog.Application.Abstractions;
+using MarketAdvanced.Catalog.Application.Public.Products;
 using MarketAdvanced.Catalog.Domain;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,6 +21,17 @@ public sealed class ProductRepository : IProductRepository
             .Include(p => p.Attributes)
             .AsSplitQuery()
             .FirstOrDefaultAsync(p => p.Id == id, ct);
+
+    public Task<Product?> GetBySlugWithDetailsAsync(string slug, CancellationToken ct) =>
+        _db.Product
+            .AsNoTracking()
+            .Include(p => p.Category)
+            .Include(p => p.Brand)
+            .Include(p => p.Variants).ThenInclude(v => v.Attributes).ThenInclude(a => a.Attribute)
+            .Include(p => p.Images)
+            .Include(p => p.Attributes).ThenInclude(a => a.Attribute)
+            .AsSplitQuery()
+            .FirstOrDefaultAsync(p => p.Slug == slug, ct);
 
     public Task<ProductVariant?> GetVariantAsync(Guid variantId, CancellationToken ct) =>
         _db.ProductVariant
@@ -62,6 +74,46 @@ public sealed class ProductRepository : IProductRepository
         var total = await q.CountAsync(ct);
         var items = await q
             .OrderByDescending(p => p.UpdatedAt ?? p.CreatedAt)
+            .Skip((f.Page - 1) * f.PageSize)
+            .Take(f.PageSize)
+            .Include(p => p.Category)
+            .Include(p => p.Brand)
+            .Include(p => p.Variants)
+            .Include(p => p.Images)
+            .AsSplitQuery()
+            .ToListAsync(ct);
+
+        return (items, total);
+    }
+
+    public async Task<(IReadOnlyList<Product> Items, int Total)> SearchPublicAsync(PublicProductFilter f, CancellationToken ct)
+    {
+        IQueryable<Product> q = _db.Product
+            .AsNoTracking()
+            .Where(p => p.IsActive && p.Variants.Any(v => v.IsActive));
+
+        if (!string.IsNullOrWhiteSpace(f.Search))
+            q = q.Where(p => EF.Functions.ILike(p.Name, $"%{f.Search}%"));
+        if (f.CategoryIds is { Count: > 0 }) q = q.Where(p => f.CategoryIds.Contains(p.CategoryId));
+        if (f.BrandId is not null) q = q.Where(p => p.BrandId == f.BrandId);
+
+        var total = await q.CountAsync(ct);
+
+        // Id вторым ключом: без него товары с одинаковой ценой или датой перемешиваются между страницами
+        q = f.Sort switch
+        {
+            PublicProductSort.PriceAsc => q
+                .OrderBy(p => p.Variants.Where(v => v.IsActive).Min(v => v.Price))
+                .ThenBy(p => p.Id),
+            PublicProductSort.PriceDesc => q
+                .OrderByDescending(p => p.Variants.Where(v => v.IsActive).Min(v => v.Price))
+                .ThenByDescending(p => p.Id),
+            _ => q
+                .OrderByDescending(p => p.CreatedAt)
+                .ThenByDescending(p => p.Id),
+        };
+
+        var items = await q
             .Skip((f.Page - 1) * f.PageSize)
             .Take(f.PageSize)
             .Include(p => p.Category)

@@ -55,6 +55,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     try {
       const { data } = await authApi.login(email, password)
       get().setSession(data.access_token, data.user)
+      // до входа в сторе была гостевая корзина, теперь нужна корзина пользователя
+      useCartStore.getState().reset()
     } catch (e) {
       set({ error: extractErrorMessage(e) })
       throw e
@@ -87,7 +89,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   logout() {
     set({ accessToken: null, user: null })
-    // корзина принадлежит пользователю по токену — на чужом сеансе её быть не должно
+    // корзина принадлежит пользователю по токену — после выхода снова грузится гостевая
     useCartStore.getState().reset()
   },
 }))

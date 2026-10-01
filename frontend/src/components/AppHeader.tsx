@@ -9,6 +9,7 @@ import { IconCart, IconLogout } from './icons'
 export default function AppHeader() {
   const logout = useAuthStore((s) => s.logout)
   const email = useAuthStore((s) => s.user?.email)
+  const isGuest = useAuthStore((s) => !s.user)
   const admin = useAuthStore((s) => isAdmin(s.user))
   const cartCount = useCartStore((s) => cartItemCount(s.cart))
   const navigate = useNavigate()
@@ -31,15 +32,14 @@ export default function AppHeader() {
         <Logo />
 
         <nav className="app-nav" aria-label="Основная навигация">
-          <NavLink to="/" end className={navClass}>
-            Главная
-          </NavLink>
           <NavLink to="/catalog" className={navClass}>
             Каталог
           </NavLink>
-          <NavLink to="/profile" className={navClass}>
-            Профиль
-          </NavLink>
+          {!isGuest && (
+            <NavLink to="/profile" className={navClass}>
+              Профиль
+            </NavLink>
+          )}
           {admin && (
             <NavLink to="/admin" className={navClass}>
               Админка
@@ -52,13 +52,26 @@ export default function AppHeader() {
             <IconCart />
             {cartCount > 0 && <span className="cart-nav-badge">{cartCount > 99 ? '99+' : cartCount}</span>}
           </NavLink>
-          <NavLink to="/profile" className="app-user-chip" title={email}>
-            <Avatar name={email} />
-            <span>{email}</span>
-          </NavLink>
-          <button type="button" className="btn btn-ghost btn-icon" onClick={onLogout} title="Выйти" aria-label="Выйти">
-            <IconLogout />
-          </button>
+          {isGuest ? (
+            <>
+              <NavLink to="/login" className="btn btn-ghost">
+                Войти
+              </NavLink>
+              <NavLink to="/register" className="btn btn-primary">
+                Регистрация
+              </NavLink>
+            </>
+          ) : (
+            <>
+              <NavLink to="/profile" className="app-user-chip" title={email}>
+                <Avatar name={email} />
+                <span>{email}</span>
+              </NavLink>
+              <button type="button" className="btn btn-ghost btn-icon" onClick={onLogout} title="Выйти" aria-label="Выйти">
+                <IconLogout />
+              </button>
+            </>
+          )}
         </div>
       </div>
     </header>

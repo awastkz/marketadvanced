@@ -5,7 +5,7 @@ import ProductCard from '../components/ProductCard'
 import ProductQuickView from '../components/ProductQuickView'
 import { useAuthStore } from '../stores/auth'
 import { cartItemCount, useCartStore } from '../stores/cart'
-import { catalogAdmin } from '../api/admin/catalog'
+import * as catalogApi from '../api/catalog'
 import { useLoad } from '../utils/useLoad'
 import { flattenTree } from '../utils/categories'
 import { IconArrowRight, IconBag, IconCart, IconGrid, IconUser } from '../components/icons'
@@ -23,13 +23,13 @@ function greeting() {
 export default function HomeView() {
   const user = useAuthStore((s) => s.user)
   const cartCount = useCartStore((s) => cartItemCount(s.cart))
-  const [openProductId, setOpenProductId] = useState<string | null>(null)
+  const [openProductSlug, setOpenProductSlug] = useState<string | null>(null)
 
-  const categories = useLoad(() => catalogAdmin.categories.list(), [])
+  const categories = useLoad(() => catalogApi.listCategories(), [])
   const topCategories = categories.data ? flattenTree(categories.data).filter((c) => c.depth === 0).slice(0, 8) : []
 
   const products = useLoad(
-    () => catalogAdmin.products.list({ isActive: true, page: 1, pageSize: POPULAR_COUNT }),
+    () => catalogApi.searchProducts({ page: 1, pageSize: POPULAR_COUNT }),
     [],
   )
 
@@ -39,32 +39,53 @@ export default function HomeView() {
 
   return (
     <AppShell>
-      <section className="hero">
-        <span className="eyebrow" style={{ color: 'rgba(255,255,255,.8)' }}>
-          Личный кабинет
-        </span>
-        <h1>{greeting()}!</h1>
-        <p>
-          Вы вошли как <strong>{user?.email}</strong>. Заполните профиль, чтобы продавцы и покупатели видели, с кем имеют
-          дело.
-        </p>
-        <div className="hero-actions">
-          <Link to="/profile" className="btn btn-primary">
-            Открыть профиль
-            <IconArrowRight />
-          </Link>
-        </div>
-      </section>
+      {user ? (
+        <section className="hero">
+          <span className="eyebrow" style={{ color: 'rgba(255,255,255,.8)' }}>
+            Личный кабинет
+          </span>
+          <h1>{greeting()}!</h1>
+          <p>
+            Вы вошли как <strong>{user.email}</strong>. Заполните профиль, чтобы продавцы и покупатели видели, с кем
+            имеют дело.
+          </p>
+          <div className="hero-actions">
+            <Link to="/profile" className="btn btn-primary">
+              Открыть профиль
+              <IconArrowRight />
+            </Link>
+          </div>
+        </section>
+      ) : (
+        <section className="hero">
+          <span className="eyebrow" style={{ color: 'rgba(255,255,255,.8)' }}>
+            MarketAdvanced
+          </span>
+          <h1>{greeting()}!</h1>
+          <p>Выбирайте товары и оформляйте заказ без регистрации. Войдите, чтобы видеть историю заказов.</p>
+          <div className="hero-actions">
+            <Link to="/catalog" className="btn btn-primary">
+              Перейти в каталог
+              <IconArrowRight />
+            </Link>
+            <Link to="/login" className="btn btn-ghost">
+              Войти
+            </Link>
+          </div>
+        </section>
+      )}
 
       <div className="tiles">
-        <Link to="/profile" className="card tile">
-          <span className="tile-icon">
-            <IconUser />
-          </span>
-          <h3>Профиль</h3>
-          <p>Имя, телефон, фотография. Всё, что видят другие участники площадки.</p>
-          <span className="tile-meta">Редактировать →</span>
-        </Link>
+        {user && (
+          <Link to="/profile" className="card tile">
+            <span className="tile-icon">
+              <IconUser />
+            </span>
+            <h3>Профиль</h3>
+            <p>Имя, телефон, фотография. Всё, что видят другие участники площадки.</p>
+            <span className="tile-meta">Редактировать →</span>
+          </Link>
+        )}
 
         <Link to="/cart" className="card tile">
           {cartCount > 0 && <span className="badge badge-accent">{cartCount}</span>}
@@ -94,23 +115,25 @@ export default function HomeView() {
           <p>История покупок и продаж, статусы доставки и уведомления.</p>
         </div>
 
-        <div className="card tile">
-          <h3>Аккаунт</h3>
-          <dl className="kv">
-            <div>
-              <dt>ID</dt>
-              <dd>#{user?.id}</dd>
-            </div>
-            <div>
-              <dt>Email</dt>
-              <dd>{user?.email}</dd>
-            </div>
-            <div>
-              <dt>С нами с</dt>
-              <dd>{memberSince}</dd>
-            </div>
-          </dl>
-        </div>
+        {user && (
+          <div className="card tile">
+            <h3>Аккаунт</h3>
+            <dl className="kv">
+              <div>
+                <dt>ID</dt>
+                <dd>#{user?.id}</dd>
+              </div>
+              <div>
+                <dt>Email</dt>
+                <dd>{user?.email}</dd>
+              </div>
+              <div>
+                <dt>С нами с</dt>
+                <dd>{memberSince}</dd>
+              </div>
+            </dl>
+          </div>
+        )}
       </div>
 
       {topCategories.length > 0 && (
@@ -147,12 +170,12 @@ export default function HomeView() {
                 </div>
               ))}
             {!products.loading &&
-              products.data?.items.map((p) => <ProductCard key={p.id} product={p} onOpen={setOpenProductId} />)}
+              products.data?.items.map((p) => <ProductCard key={p.id} product={p} onOpen={setOpenProductSlug} />)}
           </div>
         </section>
       )}
 
-      <ProductQuickView productId={openProductId} onClose={() => setOpenProductId(null)} />
+      <ProductQuickView productSlug={openProductSlug} onClose={() => setOpenProductSlug(null)} />
     </AppShell>
   )
 }

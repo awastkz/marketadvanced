@@ -1,13 +1,19 @@
-import type { Category } from '../api/admin/types'
+/** Минимум, нужный для дерева: подходят и админские, и публичные категории. */
+interface TreeCategory {
+  id: string
+  name: string
+  sortOrder: number
+  parentId: string | null
+}
 
-export interface CategoryNode extends Category {
+export type CategoryNode<T extends TreeCategory = TreeCategory> = T & {
   depth: number
-  children: CategoryNode[]
+  children: CategoryNode<T>[]
 }
 
 /** Строит дерево и возвращает его в порядке обхода (для select и списков). */
-export function flattenTree(categories: Category[]): CategoryNode[] {
-  const byParent = new Map<string | null, Category[]>()
+export function flattenTree<T extends TreeCategory>(categories: T[]): CategoryNode<T>[] {
+  const byParent = new Map<string | null, T[]>()
   for (const c of categories) {
     const list = byParent.get(c.parentId) ?? []
     list.push(c)
@@ -15,10 +21,10 @@ export function flattenTree(categories: Category[]): CategoryNode[] {
   }
   for (const list of byParent.values()) list.sort((a, b) => a.sortOrder - b.sortOrder || a.name.localeCompare(b.name))
 
-  const out: CategoryNode[] = []
-  const walk = (parentId: string | null, depth: number): CategoryNode[] =>
+  const out: CategoryNode<T>[] = []
+  const walk = (parentId: string | null, depth: number): CategoryNode<T>[] =>
     (byParent.get(parentId) ?? []).map((c) => {
-      const node: CategoryNode = { ...c, depth, children: [] }
+      const node: CategoryNode<T> = { ...c, depth, children: [] }
       out.push(node)
       node.children = walk(c.id, depth + 1)
       return node
@@ -28,7 +34,7 @@ export function flattenTree(categories: Category[]): CategoryNode[] {
 }
 
 /** Все id потомков категории (включая её саму). */
-export function descendantIds(categories: Category[], id: string): Set<string> {
+export function descendantIds(categories: TreeCategory[], id: string): Set<string> {
   const ids = new Set<string>([id])
   let grew = true
   while (grew) {

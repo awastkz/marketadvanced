@@ -6,7 +6,7 @@ import EmptyState from '../components/admin/EmptyState'
 import Pagination from '../components/admin/Pagination'
 import ProductCard from '../components/ProductCard'
 import ProductQuickView from '../components/ProductQuickView'
-import { catalogAdmin } from '../api/admin/catalog'
+import * as catalogApi from '../api/catalog'
 import { useLoad } from '../utils/useLoad'
 import { flattenTree } from '../utils/categories'
 import { IconBox, IconSearch, IconX } from '../components/icons'
@@ -20,7 +20,7 @@ export default function CatalogView() {
   const page = Number(params.get('page') ?? '1') || 1
 
   const [searchInput, setSearchInput] = useState(search)
-  const [openProductId, setOpenProductId] = useState<string | null>(null)
+  const [openProductSlug, setOpenProductSlug] = useState<string | null>(null)
 
   function patch(next: Record<string, string | null>) {
     const p = new URLSearchParams(params)
@@ -39,12 +39,12 @@ export default function CatalogView() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchInput])
 
-  const categories = useLoad(() => catalogAdmin.categories.list(), [])
+  const categories = useLoad(() => catalogApi.listCategories(), [])
   const tree = categories.data ? flattenTree(categories.data) : []
 
-  // Покупателю показываем только то, что реально продаётся
+  // публичное API само отдаёт только то, что реально продаётся
   const list = useLoad(
-    () => catalogAdmin.products.list({ search, categoryId, brandId: null, isActive: true, page, pageSize: PAGE_SIZE }),
+    () => catalogApi.searchProducts({ search, categoryId, page, pageSize: PAGE_SIZE }),
     [search, categoryId, page],
   )
 
@@ -87,7 +87,6 @@ export default function CatalogView() {
                     onClick={() => patch({ category: String(c.id), page: null })}
                   >
                     <span>{c.name}</span>
-                    {c.productsCount > 0 && <span className="catalog-category-count">{c.productsCount}</span>}
                   </button>
                 ))}
               </nav>
@@ -142,7 +141,7 @@ export default function CatalogView() {
             <>
               <div className="product-grid">
                 {list.data.items.map((p) => (
-                  <ProductCard key={p.id} product={p} onOpen={setOpenProductId} />
+                  <ProductCard key={p.id} product={p} onOpen={setOpenProductSlug} />
                 ))}
               </div>
               <Pagination page={page} pageSize={PAGE_SIZE} total={list.data.total} onChange={(p) => patch({ page: String(p) })} />
@@ -151,7 +150,7 @@ export default function CatalogView() {
         </div>
       </div>
 
-      <ProductQuickView productId={openProductId} onClose={() => setOpenProductId(null)} />
+      <ProductQuickView productSlug={openProductSlug} onClose={() => setOpenProductSlug(null)} />
     </AppShell>
   )
 }

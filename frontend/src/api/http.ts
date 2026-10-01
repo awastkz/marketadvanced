@@ -1,5 +1,6 @@
 import axios, { type InternalAxiosRequestConfig } from 'axios'
 import { useAuthStore } from '../stores/auth'
+import { getGuestId } from '../utils/guestId'
 
 /**
  * Один и тот же клиент (токен в заголовке, ретрай через refresh при 401),
@@ -14,6 +15,9 @@ function createHttp(baseURL: string) {
     const accessToken = useAuthStore.getState().accessToken
     if (accessToken) {
       config.headers.set('Authorization', `Bearer ${accessToken}`)
+    } else {
+      // гость: корзина на бэкенде привязывается к X-Guest-Id
+      config.headers.set('X-Guest-Id', getGuestId())
     }
     return config
   })

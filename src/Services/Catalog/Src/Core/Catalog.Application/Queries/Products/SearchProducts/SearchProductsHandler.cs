@@ -1,6 +1,7 @@
 using MediatR;
 using MarketAdvanced.Catalog.Application.Abstractions;
 using MarketAdvanced.Catalog.Application.Common;
+using MarketAdvanced.Catalog.Application.Common.Categories;
 using MarketAdvanced.Catalog.Application.Common.Products;
 
 namespace MarketAdvanced.Catalog.Application.Queries.Products.SearchProducts;
@@ -21,28 +22,15 @@ public sealed class SearchProductsHandler : IRequestHandler<SearchProductsQuery,
         // фильтр по категории включает все её подкатегории
         IReadOnlyCollection<Guid>? categoryIds = null;
         if (request.CategoryId is not null)
-            categoryIds = await DescendantIdsAsync(request.CategoryId.Value, cancellationToken);
+        {
+            var all = await _categories.ListAsync(cancellationToken);
+            categoryIds = CategoryTree.DescendantIds(all.Select(r => r.Category), request.CategoryId.Value);
+        }
 
         var filter = new ProductFilter(request.Search, categoryIds, request.BrandId, request.IsActive, request.Page, request.PageSize);
         var (items, total) = await _products.SearchAsync(filter, cancellationToken);
 
         // TODO: построитель URL фото появится вместе с S3-хранилищем
         return new Paged<ProductListItemResult>(items.Select(p => ProductListItemResult.From(p, path => path)).ToList(), total);
-    }
-
-    private async Task<IReadOnlyCollection<Guid>> DescendantIdsAsync(Guid rootId, CancellationToken ct)
-    {
-        var all = await _categories.ListAsync(ct);
-        var ids = new HashSet<Guid> { rootId };
-        var grew = true;
-        while (grew)
-        {
-            grew = false;
-            foreach (var (c, _) in all)
-            {
-                if (c.ParentId is not null && ids.Contains(c.ParentId.Value) && ids.Add(c.Id)) grew = true;
-            }
-        }
-        return ids;
     }
 }

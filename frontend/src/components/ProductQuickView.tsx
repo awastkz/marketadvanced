@@ -1,15 +1,15 @@
 import { useEffect, useState } from 'react'
 import Modal from './admin/Modal'
 import Alert from './Alert'
-import { catalogAdmin } from '../api/admin/catalog'
-import type { ProductDetails } from '../api/admin/types'
+import * as catalogApi from '../api/catalog'
+import type { PublicProductDetails } from '../api/catalog'
 import { useCartStore } from '../stores/cart'
 import { toast } from '../stores/toast'
 import { errorMessage, formatMoney } from '../utils/format'
 import { IconCart, IconImage } from './icons'
 
 interface ProductQuickViewProps {
-  productId: string | null
+  productSlug: string | null
   onClose: () => void
 }
 
@@ -18,15 +18,15 @@ interface ProductQuickViewProps {
  * позволяет добавить любой из них в корзину (по 1 шт., количество потом
  * меняется на странице корзины).
  */
-export default function ProductQuickView({ productId, onClose }: ProductQuickViewProps) {
-  const [product, setProduct] = useState<ProductDetails | null>(null)
+export default function ProductQuickView({ productSlug, onClose }: ProductQuickViewProps) {
+  const [product, setProduct] = useState<PublicProductDetails | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [busyVariantId, setBusyVariantId] = useState<string | null>(null)
   const addItem = useCartStore((s) => s.addItem)
 
   useEffect(() => {
-    if (productId == null) {
+    if (productSlug == null) {
       setProduct(null)
       return
     }
@@ -34,8 +34,8 @@ export default function ProductQuickView({ productId, onClose }: ProductQuickVie
     let alive = true
     setLoading(true)
     setError(null)
-    catalogAdmin.products
-      .get(productId)
+    catalogApi
+      .getProduct(productSlug)
       .then((p) => alive && setProduct(p))
       .catch((e) => alive && setError(errorMessage(e)))
       .finally(() => alive && setLoading(false))
@@ -43,7 +43,7 @@ export default function ProductQuickView({ productId, onClose }: ProductQuickVie
     return () => {
       alive = false
     }
-  }, [productId])
+  }, [productSlug])
 
   async function onAdd(variantId: string) {
     setBusyVariantId(variantId)
@@ -60,7 +60,7 @@ export default function ProductQuickView({ productId, onClose }: ProductQuickVie
   const mainImage = product?.images.find((i) => i.isMain) ?? product?.images[0]
 
   return (
-    <Modal open={productId != null} title={product?.name ?? 'Товар'} onClose={onClose} size="lg">
+    <Modal open={productSlug != null} title={product?.name ?? 'Товар'} onClose={onClose} size="lg">
       {loading && <span className="skeleton" style={{ display: 'block', height: 220 }} />}
       {error && <Alert kind="error">{error}</Alert>}
 
@@ -73,23 +73,22 @@ export default function ProductQuickView({ productId, onClose }: ProductQuickVie
 
             <div className="quickview-variants">
               {product.variants.map((v) => {
-                const disabled = !v.isActive || v.stock <= 0 || v.id == null
-                const busy = v.id != null && busyVariantId === v.id
+                const busy = busyVariantId === v.id
                 return (
-                  <div className="quickview-variant" key={v.id ?? v.sku}>
+                  <div className="quickview-variant" key={v.id}>
                     <div className="quickview-variant-info">
                       <span className="quickview-variant-name">{v.name || v.sku}</span>
                       <span className="mono muted">{v.sku}</span>
                     </div>
                     <span className="quickview-variant-price">{formatMoney(v.price)}</span>
-                    <span className={`pill ${v.stock > 0 ? 'pill-success' : 'pill-danger'}`}>
-                      {v.stock > 0 ? `В наличии: ${v.stock}` : 'Нет в наличии'}
+                    <span className={`pill ${v.inStock ? 'pill-success' : 'pill-danger'}`}>
+                      {v.inStock ? 'В наличии' : 'Нет в наличии'}
                     </span>
                     <button
                       type="button"
                       className="btn btn-primary btn-sm"
-                      disabled={disabled || busy}
-                      onClick={() => v.id != null && onAdd(v.id)}
+                      disabled={!v.inStock || busy}
+                      onClick={() => onAdd(v.id)}
                     >
                       <IconCart />
                       {busy ? 'Добавляем…' : 'В корзину'}

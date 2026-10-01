@@ -1,5 +1,8 @@
 using System.Reflection;
+using Hangfire;
+using Hangfire.PostgreSql;
 using MarketAdvanced.Host.Extensions;
+using MarketAdvanced.Host.Jobs;
 using MarketAdvanced.Shared.External.HealthChecks;
 using MarketAdvanced.Shared.External.Messaging;
 using MarketAdvanced.Shared.External.Observability;
@@ -33,6 +36,20 @@ if (!isOpenApiGeneration)
         ServicesExtensions.ConfigureOutbox(builder.Configuration),
         ServicesExtensions.ConsumerAssemblies(builder.Configuration));
 
+// Hangfire: задачи в Postgres (схема из Hangfire:Schema). При генерации OpenAPI не поднимаем: storage сразу лезет в БД.
+if (!isOpenApiGeneration)
+{
+    builder.Services.AddHangfire(cfg => cfg
+        .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+        .UseSimpleAssemblyNameTypeSerializer()
+        .UseRecommendedSerializerSettings()
+        .UsePostgreSqlStorage(
+            o => o.UseNpgsqlConnection(builder.Configuration.GetConnectionString("Postgres")),
+            new PostgreSqlStorageOptions { SchemaName = builder.Configuration["Hangfire:Schema"] ?? "hangfire" }));
+
+    builder.Services.AddHangfireServer();
+}
+
 // OpenAPI: документ на каждый поднятый сервис (/openapi/catalog.json ...) и внутренний для других сервисов (/openapi/catalog-internal.json), если есть.
 // Контроллеры попадают в документ по GroupName из ServiceGroupNameConvention.
 builder.Services.AddServiceOpenApi(builder.Configuration);
@@ -43,6 +60,13 @@ builder.AddObservability();
 var app = builder.Build();
 
 app.UseSharedWebApi();
+
+if (!isOpenApiGeneration)
+    app.UseHangfireDashboard("/hangfire", new DashboardOptions
+    {
+        // по умолчанию дашборд пускает только localhost; из docker запрос приходит с IP шлюза -> 401
+        Authorization = app.Environment.IsDevelopment() ? [new AllowAllDashboardFilter()] : [],
+    });
 
 if (ServicesExtensions.EnabledServices(builder.Configuration).Contains("Identity"))
 {

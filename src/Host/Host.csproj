@@ -24,6 +24,8 @@
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
     <PackageReference Include="SharpGrip.FluentValidation.AutoValidation.Mvc" />
     <PackageReference Include="StackExchange.Redis" />
+    <PackageReference Include="Hangfire.AspNetCore" />
+    <PackageReference Include="Hangfire.PostgreSql" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Services\Identity\Src\Presentation\Identity.WebApi\Identity.WebApi.csproj" />
