@@ -2,7 +2,6 @@ using System.Reflection;
 using Hangfire;
 using Hangfire.PostgreSql;
 using MarketAdvanced.Host.Extensions;
-using MarketAdvanced.Host.Jobs;
 using MarketAdvanced.Shared.External.HealthChecks;
 using MarketAdvanced.Shared.External.Messaging;
 using MarketAdvanced.Shared.External.Observability;
