@@ -21,6 +21,8 @@ x-app-env: &app-env
   Keycloak__MetadataAddress: "http://keycloak:8080/realms/marketadvanced/.well-known/openid-configuration"
   # телеметрия в otel-collector (override для dev), дальше Prometheus + Loki + Grafana
   OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector:4317"
+  # по умолчанию метрики уходят раз в 60 с: rate(...[1m]) в Grafana пустой, а на прогоне в пару минут всего 2-3 точки
+  OTEL_METRIC_EXPORT_INTERVAL: "5000"
   # каждый сервис поднимает свои консьюмеры MassTransit
   MassTransit__Consumers: "true"
   MassTransit__PrefetchCount: ${MASSTRANSIT_PREFETCH_COUNT:-16}

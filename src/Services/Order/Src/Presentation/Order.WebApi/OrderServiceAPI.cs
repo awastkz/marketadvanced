@@ -10,6 +10,10 @@ using MarketAdvanced.Order.Application.Services.Catalog;
 using MarketAdvanced.Order.External.Options;
 using MarketAdvanced.Order.External.Services.Catalog;
 using Microsoft.Extensions.Options;
+using System.Threading.Channels;
+using MarketAdvanced.Order.Application.Common;
+using MarketAdvanced.Order.WebApi.Workers;
+using MarketAdvanced.Order.Domain.Entities;
 
 namespace MarketAdvanced.Order.WebApi;
 
@@ -25,6 +29,14 @@ public static class OrderServiceAPI
             cfg.RegisterServicesFromAssembly(Application.AssemblyReference.Assembly);
             cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
         });
+
+        // services.AddSingleton(Channel.CreateBounded<Orders>(new BoundedChannelOptions(10_000)
+        // {
+        //     FullMode = BoundedChannelFullMode.Wait,
+        //     SingleReader = true,
+        // }));
+        // services.AddHostedService<OrderWorker>();
+
 
         services.AddDbContext<OrderDbContext>(
             opt => opt.UseNpgsql(config.GetConnectionString("Postgres"),

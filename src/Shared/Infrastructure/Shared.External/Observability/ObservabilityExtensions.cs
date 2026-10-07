@@ -6,10 +6,11 @@ using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using Serilog;
 
 namespace MarketAdvanced.Shared.External.Observability;
 
-/// <summary>OpenTelemetry: трассы, метрики, логи. Принимает builder, потому что трогает и Services, и Logging.</summary>
+/// <summary>OpenTelemetry: трассы, метрики, логи; сами логи пишет Serilog. Принимает builder, потому что трогает и Services, и Logging.</summary>
 public static class ObservabilityExtensions
 {
     public static IHostApplicationBuilder AddObservability(this IHostApplicationBuilder builder)
@@ -21,6 +22,9 @@ public static class ObservabilityExtensions
         builder.Services.AddOpenTelemetry()
             .ConfigureResource(r => r.AddService(serviceName))
             .WithTracing(t => t
+                // трассы временно выключены на время нагрузочных тестов: спаны на каждый запрос искажают замеры.
+                // Вернуть: убрать строку ниже
+                .SetSampler(new AlwaysOffSampler())
                 .AddAspNetCoreInstrumentation()
                 .AddHttpClientInstrumentation()
                 .AddNpgsql()
@@ -30,7 +34,20 @@ public static class ObservabilityExtensions
                 .AddAspNetCoreInstrumentation()
                 .AddHttpClientInstrumentation()
                 .AddRuntimeInstrumentation()   // GC, куча, очередь пула потоков, working set: dotnet_* в Prometheus
+                .AddMeter("MassTransit")       // сколько сообщений опубликовано, обработано и упало, по типу сообщения
                 .AddOtlpExporter());
+
+        // Логи пишет Serilog: уровни и формат в секции Serilog (appsettings), вывод в консоль.
+        // Встроенные провайдеры убираем, иначе каждая строка печаталась бы в консоль дважды.
+        // writeToProviders: Serilog передаёт события дальше в провайдер OpenTelemetry ниже, поэтому логи по-прежнему доходят до Loki.
+        builder.Logging.ClearProviders();
+        builder.Services.AddSerilog((services, logger) => logger
+            .ReadFrom.Configuration(builder.Configuration)
+            .ReadFrom.Services(services)
+            .Enrich.FromLogContext()
+            .Enrich.WithProperty("Service", serviceName)
+            .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {SourceContext}: {Message:lj}{NewLine}{Exception}"),
+            writeToProviders: true);
 
         builder.Logging.AddOpenTelemetry(o =>
         {

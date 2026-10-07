@@ -53,7 +53,7 @@
         },
         {
           "refId": "B",
-          "expr": "sum(rate(k6_http_reqs_total{name=\"products-list\"}[30s]))",
+          "expr": "sum(rate(k6_http_reqs_total[30s]))",
           "legendFormat": "req/s k6"
         }
       ]
@@ -81,13 +81,237 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "max(k6_http_req_duration_p95{name=\"products-list\"}) * 1000",
+          "expr": "max(k6_http_req_duration_p95) * 1000",
           "legendFormat": "p95 k6"
         },
         {
           "refId": "B",
-          "expr": "1000 * histogram_quantile(0.95, sum by (le) (rate(http_server_request_duration_seconds_bucket{service_name=\"catalog\",http_route=\"api/admin/Products\"}[1m])))",
-          "legendFormat": "p95 catalog"
+          "expr": "1000 * histogram_quantile(0.95, sum by (le) (rate(http_server_request_duration_seconds_bucket{http_route!~\"/health.*\"}[30s])))",
+          "legendFormat": "p95 сервер"
+        }
+      ]
+    },
+    {
+      "id": 40,
+      "type": "row",
+      "title": "Предел сервера",
+      "collapsed": false,
+      "gridPos": {
+        "x": 0,
+        "y": 9,
+        "w": 24,
+        "h": 1
+      }
+    },
+    {
+      "id": 41,
+      "type": "timeseries",
+      "title": "Подано против обработано, запросов/с",
+      "description": "Предел — там, где «успешно» перестаёт расти вслед за «хотели подать». Dropped: k6 не смог отправить запрос, потому что все его соединения заняты ожиданием ответа.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 10,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "min": 0
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(k6_iterations_total[30s])) + (sum(rate(k6_dropped_iterations_total[30s])) or vector(0))",
+          "legendFormat": "хотели подать"
+        },
+        {
+          "refId": "B",
+          "expr": "sum(rate(k6_http_reqs_total{status=~\"2..\"}[30s]))",
+          "legendFormat": "успешно (2xx)"
+        },
+        {
+          "refId": "C",
+          "expr": "sum(rate(k6_http_reqs_total{status!~\"2..\"}[30s])) or vector(0)",
+          "legendFormat": "ошибки и таймауты"
+        },
+        {
+          "refId": "D",
+          "expr": "sum(rate(k6_dropped_iterations_total[30s])) or vector(0)",
+          "legendFormat": "не отправлено (dropped)"
+        }
+      ]
+    },
+    {
+      "id": 42,
+      "type": "timeseries",
+      "title": "Загрузка CPU, % от всех ядер машины",
+      "description": "100% = заняты все ядра. «Вся машина» включает k6 и всё остальное на хосте.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 10,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "100 * sum(rate(container_cpu_usage_seconds_total{id=\"/\"}[30s])) / scalar(machine_cpu_cores)",
+          "legendFormat": "вся машина"
+        },
+        {
+          "refId": "B",
+          "expr": "label_replace(100 * sum by (name) (rate(container_cpu_usage_seconds_total{name=~\"marketadvanced-(app|postgres|rabbitmq|redis)-1\"}[30s])) / scalar(machine_cpu_cores), \"svc\", \"$1\", \"name\", \"marketadvanced-(.*)-1\")",
+          "legendFormat": "{{svc}}"
+        }
+      ]
+    },
+    {
+      "id": 43,
+      "type": "timeseries",
+      "title": "Соединения Postgres, % от лимита",
+      "description": "Все базы сервера против max_connections. У 100% Postgres отвечает «too many clients already» и запросы падают.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 18,
+        "w": 6,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "100 * sum(pg_stat_activity_count) / scalar(pg_settings_max_connections)",
+          "legendFormat": "занято"
+        }
+      ]
+    },
+    {
+      "id": 44,
+      "type": "timeseries",
+      "title": "Запросов в обработке одновременно",
+      "description": "Пока сервер справляется, число держится низким. Рост без возврата — запросы приходят быстрее, чем обрабатываются.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 6,
+        "y": 18,
+        "w": 6,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(http_server_active_requests)",
+          "legendFormat": "в обработке"
+        },
+        {
+          "refId": "B",
+          "expr": "sum(dotnet_thread_pool_queue_length_total)",
+          "legendFormat": "очередь пула потоков"
+        }
+      ]
+    },
+    {
+      "id": 45,
+      "type": "timeseries",
+      "title": "Память, % от машины",
+      "description": "Рабочий набор контейнера относительно всей памяти хоста.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 18,
+        "w": 6,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "label_replace(100 * max by (name) (container_memory_working_set_bytes{name=~\"marketadvanced-(app|postgres|rabbitmq|redis)-1\"}) / scalar(machine_memory_bytes), \"svc\", \"$1\", \"name\", \"marketadvanced-(.*)-1\")",
+          "legendFormat": "{{svc}}"
+        }
+      ]
+    },
+    {
+      "id": 46,
+      "type": "timeseries",
+      "title": "Исключения в приложении, в секунду",
+      "description": "Все исключения, брошенные в процессе, по типу — включая пойманные в try/catch (воркер, фильтр ошибок). Линия «всего» на нуле означает, что исключений нет.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 18,
+        "y": 18,
+        "w": 6,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (error_type) (rate(dotnet_exceptions_total[30s])) > 0",
+          "legendFormat": "{{error_type}}"
+        },
+        {
+          "refId": "B",
+          "expr": "sum(rate(dotnet_exceptions_total[30s])) or vector(0)",
+          "legendFormat": "всего"
         }
       ]
     },
@@ -98,7 +322,7 @@
       "collapsed": false,
       "gridPos": {
         "x": 0,
-        "y": 9,
+        "y": 26,
         "w": 24,
         "h": 1
       }
@@ -113,7 +337,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 10,
+        "y": 27,
         "w": 12,
         "h": 8
       },
@@ -142,7 +366,7 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 10,
+        "y": 27,
         "w": 12,
         "h": 8
       },
@@ -167,7 +391,7 @@
       "collapsed": false,
       "gridPos": {
         "x": 0,
-        "y": 18,
+        "y": 35,
         "w": 24,
         "h": 1
       }
@@ -182,7 +406,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 19,
+        "y": 36,
         "w": 8,
         "h": 8
       },
@@ -210,7 +434,7 @@
       },
       "gridPos": {
         "x": 8,
-        "y": 19,
+        "y": 36,
         "w": 8,
         "h": 8
       },
@@ -238,7 +462,7 @@
       },
       "gridPos": {
         "x": 16,
-        "y": 19,
+        "y": 36,
         "w": 8,
         "h": 8
       },
@@ -263,7 +487,7 @@
       "collapsed": false,
       "gridPos": {
         "x": 0,
-        "y": 27,
+        "y": 44,
         "w": 24,
         "h": 1
       }
@@ -278,7 +502,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 28,
+        "y": 45,
         "w": 12,
         "h": 8
       },
@@ -306,7 +530,7 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 28,
+        "y": 45,
         "w": 12,
         "h": 8
       },
@@ -326,6 +550,375 @@
           "refId": "B",
           "expr": "rate(pg_stat_database_xact_rollback{datname=\"marketadvanced\"}[1m])",
           "legendFormat": "rollback"
+        }
+      ]
+    },
+    {
+      "id": 33,
+      "type": "timeseries",
+      "title": "Строк в секунду: вставка, изменение, удаление",
+      "description": "Строки по всей базе marketadvanced. Заказ с одной позицией даёт две вставки.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 53,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "rate(pg_stat_database_tup_inserted{datname=\"marketadvanced\"}[30s])",
+          "legendFormat": "вставлено"
+        },
+        {
+          "refId": "B",
+          "expr": "rate(pg_stat_database_tup_updated{datname=\"marketadvanced\"}[30s])",
+          "legendFormat": "изменено"
+        },
+        {
+          "refId": "C",
+          "expr": "rate(pg_stat_database_tup_deleted{datname=\"marketadvanced\"}[30s])",
+          "legendFormat": "удалено"
+        }
+      ]
+    },
+    {
+      "id": 34,
+      "type": "timeseries",
+      "title": "Вставок в секунду по таблицам",
+      "description": "Восемь таблиц с наибольшим числом вставок.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 53,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "topk(8, rate(pg_stat_user_tables_n_tup_ins{datname=\"marketadvanced\"}[30s]) > 0)",
+          "legendFormat": "{{schemaname}}.{{relname}}"
+        }
+      ]
+    },
+    {
+      "id": 50,
+      "type": "row",
+      "title": "Redis",
+      "collapsed": false,
+      "gridPos": {
+        "x": 0,
+        "y": 61,
+        "w": 24,
+        "h": 1
+      }
+    },
+    {
+      "id": 51,
+      "type": "timeseries",
+      "title": "Команд в секунду по типу",
+      "description": "Какие команды и сколько раз выполняет Redis: get, set, del и остальные.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 62,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (cmd) (rate(redis_commands_total[30s])) > 0",
+          "legendFormat": "{{cmd}}"
+        }
+      ]
+    },
+    {
+      "id": 52,
+      "type": "timeseries",
+      "title": "Попадания и промахи кэша в секунду",
+      "description": "Попадание — ключ найден, промах — ключа нет.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 62,
+        "w": 6,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "rate(redis_keyspace_hits_total[30s])",
+          "legendFormat": "попадания"
+        },
+        {
+          "refId": "B",
+          "expr": "rate(redis_keyspace_misses_total[30s])",
+          "legendFormat": "промахи"
+        }
+      ]
+    },
+    {
+      "id": 53,
+      "type": "timeseries",
+      "title": "Клиенты и ключи",
+      "description": "Число соединений с Redis и всего ключей во всех базах.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 18,
+        "y": 62,
+        "w": 6,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "redis_connected_clients",
+          "legendFormat": "подключено клиентов"
+        },
+        {
+          "refId": "B",
+          "expr": "sum(redis_db_keys)",
+          "legendFormat": "ключей"
+        }
+      ]
+    },
+    {
+      "id": 60,
+      "type": "row",
+      "title": "Сообщения: RabbitMQ и MassTransit",
+      "collapsed": false,
+      "gridPos": {
+        "x": 0,
+        "y": 70,
+        "w": 24,
+        "h": 1
+      }
+    },
+    {
+      "id": 61,
+      "type": "timeseries",
+      "title": "Брокер: сообщений в секунду",
+      "description": "Если «опубликовано» выше «подтверждено», очередь растёт: потребители не успевают.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 71,
+        "w": 8,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(rabbitmq_global_messages_received_total[30s]))",
+          "legendFormat": "опубликовано"
+        },
+        {
+          "refId": "B",
+          "expr": "sum(rate(rabbitmq_global_messages_delivered_total[30s]))",
+          "legendFormat": "доставлено потребителям"
+        },
+        {
+          "refId": "C",
+          "expr": "sum(rate(rabbitmq_global_messages_acknowledged_total[30s]))",
+          "legendFormat": "подтверждено (обработано)"
+        },
+        {
+          "refId": "D",
+          "expr": "sum(rate(rabbitmq_global_messages_redelivered_total[30s]))",
+          "legendFormat": "доставлено повторно"
+        },
+        {
+          "refId": "E",
+          "expr": "sum(rate(rabbitmq_global_messages_unroutable_dropped_total[30s]))",
+          "legendFormat": "некуда доставить"
+        }
+      ]
+    },
+    {
+      "id": 62,
+      "type": "timeseries",
+      "title": "Сообщений в очередях",
+      "description": "Длина каждой очереди. Рост без возврата — потребители не справляются.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 8,
+        "y": 71,
+        "w": 8,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "rabbitmq_queue_messages_ready{queue!~\".*_(error|skipped)\"}",
+          "legendFormat": "{{queue}}: ждут"
+        },
+        {
+          "refId": "B",
+          "expr": "rabbitmq_queue_messages_unacked{queue!~\".*_(error|skipped)\"} > 0",
+          "legendFormat": "{{queue}}: в обработке"
+        }
+      ]
+    },
+    {
+      "id": 63,
+      "type": "timeseries",
+      "title": "Упавшие сообщения (очереди _error)",
+      "description": "MassTransit после всех повторов кладёт сообщение в очередь <имя>_error. Здесь сколько их там лежит.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 16,
+        "y": 71,
+        "w": 8,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "rabbitmq_queue_messages{queue=~\".*_(error|skipped)\"}",
+          "legendFormat": "{{queue}}"
+        }
+      ]
+    },
+    {
+      "id": 64,
+      "type": "timeseries",
+      "title": "MassTransit: обработано в секунду, по типу сообщения",
+      "description": "Успешно и неуспешно завершённые вызовы консьюмеров.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 79,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (messaging_masstransit_message_type) (rate(messaging_masstransit_consume_total[30s]))",
+          "legendFormat": "{{messaging_masstransit_message_type}}"
+        }
+      ]
+    },
+    {
+      "id": 65,
+      "type": "timeseries",
+      "title": "MassTransit: упало в секунду, по типу сообщения и ошибке",
+      "description": "Исключения в консьюмерах. Каждая попытка повтора считается отдельно.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 79,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (messaging_masstransit_message_type, messaging_masstransit_exception_type) (rate(messaging_masstransit_consume_fault_total[30s]))",
+          "legendFormat": "{{messaging_masstransit_message_type}}: {{messaging_masstransit_exception_type}}"
         }
       ]
     }

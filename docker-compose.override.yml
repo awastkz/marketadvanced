@@ -128,7 +128,7 @@ services:
       - "4317:4317"   # OTLP gRPC, для запуска api с хоста через dotnet run
       - "4318:4318"   # OTLP HTTP
     depends_on:
-      # - prometheus
+      - prometheus
       - loki
       - tempo
 
@@ -141,19 +141,19 @@ services:
     ports:
       - "3200:3200"
 
-  # Prometheus и Grafana временно отключены. Вернуть: раскомментировать блоки ниже, prometheus в depends_on otel-collector и тома.
-  # prometheus:
-  #   image: prom/prometheus:latest
-  #   command:
-  #     - --config.file=/etc/prometheus/prometheus.yml
-  #     - --web.enable-otlp-receiver
-  #     - --web.enable-remote-write-receiver   # сюда k6 пишет свои метрики (ops/k6/run.sh)
-  #     - --storage.tsdb.retention.time=7d
-  #   volumes:
-  #     - ./ops/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-  #     - prometheus_data:/prometheus
-  #   ports:
-  #     - "9090:9090"
+  # Метрики: принимает OTLP от collector и remote write от k6, сам опрашивает cadvisor и postgres-exporter
+  prometheus:
+    image: prom/prometheus:latest
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --web.enable-otlp-receiver
+      - --web.enable-remote-write-receiver   # сюда k6 пишет свои метрики (ops/k6/run.sh)
+      - --storage.tsdb.retention.time=7d
+    volumes:
+      - ./ops/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
 
   # CPU и память каждого контейнера: container_* в Prometheus
   cadvisor:
@@ -178,6 +178,18 @@ services:
     ports:
       - "9187:9187"
 
+  # Команды, память, клиенты Redis: redis_* в Prometheus
+  redis-exporter:
+    image: oliver006/redis_exporter:latest
+    environment:
+      REDIS_ADDR: "redis://redis:6379"
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    depends_on:
+      redis:
+        condition: service_healthy
+    ports:
+      - "9121:9121"
+
   loki:
     image: grafana/loki:3.4.2
     command: ["-config.file=/etc/loki/loki.yaml"]
@@ -187,23 +199,22 @@ services:
     ports:
       - "3100:3100"
 
-  # временно отключена, см. комментарий у prometheus
-  # grafana:
-  #   image: grafana/grafana:latest
-  #   environment:
-  #     GF_AUTH_ANONYMOUS_ENABLED: "true"
-  #     GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
-  #     GF_AUTH_DISABLE_LOGIN_FORM: "true"
-  #     GF_SECURITY_ALLOW_EMBEDDING: "true"
-  #   volumes:
-  #     - ./ops/grafana/provisioning:/etc/grafana/provisioning:ro
-  #     - grafana_data:/var/lib/grafana
-  #   ports:
-  #     - "3000:3000"
-  #   depends_on:
-  #     - prometheus
-  #     - loki
-  #     - tempo
+  grafana:
+    image: grafana/grafana:latest
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
+      GF_AUTH_DISABLE_LOGIN_FORM: "true"
+      GF_SECURITY_ALLOW_EMBEDDING: "true"
+    volumes:
+      - ./ops/grafana/provisioning:/etc/grafana/provisioning:ro
+      - grafana_data:/var/lib/grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+      - loki
+      - tempo
 
 volumes:
   app_artifacts:
@@ -212,7 +223,7 @@ volumes:
   cart_artifacts:
   order_artifacts:
   payment_artifacts:
-  # prometheus_data:
+  prometheus_data:
   loki_data:
   tempo_data:
-  # grafana_data:
+  grafana_data:

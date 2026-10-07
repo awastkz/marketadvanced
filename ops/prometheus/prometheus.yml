@@ -2,7 +2,7 @@
 # promote_resource_attributes переносит service.name в лейбл service_name, иначе сервисы не различить.
 
 global:
-  scrape_interval: 15s
+  scrape_interval: 5s
 
 otlp:
   promote_resource_attributes:
@@ -25,3 +25,13 @@ scrape_configs:
   - job_name: postgres
     static_configs:
       - targets: ['postgres-exporter:9187']
+
+  - job_name: redis
+    static_configs:
+      - targets: ['redis-exporter:9121']
+
+  # встроенный плагин rabbitmq_prometheus; per-object отдаёт метрики по каждой очереди, а не только суммы
+  - job_name: rabbitmq
+    metrics_path: /metrics/per-object
+    static_configs:
+      - targets: ['rabbitmq:15692']

@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Нагрузка</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f6f7f9; --card: #fff; --line: #d9dde3; --text: #1b1f24; --muted: #667085;
+    --go: #1a7f4b; --stop: #c0392b; --idle: #8a94a3;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #111418; --card: #1a1e24; --line: #2c333c; --text: #e6e9ee; --muted: #98a2b3; --go: #2ea36a; --stop: #e05a4b; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 16px; background: var(--bg); color: var(--text); font: 15px/1.4 system-ui, sans-serif; }
+  main { max-width: 1400px; margin: 0 auto; display: grid; gap: 16px; }
+  section { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 16px; }
+  .row { display: grid; grid-template-columns: 110px 1fr 150px 150px; gap: 12px; }
+  label { display: grid; gap: 4px; font-size: 13px; color: var(--muted); }
+  input, select, textarea, button { font: inherit; color: var(--text); background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; width: 100%; }
+  textarea { font-family: ui-monospace, monospace; font-size: 13px; min-height: 64px; resize: vertical; }
+  .rate { font-size: 20px; font-weight: 600; }
+  .actions { display: flex; gap: 12px; align-items: center; margin-top: 12px; flex-wrap: wrap; }
+  button { width: auto; padding: 10px 28px; font-weight: 600; color: #fff; border: 0; cursor: pointer; }
+  #start { background: var(--go); }
+  #stop { background: var(--stop); }
+  button:disabled { opacity: .4; cursor: default; }
+  #state { display: flex; align-items: center; gap: 8px; }
+  #dot { width: 10px; height: 10px; border-radius: 50%; background: var(--idle); }
+  .running #dot { background: var(--go); }
+  #error { color: var(--stop); }
+  pre { margin: 0; max-height: 240px; overflow: auto; font: 12px/1.5 ui-monospace, monospace; white-space: pre-wrap; color: var(--muted); }
+  iframe { width: 100%; height: 900px; border: 0; border-radius: 6px; }
+  h2 { margin: 0 0 12px; font-size: 14px; font-weight: 600; }
+  @media (max-width: 720px) { .row { grid-template-columns: 1fr 1fr; } .row label:nth-child(2) { grid-column: 1 / -1; order: -1; } }
+</style>
+</head>
+<body>
+<main>
+  <section>
+    <div class="row">
+      <label>Метод
+        <select id="method"><option>POST</option><option>GET</option><option>PUT</option><option>DELETE</option></select>
+      </label>
+      <label>Адрес
+        <input id="url" value="http://localhost:5080/api/orders">
+      </label>
+      <label>Запросов в секунду
+        <input id="rate" class="rate" type="number" min="1" max="100000" value="100">
+      </label>
+      <label>Длительность
+        <input id="duration" placeholder="до кнопки «Стоп»" title="Например 30s, 3m. Пусто — пока не остановите">
+      </label>
+    </div>
+    <label style="margin-top:12px">Тело запроса (JSON)
+      <textarea id="body">{"items":[{"variantId":"86f13bdb-76fd-4eb8-a54e-7c259f6718d0","quantity":1}]}</textarea>
+    </label>
+    <div class="actions">
+      <button id="start">Старт</button>
+      <button id="stop" disabled>Стоп</button>
+      <span id="state"><span id="dot"></span><span id="stateText">Остановлено</span></span>
+      <span id="error"></span>
+    </div>
+  </section>
+
+  <section>
+    <h2>Вывод k6</h2>
+    <pre id="log">Нагрузка ещё не запускалась.</pre>
+  </section>
+
+  <section>
+    <h2>Графики</h2>
+    <iframe id="grafana" title="Grafana: нагрузка и ресурсы"></iframe>
+  </section>
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id)
+const fields = ['method', 'url', 'rate', 'duration', 'body']
+
+// значения формы переживают перезагрузку страницы
+try {
+  const saved = JSON.parse(localStorage.getItem('k6-panel') || '{}')
+  for (const f of fields) if (saved[f] !== undefined) $(f).value = saved[f]
+} catch {}
+
+$('grafana').src = `http://${location.hostname}:3000/d/ma-infra/?kiosk&refresh=5s&from=now-5m&to=now`
+
+let wasRunning = false
+
+function render(s) {
+  document.body.classList.toggle('running', s.running)
+  $('stop').disabled = !s.running
+  // во время прогона «Старт» перезапускает k6 с новыми значениями
+  $('start').textContent = s.running ? 'Применить' : 'Старт'
+  if (s.running) {
+    const sec = Math.floor(Date.now() / 1000 - s.startedAt)
+    $('stateText').textContent = `Идёт: ${s.params.rate} запросов/с на ${s.params.method} ${s.params.url}, ${sec} с`
+  } else {
+    $('stateText').textContent = 'Остановлено'
+  }
+  if (s.log.length) {
+    const log = $('log')
+    const atBottom = log.scrollTop + log.clientHeight >= log.scrollHeight - 20
+    log.textContent = s.log.join('\n')
+    if (atBottom || s.running !== wasRunning) log.scrollTop = log.scrollHeight
+  }
+  wasRunning = s.running
+}
+
+async function call(path, data) {
+  $('error').textContent = ''
+  const r = await fetch(path, data === undefined ? {} : {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+  const json = await r.json()
+  if (!r.ok) throw new Error(json.message || `ошибка ${r.status}`)
+  render(json)
+}
+
+$('start').onclick = () => {
+  const data = Object.fromEntries(fields.map((f) => [f, $(f).value]))
+  try { localStorage.setItem('k6-panel', JSON.stringify(data)) } catch {}
+  call('/api/start', data).catch((e) => { $('error').textContent = e.message })
+}
+$('stop').onclick = () => call('/api/stop', {}).catch((e) => { $('error').textContent = e.message })
+
+async function poll() {
+  try { render(await (await fetch('/api/status')).json()) }
+  catch { $('stateText').textContent = 'Панель не отвечает: запущен ли ops/k6/panel.py?' }
+}
+poll()
+setInterval(poll, 1000)
+</script>
+</body>
+</html>

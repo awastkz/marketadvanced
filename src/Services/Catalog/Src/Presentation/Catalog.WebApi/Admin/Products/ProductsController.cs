@@ -50,11 +50,13 @@ public class ProductsController: ControllerBase
       return Ok(await _mediator.Send(new GetProductQuery(id), ct));
   }
 
+  // временно открыт для всех на время нагрузочных тестов; без токена автором становится Guid.Empty
   [HttpPost]
+  [AllowAnonymous]
   public async Task<IActionResult> create([FromBody] ProductRequest request, CancellationToken ct)
   {
       var command = new CreateProductCommand(
-          _currentUser.Id,
+          _currentUser.IsAuthenticated ? _currentUser.Id : Guid.Empty,
           request.Name,
           request.Slug,
           request.Description,
